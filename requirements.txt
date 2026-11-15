@@ -1,0 +1,3 @@
+# Dependencies live in pyproject.toml. This installs the project in editable mode
+# with analysis + dev extras (what PyCharm needs):
+-e .[analysis,dev]
