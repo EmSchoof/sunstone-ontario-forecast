@@ -1,4 +1,5 @@
 """Run the real SQL against tiny hand-made raw tables in an in-memory DuckDB."""
+
 import duckdb
 import pytest
 
@@ -21,9 +22,10 @@ def con():
         ('Ontario', 2017, 'Transient Occupancy Taxes_General Revenues', 12.0, 172000)
         ) t(entity_name, fiscal_year, line_description, value, estimated_population)""")
     # CPI flat at 100 for full fiscal years 2015-2017 (Jul 2014 .. Jun 2017)
+    # Explicit AS: `value` is a keyword in DuckDB >= 1.5, so implicit aliases fail to parse.
     c.execute("""create table raw.fred_observations as
-        select 'CUURS49ASA0' series_id, d::date obs_date, 100.0 value
-        from range(date '2014-07-01', date '2017-07-01', interval 1 month) r(d)""")
+        select 'CUURS49ASA0' as series_id, d::date as obs_date, 100.0 as value
+        from range(date '2014-07-01', date '2017-07-01', interval 1 month) as r(d)""")
     c.execute("""create table raw.laus_city_monthly as select * from (values
         ('Ontario city', 2015, 'June', 'N', 100.0, 95.0, 5.0, 5.0, 'Final'),
         ('Ontario city', 2015, 'July', 'N', 100.0, 95.0, 5.0, 5.0, 'Final')
@@ -57,6 +59,17 @@ def test_fiscal_year_boundary(con):
 def test_partial_fiscal_years_excluded_from_panel(con):
     # LAUS has 1 month per FY -> must not appear in the panel
     assert con.execute("select count(laus_employment) from marts.ontario_fy_panel").fetchone()[0] == 0
+
+
+def test_fred_series_ids_come_from_config(con):
+    # CPI is joined by column name via staging.fred_series, so the deflator resolves
+    assert con.execute("select count(cpi_la) from marts.ontario_fy_panel").fetchone()[0] == 3
+
+
+def test_headline_metrics_prefer_official_values(con):
+    rows = dict(con.execute("select metric, is_fallback from marts.headline_metrics").fetchall())
+    assert rows["tot_revenue_actual"] is False  # State Controller value used
+    assert rows["tot_fy27_budget"] is True  # no City budget loaded -> labeled fallback
 
 
 def test_checks_pass_on_clean_data(con):

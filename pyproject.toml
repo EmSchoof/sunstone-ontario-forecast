@@ -3,11 +3,11 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ontario-forecast"
+name = "sunstone-ontario-forecast"
 version = "0.1.0"
 description = "Data pipeline and forecasting for the Connecting Ontario Sunstone proposal"
 requires-python = ">=3.10"
-# Runtime (pipeline + deployable model): no pandas.
+# Runtime (pipeline + deployable model). The model itself imports only numpy + json.
 dependencies = [
     "dlt[duckdb]>=1.4",
     "duckdb>=1.1",
@@ -15,10 +15,18 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Analysis-time only. statsmodels imports pandas internally; it is used for
-# unit-root tests in analysis/ and is never imported by the model.
-analysis = ["matplotlib>=3.8", "statsmodels>=0.14"]
-dev = ["pytest>=8", "ruff>=0.6"]
+# Analysis & reporting. statsmodels/scipy are imported function-by-function
+# (no statsmodels.api). statsmodels brings pandas; that stays out of model.py.
+analysis = [
+    "matplotlib>=3.8",
+    "scipy>=1.11",
+    "statsmodels>=0.15",   # result_object= argument on adfuller/kpss
+]
+dev = [
+    "pre-commit>=3.7",
+    "pytest>=8",
+    "ruff>=0.6",
+]
 
 [project.scripts]
 ontario-ingest = "ontario_forecast.ingest.run:main"
@@ -35,3 +43,15 @@ testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes, isort, bugbear, pyupgrade, numpy-specific rules
+select = ["E", "F", "I", "B", "UP", "NPY"]
+
+[tool.ruff.lint.per-file-ignores]
+# Analysis scripts are cell-based: matplotlib backend must be set before later imports
+"analysis/*.py" = ["E402", "E731"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ontario_forecast"]

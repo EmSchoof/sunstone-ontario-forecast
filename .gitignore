@@ -1,20 +1,47 @@
-# Environments / tooling
-.venv/
+# --- Python / tooling ---------------------------------------------------
 __pycache__/
+*.py[cod]
 *.egg-info/
+build/
+dist/
+.venv/
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# uv: commit uv.lock and .python-version; nothing else from uv to ignore
+
+# --- IDE / OS ----------------------------------------------------------
 .idea/
+.vscode/
 .DS_Store
 
-# dlt state and secrets
-.dlt_pipelines/
+# --- Secrets (API keys) -------------------------------------------------
+.env
+.env.*
 .dlt/secrets.toml
+.dlt/*.secrets.toml
 
-# Generated data (rebuildable from the pipeline)
+# --- dlt state ----------------------------------------------------------
+.dlt_pipelines/
+
+# --- Generated data (rebuildable from the pipeline) ---------------------
+data/raw/
 data/warehouse/
 data/processed/
-reports/figures/
+*.duckdb
+*.duckdb.wal
+*.csv.gz
+*.parquet
 
-# Keep hand-entered data and its docs
-!data/manual/
+# --- Generated analysis output -------------------------------------------
+reports/figures/
+reports/variable_selection.csv
+
+# Tracked on purpose:
+#   data/manual/        hand-entered, cited source data
+#   models/*.json       fitted coefficients (small, reviewable)
+#   reports/final/      deliverable charts + scenarios_summary.csv

@@ -1,3 +1,3 @@
-# Dependencies live in pyproject.toml. This installs the project in editable mode
-# with analysis + dev extras (what PyCharm needs):
+# Prefer uv (`uv sync --all-extras`, uses uv.lock). This file is a pip fallback:
+#   pip install -r requirements.txt
 -e .[analysis,dev]

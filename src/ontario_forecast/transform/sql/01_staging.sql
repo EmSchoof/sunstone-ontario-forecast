@@ -14,6 +14,29 @@ create table if not exists raw.lodes_ontario_flows (
     includes_aux boolean, ontario_blocks bigint
 );
 
+-- Optional sources (API key / not yet loaded): empty shells keep SQL valid.
+create table if not exists raw.acs_place (
+    year bigint, geo varchar, acs_group varchar, variable varchar, label varchar,
+    estimate double, moe double
+);
+create table if not exists raw.oews_msa_occupations (
+    series_id varchar, soc varchar, occupation varchar, pathway varchar, measure varchar,
+    year bigint, value double
+);
+
+create table if not exists raw.manual_city_budget_revenue (
+    fy varchar, tot_budget varchar, sales_tax_budget varchar, source varchar
+);
+
+-- City adopted budget (hand-entered from the budget document; cite page in `source`)
+create or replace table staging.city_budget as
+select try_cast(fy as integer)                                   as fy,
+       try_cast(replace(tot_budget, ',', '') as double)          as tot_budget,
+       try_cast(replace(sales_tax_budget, ',', '') as double)    as sales_tax_budget,
+       source
+from raw.manual_city_budget_revenue
+where try_cast(fy as integer) is not null;
+
 -- State Controller: city tax revenue by fiscal year ------------------------
 -- * TOT line was renamed in FY2017 ("Transient Lodging" -> "Transient Occupancy").
 -- * FY2005-FY2016 "triple flip": part of the 1% Bradley-Burns sales tax was paid to
@@ -83,3 +106,15 @@ select
     live_and_work_high_wage / nullif(residents_high_wage, 0)               as share_high_wage_residents_work_local,
     includes_aux
 from raw.lodes_ontario_flows;
+
+-- ACS 5-year: long, readable labels. `year` = final year of the 5-year window.
+create or replace table staging.acs_place as
+select year::integer as acs_year, year::integer - 4 as window_start, geo, acs_group, variable,
+       replace(replace(replace(label, 'Estimate!!', ''), ':', ''), '!!', ' > ') as label,
+       estimate, moe
+from raw.acs_place;
+
+-- OEWS: one row per occupation x year x measure
+create or replace table staging.oews_msa as
+select soc, occupation, pathway, measure, year::integer as year, value
+from raw.oews_msa_occupations where value is not null;

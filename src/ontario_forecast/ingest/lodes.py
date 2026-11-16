@@ -5,6 +5,7 @@ Python row by row would be slow, so DuckDB streams the remote .csv.gz, joins it 
 Ontario's census blocks, and returns ONE aggregated row per year. Only those
 aggregates are loaded into the warehouse by dlt.
 """
+
 from __future__ import annotations
 
 from collections.abc import Sequence
@@ -17,17 +18,22 @@ with od as (
     select w_geocode, h_geocode, S000, SE03
     from read_csv({files}, header = true,
                   types = {{'w_geocode': 'VARCHAR', 'h_geocode': 'VARCHAR'}})
+),
+flagged as (
+    -- computed once: does the job / the home sit in an Ontario block?
+    select S000, SE03, w.block is not null as works_in, h.block is not null as lives_in
+    from od
+    left join ontario_blocks w on od.w_geocode = w.block
+    left join ontario_blocks h on od.h_geocode = h.block
 )
 select
-    coalesce(sum(S000) filter (where w.block is not null), 0)                       as jobs_in_ontario,
-    coalesce(sum(S000) filter (where h.block is not null), 0)                       as employed_residents,
-    coalesce(sum(S000) filter (where w.block is not null and h.block is not null), 0) as live_and_work,
-    coalesce(sum(SE03) filter (where w.block is not null), 0)                       as jobs_high_wage,
-    coalesce(sum(SE03) filter (where h.block is not null), 0)                       as residents_high_wage,
-    coalesce(sum(SE03) filter (where w.block is not null and h.block is not null), 0) as live_and_work_high_wage
-from od
-left join ontario_blocks w on od.w_geocode = w.block
-left join ontario_blocks h on od.h_geocode = h.block
+    coalesce(sum(S000) filter (where works_in), 0)             as jobs_in_ontario,
+    coalesce(sum(S000) filter (where lives_in), 0)             as employed_residents,
+    coalesce(sum(S000) filter (where works_in and lives_in), 0) as live_and_work,
+    coalesce(sum(SE03) filter (where works_in), 0)             as jobs_high_wage,
+    coalesce(sum(SE03) filter (where lives_in), 0)             as residents_high_wage,
+    coalesce(sum(SE03) filter (where works_in and lives_in), 0) as live_and_work_high_wage
+from flagged
 """
 
 
@@ -52,4 +58,4 @@ def aggregate_flows(con: duckdb.DuckDBPyConnection, files: Sequence[str]) -> dic
     file_list = "[" + ", ".join("'" + f.replace("'", "''") + "'" for f in files) + "]"
     cur = con.execute(_AGG_SQL.format(files=file_list))
     cols = [d[0] for d in cur.description]
-    return {c: int(v) for c, v in zip(cols, cur.fetchone())}
+    return {c: int(v) for c, v in zip(cols, cur.fetchone(), strict=True)}

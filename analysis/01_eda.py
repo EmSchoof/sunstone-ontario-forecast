@@ -12,22 +12,22 @@
 #
 # Run cell by cell in PyCharm (Scientific mode) or top-to-bottom:
 #   python analysis/01_eda.py
-# Requires: the ingest + transform steps (see README). Uses numpy/matplotlib;
-# statsmodels only for unit-root tests (analysis-time dependency).
+# Requires: the ingest + transform steps (see README). Stats via targeted
+# statsmodels/scipy imports in ontario_forecast.stats.
 
 # %%
-import warnings
-
 import matplotlib.pyplot as plt
 import numpy as np
 
 from ontario_forecast import config
-from ontario_forecast.db import fetch
+from ontario_forecast.db import fetch, load_panel
+from ontario_forecast.features import shock_mask
+from ontario_forecast.stats import pearson, unit_root
 
 config.FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-P = fetch("select * from marts.ontario_fy_panel order by fy")
+P = load_panel()
 fy = P["fy"]
-covid = np.isin(fy, config.COVID_SHOCK_FYS)
+covid = shock_mask(fy, config.COVID_SHOCK_FYS)
 
 
 def savefig(name: str) -> None:
@@ -37,8 +37,13 @@ def savefig(name: str) -> None:
 
 
 def shade_covid(ax) -> None:
-    ax.axvspan(min(config.COVID_SHOCK_FYS) - 0.5, max(config.COVID_SHOCK_FYS) + 0.5,
-               color="0.85", zorder=0, label="COVID shock FYs")
+    ax.axvspan(
+        min(config.COVID_SHOCK_FYS) - 0.5,
+        max(config.COVID_SHOCK_FYS) + 0.5,
+        color="0.85",
+        zorder=0,
+        label="COVID shock FYs",
+    )
 
 
 # %% [markdown]
@@ -49,9 +54,9 @@ def shade_covid(ax) -> None:
 # %%
 print(f"{'variable':45s} {'n':>4s}  {'first':>5s}-{'last':<5s}")
 for k, v in P.items():
-    if k == "fy" or v.dtype.kind not in "f":
+    if k == "fy" or v.dtype.kind not in "fiu":
         continue
-    ok = ~np.isnan(v)
+    ok = ~np.isnan(v.astype(float))
     if ok.any():
         print(f"{k:45s} {ok.sum():4d}  {fy[ok].min():5d}-{fy[ok].max():<5d}")
 
@@ -76,8 +81,10 @@ savefig("01_sales_tax_triple_flip")
 
 # %%
 fig, axes = plt.subplots(1, 2, figsize=(12, 4))
-for ax, col, title in [(axes[0], "tot_revenue", "Transient Occupancy Tax"),
-                       (axes[1], "sales_tax_total", "Sales tax (consistent)")]:
+for ax, col, title in [
+    (axes[0], "tot_revenue", "Transient Occupancy Tax"),
+    (axes[1], "sales_tax_total", "Sales tax (consistent)"),
+]:
     ax.plot(fy, P[col] / 1e6, label="nominal")
     ax.plot(fy, P[col + "_real"] / 1e6, lw=2, label=f"real (FY{fy.max()} $)")
     shade_covid(ax)
@@ -106,8 +113,6 @@ for ax in axes:
 savefig("03_levels_vs_growth")
 
 # Demonstration: correlation in levels vs growth
-from ontario_forecast.stats import pearson  # noqa: E402
-
 for a, b in [("tot_revenue_real", "population"), ("dlog_tot_real", "dlog_population")]:
     c = pearson(P[a], P[b])
     print(f"corr({a}, {b}) = {c.r:+.2f}  95% CI [{c.lo:+.2f}, {c.hi:+.2f}]  n={c.n}")
@@ -121,19 +126,18 @@ print("-> a high level correlation that vanishes in growth rates is a shared tre
 # rates rests mainly on economics + the plots above.
 
 # %%
-from statsmodels.tsa.stattools import adfuller, kpss  # noqa: E402  (analysis-only dependency)
-
 print(f"{'series':28s} {'n':>3s} {'ADF p':>7s} {'KPSS p':>7s}  verdict")
-for col in ["tot_revenue_real", "sales_tax_total_real", "msa_leisure_jobs_k",
-            "dlog_tot_real", "dlog_sales_tax_real", "dlog_msa_leisure_jobs"]:
-    x = P[col][~np.isnan(P[col])]
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")  # KPSS p-values are table-bounded at 0.01/0.10
-        p_adf = adfuller(x, maxlag=2, autolag="AIC")[1]
-        p_kpss = kpss(x, regression="c", nlags="auto")[1]
-    verdict = ("stationary" if p_adf < 0.10 and p_kpss > 0.05 else
-               "non-stationary" if p_adf >= 0.10 and p_kpss <= 0.05 else "inconclusive")
-    print(f"{col:28s} {len(x):3d} {p_adf:7.3f} {p_kpss:7.3f}  {verdict}")
+for col in [
+    "tot_revenue_real",
+    "sales_tax_total_real",
+    "msa_leisure_jobs_k",
+    "dlog_tot_real",
+    "dlog_sales_tax_real",
+    "dlog_msa_leisure_jobs",
+]:
+    u = unit_root(P[col])
+    print(f"{col:28s} {u.n:3d} {u.adf_p:7.3f} {u.kpss_p:7.3f}  {u.verdict}")
+print("KPSS p-values are bounded to [0.01, 0.10] by statsmodels' lookup table.")
 
 # %% [markdown]
 # ## 6. The COVID shock
@@ -144,9 +148,11 @@ for col in ["tot_revenue_real", "sales_tax_total_real", "msa_leisure_jobs_k",
 g = P["dlog_tot_real"]
 ok = ~np.isnan(g)
 print(f"real TOT growth, all years:      mean {np.nanmean(g):+.3f}  sd {np.nanstd(g):.3f}  n={ok.sum()}")
-print(f"real TOT growth, ex-COVID FYs:   mean {np.nanmean(g[~covid]):+.3f}  "
-      f"sd {np.nanstd(g[~covid]):.3f}  n={(ok & ~covid).sum()}")
-share = np.nansum(g[covid] ** 2) / np.nansum(g ** 2)
+print(
+    f"real TOT growth, ex-COVID FYs:   mean {np.nanmean(g[~covid]):+.3f}  "
+    f"sd {np.nanstd(g[~covid]):.3f}  n={(ok & ~covid).sum()}"
+)
+share = np.nansum(g[covid] ** 2) / np.nansum(g**2)
 print(f"COVID FYs account for {share:.0%} of total squared growth variation")
 
 # %% [markdown]
@@ -155,8 +161,10 @@ print(f"COVID FYs account for {share:.0%} of total squared growth variation")
 # per-capita variables share a denominator and correlate mechanically.
 
 # %%
-C = fetch("select city, fy, tot_revenue_real / population as v from marts.city_tax_fy "
-          "where tot_revenue_real is not null order by city, fy")
+C = fetch(
+    "select city, fy, tot_revenue_real / population as v from marts.city_tax_fy "
+    "where tot_revenue_real is not null order by city, fy"
+)
 fig, ax = plt.subplots(figsize=(9, 4))
 base_fy = 2015
 for city in np.unique(C["city"]):
@@ -164,9 +172,13 @@ for city in np.unique(C["city"]):
     f, v = C["fy"][m], C["v"][m]
     if base_fy in f and v[f == base_fy][0] > 0:
         idx = 100 * v / v[f == base_fy][0]
-        ax.plot(f, idx, lw=2.5 if city == config.CITY else 0.8,
-                color="C3" if city == config.CITY else "0.6",
-                label=city if city == config.CITY else None)
+        ax.plot(
+            f,
+            idx,
+            lw=2.5 if city == config.CITY else 0.8,
+            color="C3" if city == config.CITY else "0.6",
+            label=city if city == config.CITY else None,
+        )
 shade_covid(ax)
 ax.set(title=f"Real TOT per capita, FY{base_fy}=100 (grey = peer cities)", xlabel="Fiscal year")
 ax.legend()
@@ -180,46 +192,94 @@ L = fetch("select * from staging.lodes_ontario_cy order by cy")
 if len(L.get("cy", [])):
     fig, ax = plt.subplots(figsize=(9, 4))
     ax.plot(L["cy"], 100 * L["share_residents_work_local"], marker="o", label="all jobs")
-    ax.plot(L["cy"], 100 * L["share_high_wage_residents_work_local"], marker="o",
-            label="jobs > $3,333/month")
-    ax.set(title="Share of employed Ontario residents who work in Ontario", ylabel="%",
-           xlabel="Year")
+    ax.plot(L["cy"], 100 * L["share_high_wage_residents_work_local"], marker="o", label="jobs > $3,333/month")
+    ax.set(title="Share of employed Ontario residents who work in Ontario", ylabel="%", xlabel="Year")
     ax.legend()
     savefig("05_lodes_live_work_share")
 
-    bm = config.PROPOSAL_BENCHMARKS
-    for i, y in enumerate(L["cy"]):
-        close = abs(L["live_and_work"][i] - bm["live_and_work_in_ontario"]) / bm["live_and_work_in_ontario"]
-        if close < 0.02:
-            print(f"Year {y} matches proposal: live&work {L['live_and_work'][i]:,} "
-                  f"(proposal {bm['live_and_work_in_ontario']:,}), residents "
-                  f"{L['employed_residents'][i]:,} (proposal {bm['employed_residents']:,}), "
-                  f"inflow {L['inflow_commuters'][i]:,} (proposal {bm['inflow_commuters']:,})")
-    print("If no year matches within 2%, the proposal likely used OnTheMap's all-states counts or a "
-          "different job type; document which before publishing.")
+    # Which LODES year did the proposal quote? (diagnostic only; the official value wins)
+    lw = config.PROPOSAL_BENCHMARKS["live_and_work_in_ontario"][1]
+    hits = [int(y) for i, y in enumerate(L["cy"]) if abs(L["live_and_work"][i] - lw) / lw < 0.02]
+    print(f"Proposal's live&work count ({lw:,}) matches LODES year(s): {hits or 'none within 2%'}")
 else:
     print("LODES not loaded yet (run ingest without --skip-lodes).")
 
-# Sales tax: State Controller vs proposal's budget figure
-last = -1
-print(f"\nFY{fy[last]} sales tax (SCO, Bradley-Burns + in-lieu): ${P['sales_tax_total'][last]/1e6:,.1f}M "
-      f"vs proposal FY27 budget ${config.PROPOSAL_BENCHMARKS['sales_tax_fy27_budget']/1e6:,.1f}M")
-print("A gap this large suggests different definitions (e.g., add-on transactions tax or "
-      "Prop 172 included in the budget). Confirm with the City budget before combining them.")
+# %% [markdown]
+# ## 8b. Headline numbers: official source first, proposal only as labeled fallback
+# Rule: State Controller / Census / BLS / City adopted budget take precedence. Where they
+# differ from the proposal text by >5%, the proposal should be updated to the official value.
+
+# %%
+M = fetch("select * from marts.headline_metrics")
+print(f"{'metric':30s} {'value':>14s} {'period':>6s}  {'vs proposal':>11s}  source")
+for i, m in enumerate(M["metric"]):
+    v, pv, d = M["value"][i], M["proposal_value"][i], M["pct_diff_vs_proposal"][i]
+    shown = f"{v:.1%}" if np.isfinite(v) and abs(v) < 1 else f"{v:,.0f}"
+    diff = f"{d:+.1%}" if np.isfinite(d) else "-"
+    period = "" if not np.isfinite(M["period"][i]) else str(int(M["period"][i]))
+    flag = "  <- FALLBACK" if M["is_fallback"][i] else ""
+    print(f"{m:30s} {shown:>14s} {period:>6s}  {diff:>11s}  {M['source'][i]}{flag}")
+print(
+    "Note: SCO *actual* sales tax and the FY27 *budget* are different metrics; if the City budget "
+    "figure is far above SCO actuals, its definition likely differs (confirm before comparing)."
+)
 
 # %% [markdown]
 # ## 9. County industry pay (career-ladder context, QCEW)
 
 # %%
-Q = fetch("select sector, employment, avg_annual_pay from marts.sb_county_sector_cy "
-          "where cy = (select max(cy) from marts.sb_county_sector_cy) and sector is not null "
-          "order by avg_annual_pay")
+Q = fetch(
+    "select sector, employment, avg_annual_pay from marts.sb_county_sector_cy "
+    "where cy = (select max(cy) from marts.sb_county_sector_cy) and sector is not null "
+    "order by avg_annual_pay"
+)
 if len(Q.get("sector", [])):
     fig, ax = plt.subplots(figsize=(9, 6))
     ax.barh(Q["sector"], Q["avg_annual_pay"] / 1e3)
-    ax.set(title="San Bernardino County private avg annual pay by sector (latest year)",
-           xlabel="$ thousands")
+    ax.set(title="San Bernardino County private avg annual pay by sector (latest year)", xlabel="$ thousands")
     savefig("06_county_pay_by_sector")
+
+# %% [markdown]
+# ## 10. Pathway wages (OEWS) vs the proposal, and an ACS cross-check of 15.5%
+# OEWS is a survey; its medians are MSA-wide (Riverside-San Bernardino-Ontario),
+# not Ontario-only. The ACS place-of-work share is a different instrument than
+# LODES (survey vs administrative records): agreement within the ACS MOE is support,
+# not proof. Only non-overlapping 5-year vintages are compared.
+
+# %%
+W = fetch(
+    "select soc, occupation, year, median_annual_wage, median_vs_all_occupations, "
+    "proposal_median_wage, pct_diff_vs_proposal from marts.msa_occupation_wages"
+)
+if len(W.get("soc", [])):
+    print(
+        f"OEWS {int(W['year'][0])} medians (official; use these in the proposal), "
+        "Riverside-San Bernardino-Ontario MSA"
+    )
+    for i, _ in enumerate(W["soc"]):
+        d = W["pct_diff_vs_proposal"][i]
+        q = (
+            f"  proposal ${W['proposal_median_wage'][i]:,.0f} ({d:+.1%})"
+            if np.isfinite(W["proposal_median_wage"][i])
+            else ""
+        )
+        print(
+            f"  {W['occupation'][i]:55s} ${W['median_annual_wage'][i]:>9,.0f} "
+            f"({W['median_vs_all_occupations'][i]:.2f}x all){q}"
+        )
+else:
+    print("OEWS not loaded.")
+
+A = fetch(
+    "select geo, acs_year, window_start, share, share_moe90, non_overlapping_vintage "
+    "from marts.acs_place_of_work where geo = 'Ontario city' order by acs_year"
+)
+if len(A.get("acs_year", [])):
+    for i, y in enumerate(A["acs_year"]):
+        tag = "" if A["non_overlapping_vintage"][i] else "  (overlaps; do not compare to neighbors)"
+        print(f"ACS {A['window_start'][i]}-{y}: {A['share'][i]:.1%} +/- {A['share_moe90'][i]:.1%}{tag}")
+else:
+    print("ACS not loaded (set CENSUS_API_KEY).")
 
 # %% [markdown]
 # ## EDA conclusions to carry into variable selection

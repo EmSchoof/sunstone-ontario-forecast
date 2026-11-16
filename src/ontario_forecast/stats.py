@@ -1,56 +1,51 @@
-"""Small-sample statistics in plain numpy.
+"""Analysis-time statistics: thin wrappers over statsmodels / scipy.
 
-Written for ~20 annual observations: every function returns n alongside the
-estimate so results are never reported without their sample size.
+Targeted imports only (no `statsmodels.api`), so unused model families are never loaded.
+Never imported by the deployed model (`model.py`), which stays numpy + json.
+Every result carries its sample size n, because n~20 here.
 """
+
 from __future__ import annotations
 
-from collections.abc import Callable
+import warnings
 from dataclasses import dataclass
-from math import erf, sqrt
 
 import numpy as np
-
-# ---------------------------------------------------------------------------
-# Regression
-# ---------------------------------------------------------------------------
-
-
-def add_const(X: np.ndarray) -> np.ndarray:
-    X = np.atleast_2d(np.asarray(X, float))
-    if X.shape[0] == 1 and X.size > 1:
-        X = X.T
-    return np.column_stack([np.ones(len(X)), X]) if X.size else np.ones((len(X), 1))
+from scipy.stats import pearsonr, spearmanr
+from statsmodels.regression.linear_model import OLS
+from statsmodels.stats.multitest import multipletests
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.tools.sm_exceptions import InterpolationWarning
+from statsmodels.tools.tools import add_constant
+from statsmodels.tsa.stattools import adfuller, kpss
 
 
-def ols(y: np.ndarray, X: np.ndarray | None) -> np.ndarray:
-    """OLS coefficients with intercept first. X=None -> intercept only (sample mean)."""
-    Xc = np.ones((len(y), 1)) if X is None else add_const(X)
-    beta, *_ = np.linalg.lstsq(Xc, np.asarray(y, float), rcond=None)
-    return beta
+def _pairs(x: np.ndarray, y: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    x, y = np.asarray(x, float), np.asarray(y, float)
+    m = np.isfinite(x) & np.isfinite(y)
+    return x[m], y[m]
 
 
-def r_squared(y: np.ndarray, X: np.ndarray) -> float:
-    beta = ols(y, X)
-    resid = y - add_const(X) @ beta
-    ss_tot = np.sum((y - y.mean()) ** 2)
-    return 1.0 - np.sum(resid**2) / ss_tot if ss_tot > 0 else np.nan
+# ---- Regression -------------------------------------------------------------
+
+
+def ols_params(y: np.ndarray, X: np.ndarray | None = None) -> np.ndarray:
+    """OLS coefficients, intercept first. X=None -> intercept only (the sample mean)."""
+    y = np.asarray(y, float)
+    if X is None:
+        Xc = np.ones((len(y), 1))
+    else:
+        Xc = add_constant(np.asarray(X, float).reshape(len(y), -1), has_constant="add")
+    return OLS(y, Xc).fit().params
 
 
 def vif(X: np.ndarray) -> np.ndarray:
-    """Variance inflation factor per column. >5 signals strong multicollinearity."""
-    X = np.asarray(X, float)
-    out = np.empty(X.shape[1])
-    for j in range(X.shape[1]):
-        others = np.delete(X, j, axis=1)
-        r2 = r_squared(X[:, j], others) if others.shape[1] else 0.0
-        out[j] = np.inf if r2 >= 1 else 1.0 / (1.0 - r2)
-    return out
+    """Variance inflation factor per column (constant added). >5 = strong collinearity."""
+    Xc = add_constant(np.asarray(X, float), has_constant="add")
+    return np.array([variance_inflation_factor(Xc, j) for j in range(1, Xc.shape[1])])
 
 
-# ---------------------------------------------------------------------------
-# Correlation with honest uncertainty
-# ---------------------------------------------------------------------------
+# ---- Correlation -------------------------------------------------------------
 
 
 @dataclass(frozen=True)
@@ -61,100 +56,72 @@ class Corr:
     p: float
     n: int
 
+    @classmethod
+    def undefined(cls, n: int) -> Corr:
+        """Too few points (or a constant series) to estimate a correlation."""
+        return cls(np.nan, np.nan, np.nan, np.nan, n)
 
-def _norm_cdf(z: float) -> float:
-    return 0.5 * (1 + erf(z / sqrt(2)))
+
+def _estimable(x: np.ndarray, y: np.ndarray) -> bool:
+    return len(x) >= 4 and x.std() > 0 and y.std() > 0
 
 
 def pearson(x: np.ndarray, y: np.ndarray, conf: float = 0.95) -> Corr:
-    """Pearson r with Fisher-z CI and two-sided p (normal approx; drops NaN pairs)."""
-    m = ~(np.isnan(x) | np.isnan(y))
-    x, y, n = x[m], y[m], int(m.sum())
-    if n < 4 or x.std() == 0 or y.std() == 0:
-        return Corr(np.nan, np.nan, np.nan, np.nan, n)
-    r = float(np.corrcoef(x, y)[0, 1])
-    r_c = min(max(r, -0.999999), 0.999999)
-    z, se = np.arctanh(r_c), 1 / sqrt(n - 3)
-    zc = {0.90: 1.645, 0.95: 1.96, 0.99: 2.576}[conf]
-    p = 2 * (1 - _norm_cdf(abs(z) / se))
-    return Corr(r, float(np.tanh(z - zc * se)), float(np.tanh(z + zc * se)), p, n)
-
-
-def _rank(a: np.ndarray) -> np.ndarray:
-    order = a.argsort(kind="mergesort")
-    ranks = np.empty(len(a))
-    ranks[order] = np.arange(1, len(a) + 1)
-    for v in np.unique(a):                      # average ties
-        idx = a == v
-        if idx.sum() > 1:
-            ranks[idx] = ranks[idx].mean()
-    return ranks
+    """Pearson r with exact t-test p-value and Fisher-z CI (scipy); NaN pairs dropped."""
+    x, y = _pairs(x, y)
+    if not _estimable(x, y):
+        return Corr.undefined(len(x))
+    res = pearsonr(x, y)
+    ci = res.confidence_interval(confidence_level=conf)
+    return Corr(float(res.statistic), float(ci.low), float(ci.high), float(res.pvalue), len(x))
 
 
 def spearman(x: np.ndarray, y: np.ndarray) -> Corr:
-    """Rank correlation: robust to the single extreme COVID years."""
-    m = ~(np.isnan(x) | np.isnan(y))
-    return pearson(_rank(x[m]), _rank(y[m]))
+    """Spearman rho (robust to the extreme COVID years). No CI: scipy gives none."""
+    x, y = _pairs(x, y)
+    if not _estimable(x, y):
+        return Corr.undefined(len(x))
+    res = spearmanr(x, y)
+    return Corr(float(res.statistic), np.nan, np.nan, float(res.pvalue), len(x))
 
 
-# ---------------------------------------------------------------------------
-# Time-series backtesting (expanding window, strictly chronological)
-# ---------------------------------------------------------------------------
+def adjust_pvalues(p: np.ndarray, method: str = "holm", alpha: float = 0.05):
+    """Family-wise correction (Holm: as safe as Bonferroni, more power). NaNs pass through."""
+    p = np.asarray(p, float)
+    adj, rej = np.full_like(p, np.nan), np.zeros(p.shape, bool)
+    ok = np.isfinite(p)
+    if ok.any():
+        rej[ok], adj[ok], *_ = multipletests(p[ok], alpha=alpha, method=method)
+    return rej, adj
 
-FitPredict = Callable[[np.ndarray, np.ndarray | None, np.ndarray | None], float]
-"""fit_predict(y_train, X_train, x_next) -> one-step-ahead prediction."""
+
+# ---- Stationarity --------------------------------------------------------------
 
 
 @dataclass(frozen=True)
-class Backtest:
-    test_idx: np.ndarray
-    pred: np.ndarray
-    actual: np.ndarray
-
-    @property
-    def errors(self) -> np.ndarray:
-        return self.actual - self.pred
-
-
-def rolling_origin(y: np.ndarray, X: np.ndarray | None, fit_predict: FitPredict,
-                   min_train: int, train_mask: np.ndarray | None = None) -> Backtest:
-    """Expanding-window one-step-ahead backtest.
-
-    At origin t the model sees ONLY rows < t (never row t or later), mimicking a
-    forecast made at the end of year t-1. `train_mask` can exclude rows (e.g.
-    COVID years) from fitting without removing them from the test set.
-    """
-    y = np.asarray(y, float)
-    n = len(y)
-    keep = np.ones(n, bool) if train_mask is None else np.asarray(train_mask, bool)
-    idx, preds = [], []
-    for t in range(min_train, n):
-        tr = np.flatnonzero(keep[:t])          # strictly before t
-        if len(tr) < min_train:
-            continue
-        Xtr = None if X is None else X[tr]
-        xnext = None if X is None else X[t]
-        preds.append(fit_predict(y[tr], Xtr, xnext))
-        idx.append(t)
-    idx = np.asarray(idx, int)
-    return Backtest(idx, np.asarray(preds, float), y[idx])
+class UnitRoot:
+    adf_stat: float
+    adf_p: float  # H0: unit root
+    kpss_stat: float
+    kpss_p: float  # H0: stationary (p bounded to [0.01, 0.10] by statsmodels' table)
+    n: int
+    verdict: str
 
 
-def mae(e: np.ndarray) -> float:
-    return float(np.mean(np.abs(e)))
-
-
-def rmse(e: np.ndarray) -> float:
-    return float(np.sqrt(np.mean(e**2)))
-
-
-def conformal_halfwidth(abs_errors: np.ndarray, coverage: float = 0.8) -> float:
-    """Split-conformal quantile of out-of-sample |errors|.
-
-    Uses the finite-sample (n+1) correction; with few errors the interval is
-    deliberately wide. Returns inf if there are too few errors for the coverage.
-    """
-    e = np.sort(np.abs(np.asarray(abs_errors, float)))
-    n = len(e)
-    k = int(np.ceil((n + 1) * coverage))
-    return float(e[k - 1]) if 1 <= k <= n else float("inf")
+def unit_root(x: np.ndarray, adf_maxlag: int = 2) -> UnitRoot:
+    """ADF + KPSS together; low power at n~20, so treat as supporting evidence only."""
+    x = np.asarray(x, float)
+    x = x[np.isfinite(x)]
+    # result_object=False pins the tuple return (statsmodels >= 0.15 asks callers to choose).
+    adf_stat, adf_p, *_ = adfuller(x, maxlag=adf_maxlag, autolag="AIC", result_object=False)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", InterpolationWarning)
+        kpss_stat, kpss_p, *_ = kpss(x, regression="c", nlags="auto", result_object=False)
+    verdict = (
+        "stationary"
+        if adf_p < 0.10 and kpss_p > 0.05
+        else "non-stationary"
+        if adf_p >= 0.10 and kpss_p <= 0.05
+        else "inconclusive"
+    )
+    return UnitRoot(float(adf_stat), float(adf_p), float(kpss_stat), float(kpss_p), len(x), verdict)
