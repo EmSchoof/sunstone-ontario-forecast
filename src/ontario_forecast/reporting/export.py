@@ -1,4 +1,5 @@
-"""Shared export helpers for the final deliverables (03 scenarios, 04 impact)."""
+"""Shared export helpers for the final deliverables (03 scenarios, 04 impact).
+Charts go to config.CHARTS_DIR, tables to config.TABLES_DIR."""
 
 from __future__ import annotations
 

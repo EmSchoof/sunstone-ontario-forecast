@@ -15,7 +15,7 @@ from pathlib import Path
 
 import numpy as np
 
-from ontario_forecast.evaluation import conformal_halfwidth, mae
+from ontario_forecast.modeling.evaluation import conformal_halfwidth, mae
 
 
 @dataclass

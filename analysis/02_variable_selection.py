@@ -27,11 +27,12 @@ import json
 
 import numpy as np
 
-from ontario_forecast import config, stats
+from ontario_forecast import config
 from ontario_forecast.db import load_panel
-from ontario_forecast.evaluation import mae, rmse, rolling_origin
-from ontario_forecast.features import fit_mask, lag, shock_mask
-from ontario_forecast.model import GrowthForecaster
+from ontario_forecast.modeling import stats
+from ontario_forecast.modeling.evaluation import mae, rmse, rolling_origin
+from ontario_forecast.modeling.features import fit_mask, lag, shock_mask
+from ontario_forecast.modeling.model import GrowthForecaster
 
 P = load_panel()
 fy = P["fy"]
@@ -227,8 +228,8 @@ for tname, t in TARGETS.items():
 # ## 5. Persist the decision: fit with statsmodels, store coefficients (numpy/json model)
 
 # %%
-config.REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-with open(config.REPORTS_DIR / "variable_selection.csv", "w", newline="") as f:
+config.TABLES_DIR.mkdir(parents=True, exist_ok=True)
+with open(config.TABLES_DIR / "variable_selection.csv", "w", newline="") as f:
     cols = [k for k in results[0] if not k.startswith("_")]
     w = csv.DictWriter(f, fieldnames=cols)
     w.writeheader()

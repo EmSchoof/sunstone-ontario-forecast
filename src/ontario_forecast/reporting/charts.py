@@ -15,7 +15,7 @@ import numpy as np
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.ticker import FuncFormatter, MaxNLocator
 
-from ontario_forecast.scenarios import Fan
+from ontario_forecast.modeling.scenarios import Fan
 
 SURFACE = "#fcfcfb"
 INK = "#0b0b0b"
@@ -47,9 +47,6 @@ def usd(v: float) -> str:
     a = abs(v)
     body = f"{a / 1e6:,.1f}M" if a >= 1e6 else f"{a / 1e3:,.0f}K"
     return f"{sign}\\${body}"
-
-
-usd_m = usd  # backwards-compatible name used by 03
 
 
 def pct(v: float) -> str:

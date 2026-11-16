@@ -6,14 +6,20 @@ from pathlib import Path
 
 # ---- Paths ---------------------------------------------------------------
 ROOT = Path(__file__).resolve().parents[2]
+
+# Inputs
 DATA_DIR = ROOT / "data"
+REFERENCE_DIR = DATA_DIR / "reference"  # hand-entered source data (budget, airport): loaded by dlt
+ASSUMPTIONS_DIR = DATA_DIR / "assumptions"  # impact-model inputs: read directly, never ingested
 WAREHOUSE = DATA_DIR / "warehouse" / "ontario.duckdb"  # dlt loads raw.*; SQL builds staging.*, marts.*
-PROCESSED_DIR = DATA_DIR / "processed"  # exported marts (parquet + csv) for sharing
-MANUAL_DIR = DATA_DIR / "manual"  # hand-entered data (airport, budget docs)
-REPORTS_DIR = ROOT / "reports"
-FIGURES_DIR = REPORTS_DIR / "figures"
-MODELS_DIR = ROOT / "models"
 PIPELINES_DIR = ROOT / ".dlt_pipelines"  # dlt state, kept inside the project
+
+# Outputs: everything the pipeline writes
+OUTPUTS_DIR = ROOT / "outputs"
+CHARTS_DIR = OUTPUTS_DIR / "charts"  # deliverable PNG / SVG / PDF (tracked)
+TABLES_DIR = OUTPUTS_DIR / "tables"  # charted numbers + analysis-ready marts as CSV (tracked)
+MODELS_DIR = OUTPUTS_DIR / "models"  # fitted model JSON (tracked)
+EDA_DIR = OUTPUTS_DIR / "eda"  # exploratory figures (git-ignored)
 
 # ---- Geography -----------------------------------------------------------
 CITY = "Ontario"
@@ -128,13 +134,12 @@ SCENARIO_SIMS = 20_000
 SCENARIO_SEED = 20261115  # fixed for reproducible charts
 SCENARIO_QUANTILES = (0.10, 0.50, 0.90)
 LODES_COVID_YEARS = (2020, 2021)  # calendar years (LODES); revenue uses COVID_SHOCK_FYS
-FINAL_DIR = REPORTS_DIR / "final"
 
 # Recommendation impact model (analysis/04_impact.py)
-IMPACT_ASSUMPTIONS = MANUAL_DIR / "impact_assumptions.csv"
-IMPACT_PHASES = MANUAL_DIR / "impact_phases.csv"
-ANCHOR_VISITORS = MANUAL_DIR / "anchor_visitors.csv"
-CITY_INVESTMENTS = MANUAL_DIR / "city_investments.csv"
+IMPACT_ASSUMPTIONS = ASSUMPTIONS_DIR / "impact_assumptions.csv"
+IMPACT_PHASES = ASSUMPTIONS_DIR / "impact_phases.csv"
+ANCHOR_VISITORS = ASSUMPTIONS_DIR / "anchor_visitors.csv"
+CITY_INVESTMENTS = ASSUMPTIONS_DIR / "city_investments.csv"
 IMPACT_HORIZON = 11  # FY2026-FY2036: 10 years after the FY2027 launch
 IMPACT_WINDOWS = {"Short term (FY27-29)": (2027, 2029), "Long term (FY30-36)": (2030, 2036)}
 IMPACT_SIMS = 20_000
@@ -144,7 +149,7 @@ IMPACT_SIMS = 20_000
 COVID_SHOCK_FYS = (2020, 2021, 2022)
 
 # Figures quoted in the proposal text. FALLBACK ONLY: any metric with an official
-# source (State Controller, Census, BLS, City adopted budget in data/manual/) uses that
+# source (State Controller, Census, BLS, City adopted budget in data/reference/) uses that
 # value first; see marts.headline_metrics (is_fallback flags proposal-only values).
 # metric -> (period, value); period None = not stated in the proposal.
 PROPOSAL_BENCHMARKS = {

@@ -1,7 +1,7 @@
 """Recommendation impact model: what each proposal recommendation ADDS to Ontario's
 fiscal base and local-employment outcomes, on top of the status-quo baseline.
 
-Logic model (each arrow is a parameter in data/manual/impact_assumptions.csv):
+Logic model (each arrow is a parameter in data/assumptions/impact_assumptions.csv):
 
   R1 Career Pathways   interns -> conversions x additionality x resident share -> stock of
                        residents working in Ontario (with attrition) -> wages -> local
@@ -60,6 +60,7 @@ class Assumption:
     unit: str
     status: str  # official | proposal | assumption
     source: str
+    label: str = ""  # short name for charts; falls back to the description
 
     def draw(self, n: int, rng: np.random.Generator) -> np.ndarray:
         if self.low == self.high:
@@ -99,6 +100,7 @@ def load_assumptions(path: Path) -> dict[str, Assumption]:
             r["unit"],
             r["status"],
             r["source"],
+            r.get("label") or r["description"],
         )
         if not a.low <= a.mode <= a.high:
             raise ValueError(f"{a.key}: need low <= mode <= high")

@@ -330,7 +330,8 @@ def oews_msa_occupations() -> Iterator[list[dict]]:
 
 
 # ---------------------------------------------------------------------------
-# Hand-entered CSVs in data/manual/ -> raw.manual_<file stem>
+# Hand-entered source data in data/reference/ -> raw.manual_<file stem>
+# (data/assumptions/ is deliberately NOT ingested: those are model inputs, not data)
 # ---------------------------------------------------------------------------
 def _read_manual_csv(path: Path) -> Iterator[list[dict]]:
     with open(path, newline="", encoding="utf-8-sig") as f:
@@ -339,7 +340,7 @@ def _read_manual_csv(path: Path) -> Iterator[list[dict]]:
         yield data
 
 
-def manual_csv_resources(folder: Path = config.MANUAL_DIR):
+def manual_csv_resources(folder: Path = config.REFERENCE_DIR):
     # Pass a generator OBJECT, not a function: dlt turns a function's arguments into
     # config fields, and Path is not a supported config type.
     for path in sorted(folder.glob("*.csv")):

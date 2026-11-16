@@ -20,20 +20,21 @@ import numpy as np
 
 matplotlib.use("Agg")
 
-from ontario_forecast import config, impact, scenarios  # noqa: E402
-from ontario_forecast.charts import (  # noqa: E402
+from ontario_forecast import config  # noqa: E402
+from ontario_forecast.db import fetch, load_panel  # noqa: E402
+from ontario_forecast.modeling import impact, scenarios  # noqa: E402
+from ontario_forecast.modeling.features import fit_mask  # noqa: E402
+from ontario_forecast.modeling.model import GrowthForecaster  # noqa: E402
+from ontario_forecast.reporting.charts import (  # noqa: E402
     compare_fan_chart,
     pathway_chart,
     pct,
     recommendation_lines_chart,
     tornado_chart,
-    usd_m,
+    usd,
     window_bars_chart,
 )
-from ontario_forecast.db import fetch, load_panel  # noqa: E402
-from ontario_forecast.features import fit_mask  # noqa: E402
-from ontario_forecast.model import GrowthForecaster  # noqa: E402
-from ontario_forecast.reporting import export_figures, write_csv  # noqa: E402
+from ontario_forecast.reporting.export import export_figures, write_csv  # noqa: E402
 
 rng = np.random.default_rng(config.SCENARIO_SEED)
 N, H, Q = config.IMPACT_SIMS, config.IMPACT_HORIZON, config.SCENARIO_QUANTILES
@@ -174,7 +175,7 @@ lw_text = f" ({pct(lw_base)} today)" if lw_base == lw_base and lw_base is not No
 
 def cell(rec: str, wname: str) -> str:
     r = next(x for x in window_rows if x["rec"] == rec and x["window"] == wname)
-    return f"{usd_m(r['p50'])} ({usd_m(r['p10'])} to {usd_m(r['p90'])})"
+    return f"{usd(r['p50'])} ({usd(r['p10'])} to {usd(r['p90'])})"
 
 
 CHAIN = {
@@ -254,7 +255,7 @@ pages.append(
                 f"Cumulative median turns positive: {be or f'not by FY{years[-1]}'}."
             ),
             source=FOOT,
-            fmt=usd_m,
+            fmt=usd,
             x_label=fy_label,
             q=Q,
         ),
@@ -272,7 +273,7 @@ pages.append(
             title="Short-term vs long-term net fiscal impact",
             subtitle="Median cumulative net (bar) and P10-P90 range (line), real dollars, after City cost.",
             source=FOOT,
-            fmt=usd_m,
+            fmt=usd,
         ),
     )
 )
@@ -295,7 +296,7 @@ pages.append(
                 "program effect is smaller than normal year-to-year uncertainty."
             ),
             source="Baseline: CA State Controller TOT, out-of-sample bootstrap. " + FOOT,
-            fmt=usd_m,
+            fmt=usd,
             x_label=fy_label,
             q=Q,
             program_label="With Stay +1",
@@ -371,35 +372,12 @@ pages.append(
                 f"Not quantified yet: {', '.join(unmodeled)}."
             ),
             source=FOOT,
-            fmt=usd_m,
+            fmt=usd,
         ),
     )
 )
 
-# 4g. What drives the answer: sensitivity
-# Short chart labels (full descriptions stay in impact_inputs_used.csv)
-SHORT_LABELS = {
-    "stay1_uptake": "Stay +1 uptake (share of overnight parties)",
-    "district_sales_uplift": "Downtown sales uplift from R3",
-    "cost_R2": "City cost / yr: Stay +1 package (R2)",
-    "downtown_share_of_sales": "Downtown share of citywide sales",
-    "r2_additionality": "Stay +1 nights that are truly extra",
-    "cost_R4": "City cost / yr: employer partnerships (R4)",
-    "dedup_factor": "Venue visits that are unique trips",
-    "r4_taxable_sales_per_job": "Business taxable sales per attracted job",
-    "persons_per_room": "Visitors per room-night",
-    "adr": "Average daily room rate",
-    "r3_additionality": "Downtown uplift not shifted from elsewhere",
-    "r4_firms_per_year": "Firms attracted or retained per year",
-    "cost_R3": "City cost / yr: Downtown ambassadors (R3)",
-    "cost_R1": "City cost / yr: Career Pathways (R1)",
-    "tot_rate": "Hotel tax (TOT) rate",
-    "visitor_daily_taxable_spend": "Visitor spending per extra day",
-    "r1_to_r4_synergy": "Firms attracted per 100 pathway workers",
-    "r4_jobs_per_firm": "Jobs per attracted firm",
-    "visitor_growth": "Annual growth in venue visits",
-    "r4_additionality": "Firm decisions due to the program",
-}
+# 4g. What drives the answer: sensitivity (labels come from the `label` column of the inputs file)
 base_st_p50 = np.median(base_st, axis=0)[None, :]
 torn = impact.tornado(A, phases, anchors, years, base_st_p50, long_a, long_b)
 pages.append(
@@ -407,17 +385,14 @@ pages.append(
         "impact_sensitivity",
         tornado_chart(
             torn,
-            {
-                k: f"{'* ' if a.status == 'assumption' else ''}{SHORT_LABELS.get(k, a.description)}"
-                for k, a in A.items()
-            },
+            {k: f"{'* ' if a.status == 'assumption' else ''}{a.label}" for k, a in A.items()},
             title="Which inputs move the long-term result most",
             subtitle=(
                 "Every input at its single most likely value, swinging one at a time (so the center "
                 "differs from the simulation median). * = team assumption: source these first."
             ),
             source=FOOT,
-            fmt=usd_m,
+            fmt=usd,
         ),
     )
 )
@@ -427,7 +402,7 @@ roi = []
 for wname, (a, b) in WINDOWS.items():
     roi += [{"window": wname, **r} for r in impact.benefit_cost(res, a, b, Q)]
 yr1 = impact.first_year_city_cost(res, min(s for s, _, _ in phases.values()), Q)
-print(f"Year 1 City cost: {usd_m(yr1[1])} (P10-P90 {usd_m(yr1[0])}-{usd_m(yr1[2])}) vs the $500K cap")
+print(f"Year 1 City cost: {usd(yr1[1])} (P10-P90 {usd(yr1[0])}-{usd(yr1[2])}) vs the $500K cap")
 code = {g: c for g, c in zip(impact.ROI_GROUPS, ("R1", "R2", "R3", "R4", "ALL"), strict=True)}
 pages.append(
     (
@@ -448,7 +423,7 @@ pages.append(
             title="Tax revenue returned per $1 of City money",
             subtitle=(
                 "Median (bar) and P10-P90 (line). Right of the $1 line, a recommendation pays for "
-                f"itself in City tax revenue alone. Year 1 City cost: {usd_m(yr1[1])} (cap $500K)."
+                f"itself in City tax revenue alone. Year 1 City cost: {usd(yr1[1])} (cap $500K)."
             ),
             source=FOOT,
             fmt=lambda v: f"\\${v:.2f}",
@@ -462,10 +437,10 @@ pages.append(
 # ## 5. Export
 
 # %%
-export_figures(pages, config.FINAL_DIR, suffix="", pdf_name="impact.pdf")
-write_csv(summary, config.FINAL_DIR / "impact_summary.csv")
-write_csv(lev, config.FINAL_DIR / "impact_investment_leverage.csv")
-write_csv(roi, config.FINAL_DIR / "impact_roi.csv")
+export_figures(pages, config.CHARTS_DIR, suffix="", pdf_name="impact.pdf")
+write_csv(summary, config.TABLES_DIR / "impact_summary.csv")
+write_csv(lev, config.TABLES_DIR / "impact_investment_leverage.csv")
+write_csv(roi, config.TABLES_DIR / "impact_roi.csv")
 write_csv(
     [
         {"anchor": k, "p10": round(v[0]), "p50": round(v[1]), "p90": round(v[2])}
@@ -474,7 +449,7 @@ write_csv(
             for k, x in res.by_anchor.items()
         )
     ],
-    config.FINAL_DIR / "impact_stay1_by_anchor.csv",
+    config.TABLES_DIR / "impact_stay1_by_anchor.csv",
 )
 write_csv(
     [
@@ -505,12 +480,12 @@ write_csv(
         }
         for an in anchors
     ],
-    config.FINAL_DIR / "impact_inputs_used.csv",
+    config.TABLES_DIR / "impact_inputs_used.csv",
 )
 write_csv(
     [
         {"input": k, "net_if_low": round(lo), "net_if_high": round(hi), "net_at_mode": round(b)}
         for k, lo, hi, b in torn
     ],
-    config.FINAL_DIR / "impact_sensitivity.csv",
+    config.TABLES_DIR / "impact_sensitivity.csv",
 )

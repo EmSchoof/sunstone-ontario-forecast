@@ -13,13 +13,13 @@ chosen, and how the team's pre-forecast research shaped what the model tests.
 
 ## 1. How the recommendations were investigated before forecasting
 
-The proposal's recommendations came from diagnostic research documented in the proposal. Each finding
-became something the model has to represent:
+The proposal's recommendations came from diagnostic research documented in the proposal (figures in
+[Background](background.md#the-problem)). Each finding became something the model has to represent:
 
 | Team finding (proposal) | Evidence the team used | What it became in the model |
 |---|---|---|
-| Residents and jobs are disconnected (~15.5% live and work in Ontario) | Census OnTheMap / LEHD commute flows | The **live/work share** is a headline metric; LODES is loaded to rebuild and forecast it |
-| Higher-wage careers exist locally (industrial engineers ~$101.7K, logisticians ~$77.4K…) | Regional median wages by occupation | **R1/R4 wage inputs** come from BLS OEWS for the same occupations, which replace the quoted figures |
+| Residents and jobs are disconnected | Census OnTheMap / LEHD commute flows | The **live/work share** is a headline metric; LODES is loaded to rebuild and forecast it |
+| Higher-wage careers exist locally | Regional median wages by occupation | **R1/R4 wage inputs** come from BLS OEWS for the same occupations, which replace the quoted figures |
 | Visitor assets are fragmented | Asset review: ONT, Mills, Arena, Sports Empire, Convention Center, Downtown | **R2 is modeled per venue** ("anchor"), so the payoff attaches to existing investments |
 | Safety and homelessness weigh on business | City Business Outreach Survey | **R3** is a district sales effect plus explicit displacement; safety itself is a KPI, not a dollar value |
 | The City has a direct fiscal stake (TOT, sales tax) | FY2026–27 General Fund | **Fiscal channels are TOT, sales and property tax**, measured net of City cost |
@@ -91,6 +91,6 @@ is a labeled fallback only (`is_fallback` in `marts.headline_metrics`), and diff
 | **Targeted imports** from statsmodels/scipy | Proven implementations without loading unused model families |
 | **Single source of truth** (`config.py`, SQL parameter tables, `features.py`) | Every rule and ID is defined once and reused (DRY) |
 | **uv** + **pnpm/Nx** | Locked environments; the pipeline runs as a graph with cached lint and tests |
-| **pre-commit + ruff + pytest** | Style and correctness checked on every commit; 40 tests cover the math, SQL, impact and ROI logic |
+| **pre-commit + ruff + pytest** | Style and correctness checked on every commit; tests cover the math, SQL, impact and ROI logic |
 
 Next: [Methods →](methods.md)

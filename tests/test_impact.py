@@ -5,7 +5,8 @@ from dataclasses import replace
 import numpy as np
 import pytest
 
-from ontario_forecast import config, impact
+from ontario_forecast import config
+from ontario_forecast.modeling import impact
 
 YEARS = np.arange(2026, 2037)
 
@@ -31,6 +32,7 @@ def test_input_files_are_complete_and_valid(inputs):
     assert set(phases) == {"R1", "R2", "R3", "R4"}
     assert {a.status for a in A.values()} <= {"official", "proposal", "assumption"}
     assert all(a.source for a in A.values())  # every number has a source line
+    assert all(len(a.label) <= 45 for a in A.values())  # short enough for one chart line
     assert len(anchors) >= 4
 
 

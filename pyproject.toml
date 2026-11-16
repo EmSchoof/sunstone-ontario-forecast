@@ -28,10 +28,6 @@ dev = [
     "ruff>=0.6",
 ]
 
-[project.scripts]
-ontario-ingest = "ontario_forecast.ingest.run:main"
-ontario-transform = "ontario_forecast.transform.run:main"
-
 [tool.setuptools.packages.find]
 where = ["src"]
 

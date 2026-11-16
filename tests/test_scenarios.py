@@ -3,8 +3,8 @@ import json
 import numpy as np
 import pytest
 
-from ontario_forecast import scenarios
-from ontario_forecast.model import GrowthForecaster
+from ontario_forecast.modeling import scenarios
+from ontario_forecast.modeling.model import GrowthForecaster
 
 
 def test_quantiles_ordered_and_band_widens():

@@ -36,17 +36,17 @@ node_modules/
 # --- Generated data (rebuildable from the pipeline) ---------------------
 data/raw/
 data/warehouse/
-data/processed/
 *.duckdb
 *.duckdb.wal
 *.csv.gz
 *.parquet
 
-# --- Generated analysis output -------------------------------------------
-reports/figures/
-reports/variable_selection.csv
+# --- Generated exploratory output -----------------------------------------
+outputs/eda/
 
 # Tracked on purpose:
-#   data/manual/        hand-entered, cited source data
-#   models/*.json       fitted coefficients (small, reviewable)
-#   reports/final/      deliverable charts + scenarios_summary.csv
+#   data/reference/     hand-entered, cited source data
+#   data/assumptions/   impact-model inputs (each with a source and status)
+#   outputs/charts/     deliverable charts (PNG, SVG, PDF)
+#   outputs/tables/     every charted number as CSV
+#   outputs/models/     fitted model coefficients (small, reviewable)

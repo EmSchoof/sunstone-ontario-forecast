@@ -61,13 +61,12 @@ def build(con: duckdb.DuckDBPyConnection) -> None:
         con.execute(path.read_text())
 
 
-def export(con: duckdb.DuckDBPyConnection, out_dir: Path = config.PROCESSED_DIR) -> None:
+def export(con: duckdb.DuckDBPyConnection, out_dir: Path = config.TABLES_DIR) -> None:
+    """Analysis-ready marts as CSV next to the other tables (for teammates and Excel)."""
     out_dir.mkdir(parents=True, exist_ok=True)
     for t in EXPORT_TABLES:
-        for fmt in ("parquet", "csv"):  # parquet for code, csv for teammates/Excel
-            dest = out_dir / f"{t}.{fmt}"
-            con.execute(f"copy marts.{t} to '{dest}' (format {fmt})")
-        print(f"  exported marts.{t}")
+        con.execute(f"copy marts.{t} to '{out_dir / f'{t}.csv'}' (format csv)")
+    print(f"  exported {len(EXPORT_TABLES)} marts to {out_dir.relative_to(config.ROOT)}/")
 
 
 def main() -> int:

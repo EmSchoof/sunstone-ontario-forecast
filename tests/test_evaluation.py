@@ -1,6 +1,6 @@
 import numpy as np
 
-from ontario_forecast.evaluation import conformal_halfwidth, rolling_origin
+from ontario_forecast.modeling.evaluation import conformal_halfwidth, rolling_origin
 
 
 def test_rolling_origin_never_sees_the_future():

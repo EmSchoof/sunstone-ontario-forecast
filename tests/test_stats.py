@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from ontario_forecast import stats
+from ontario_forecast.modeling import stats
 
 
 def test_ols_params_recovers_coefficients_and_intercept_only_is_mean():

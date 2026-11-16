@@ -29,8 +29,8 @@ from dataclasses import dataclass
 import numpy as np
 from scipy.special import expit, logit
 
-from ontario_forecast.evaluation import mae, rolling_origin
-from ontario_forecast.features import fit_mask, shock_mask
+from ontario_forecast.modeling.evaluation import mae, rolling_origin
+from ontario_forecast.modeling.features import fit_mask, shock_mask
 
 
 @dataclass(frozen=True)

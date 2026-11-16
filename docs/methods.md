@@ -20,13 +20,14 @@ Part A is the **data engineering** that produces clean, fiscal-year-aligned tabl
 ```mermaid
 flowchart LR
   subgraph sources [Public + team sources]
-    sco[State Controller] & edd[EDD LAUS] & bls[BLS API] & qcew[BLS QCEW] & lodes[Census LODES] & acs[Census ACS] & oews[BLS OEWS] & manual[data/manual CSVs]
+    sco[State Controller] & edd[EDD LAUS] & bls[BLS API] & qcew[BLS QCEW] & lodes[Census LODES] & acs[Census ACS] & oews[BLS OEWS] & manual[data/reference CSVs]
   end
   sources -->|dlt| raw[(DuckDB raw)]
   raw -->|SQL| staging[(staging)] -->|SQL| marts[(marts)]
   marts --> checks{data checks}
   checks -->|pass| analysis[01 EDA · 02 selection · 03 scenarios · 04 impact]
-  analysis --> final[reports/final: charts + CSVs]
+  assumptions[(data/assumptions)] --> analysis
+  analysis --> final[outputs: charts · tables · models]
 ```
 
 Orchestration: Nx runs `ingest → transform → eda/select → scenarios/impact → report`.
@@ -43,7 +44,7 @@ Orchestration: Nx runs `ingest → transform → eda/select → scenarios/impact
 | `oews_msa_occupations` | BLS API (OE series) | 14 occupations mapped to the proposal's career pathways |
 | `lodes_ontario_flows` | Census LODES 8 OD (main + aux), **aggregated inside DuckDB over HTTPS** | One row per year; incremental, so loaded years are skipped |
 | `acs_place` | Census API (key) | B08008, B08303, B15003, B19013 for Ontario + the county |
-| `manual_<file>` | Every `data/manual/*.csv` | Team-entered values, each with a source column |
+| `manual_<file>` | Every `data/reference/*.csv` | Team-entered source data, each with a source column. Impact-model inputs in `data/assumptions/` are read directly by the model and never ingested |
 
 All API keys come from environment variables or `.dlt/secrets.toml`, which is never committed.
 
@@ -67,6 +68,7 @@ All API keys come from environment variables or `.dlt/secrets.toml`, which is ne
 ### A4. Data quality (`transform/checks.py`)
 
 Each check is a query that returns the rows breaking a rule. **Errors stop the export**; warnings are printed.
+The marts listed above are exported as CSV to `outputs/tables/` once the checks pass.
 
 | Errors | Warnings |
 |---|---|
@@ -74,7 +76,7 @@ Each check is a query that returns the rows breaking a rule. **Errors stop the e
 
 ### A5. Testing and reproducibility
 
-- **40 pytest tests:**
+- **pytest suite** (`tests/`), covering:
   - statsmodels/scipy wrappers
   - SQL run on hand-made tables
   - LODES aggregation
@@ -137,7 +139,7 @@ $$R^{(s)}_{T+h} = R_T \cdot \exp\Big(\sum_{k \le h} g^{(s)}_{T+k}\Big)$$
   historical average afterwards.
 - **Live/work share:** simulated on the logit scale, so shares stay between 0 and 1.
 
-### B4. Recommendation impact model (`src/ontario_forecast/impact.py`)
+### B4. Recommendation impact model (`src/ontario_forecast/modeling/impact.py`)
 
 **General method:**
 - **Inputs:** every input has a triangular (low, likely, high) range from `impact_assumptions.csv` and a status

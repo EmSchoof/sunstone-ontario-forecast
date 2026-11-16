@@ -5,7 +5,7 @@
     "python": ["{projectRoot}/src/**/*", "{projectRoot}/pyproject.toml", "{projectRoot}/uv.lock"],
     "tests": ["{projectRoot}/tests/**/*"],
     "analysis": ["{projectRoot}/analysis/**/*"],
-    "manual": ["{projectRoot}/data/manual/**/*"]
+    "inputs": ["{projectRoot}/data/reference/**/*", "{projectRoot}/data/assumptions/**/*"]
   },
   "targetDefaults": {
     "lint": {
@@ -14,7 +14,7 @@
     },
     "test": {
       "cache": true,
-      "inputs": ["python", "tests", "manual"]
+      "inputs": ["python", "tests", "inputs"]
     }
   }
 }

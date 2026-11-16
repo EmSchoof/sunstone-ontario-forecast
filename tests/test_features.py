@@ -1,6 +1,6 @@
 import numpy as np
 
-from ontario_forecast.features import fit_mask, lag, shock_mask
+from ontario_forecast.modeling.features import fit_mask, lag, shock_mask
 
 
 def test_lag_shifts_forward_without_lookahead():

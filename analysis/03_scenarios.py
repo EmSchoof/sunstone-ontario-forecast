@@ -6,7 +6,7 @@
 # the model chosen in 02. These are the **status-quo baselines**: no program effect
 # is assumed, so the City can measure Stay +1 / Career Pathways against them.
 #
-# Outputs (reports/final/): one PNG + SVG per metric, scenarios.pdf (all pages),
+# Outputs: outputs/charts/ (one PNG + SVG per metric, scenarios.pdf) and outputs/tables/
 # scenarios_summary.csv (the table view of every charted number).
 #
 #   python analysis/03_scenarios.py      (after 01 and 02)
@@ -17,14 +17,15 @@ import numpy as np
 
 matplotlib.use("Agg")  # file export only; must precede pyplot (imported by charts)
 
-from ontario_forecast import config, scenarios  # noqa: E402
-from ontario_forecast.charts import fan_chart, pct, usd_m  # noqa: E402
+from ontario_forecast import config  # noqa: E402
 from ontario_forecast.db import fetch, load_panel  # noqa: E402
-from ontario_forecast.features import fit_mask  # noqa: E402
-from ontario_forecast.model import GrowthForecaster  # noqa: E402
-from ontario_forecast.reporting import export_figures, write_csv  # noqa: E402
+from ontario_forecast.modeling import scenarios  # noqa: E402
+from ontario_forecast.modeling.features import fit_mask  # noqa: E402
+from ontario_forecast.modeling.model import GrowthForecaster  # noqa: E402
+from ontario_forecast.reporting.charts import fan_chart, pct, usd  # noqa: E402
+from ontario_forecast.reporting.export import export_figures, write_csv  # noqa: E402
 
-config.FINAL_DIR.mkdir(parents=True, exist_ok=True)
+config.CHARTS_DIR.mkdir(parents=True, exist_ok=True)
 rng = np.random.default_rng(config.SCENARIO_SEED)
 H, N, Q = config.SCENARIO_HORIZON, config.SCENARIO_SIMS, config.SCENARIO_QUANTILES
 band = f"{(Q[-1] - Q[0]):.0%}"  # "80%" for (0.10, 0.90)
@@ -50,7 +51,7 @@ def growth_paths(model: GrowthForecaster, ycol: str) -> np.ndarray:
 
 # %%
 # Budget reference markers come from marts.headline_metrics: the City's adopted budget
-# (data/manual/city_budget_revenue.csv) if loaded, otherwise the proposal figure, labeled as such.
+# (data/reference/city_budget_revenue.csv) if loaded, otherwise the proposal figure, labeled as such.
 H_M = fetch("select metric, period, value, is_fallback from marts.headline_metrics")
 
 
@@ -87,21 +88,21 @@ for key, t in config.FORECAST_TARGETS.items():
     model_label = ", ".join(model.predictors) or "trend"
 
     sub = (
-        f"FY{f.years[-1]}: central {usd_m(mid)}, {band} of outcomes between {usd_m(lo)} and "
-        f"{usd_m(hi)}. Model: {model_label} ({len(model.backtest_errors)} out-of-sample errors)."
+        f"FY{f.years[-1]}: central {usd(mid)}, {band} of outcomes between {usd(lo)} and "
+        f"{usd(hi)}. Model: {model_label} ({len(model.backtest_errors)} out-of-sample errors)."
     )
     reference = None
     if ref and ref[0] in f.years:
         reference = ref
         pctl = f.percentile_of(ref[1], ref[0])
-        sub += f" {ref[2]}: {usd_m(ref[1])}, higher than {pctl:.0%} of simulated outcomes."
+        sub += f" {ref[2]}: {usd(ref[1])}, higher than {pctl:.0%} of simulated outcomes."
     fig = fan_chart(
         f,
         fy,
         P[levcol],
         title=f"Ontario {name}: three likely outcomes",
         subtitle=sub,
-        fmt=usd_m,
+        fmt=usd,
         x_label=fy_label,
         reference=reference,
         source=(
@@ -156,5 +157,5 @@ else:
 # ## Export
 
 # %%
-export_figures(pages, config.FINAL_DIR, suffix="_scenarios", pdf_name="scenarios.pdf")
-write_csv(summary, config.FINAL_DIR / "scenarios_summary.csv")
+export_figures(pages, config.CHARTS_DIR, suffix="_scenarios", pdf_name="scenarios.pdf")
+write_csv(summary, config.TABLES_DIR / "scenarios_summary.csv")

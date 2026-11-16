@@ -13,7 +13,7 @@
 # Run cell by cell in PyCharm (Scientific mode) or top-to-bottom:
 #   python analysis/01_eda.py
 # Requires: the ingest + transform steps (see README). Stats via targeted
-# statsmodels/scipy imports in ontario_forecast.stats.
+# statsmodels/scipy imports in ontario_forecast.modeling.stats.
 
 # %%
 import matplotlib.pyplot as plt
@@ -21,10 +21,10 @@ import numpy as np
 
 from ontario_forecast import config
 from ontario_forecast.db import fetch, load_panel
-from ontario_forecast.features import shock_mask
-from ontario_forecast.stats import pearson, unit_root
+from ontario_forecast.modeling.features import shock_mask
+from ontario_forecast.modeling.stats import pearson, unit_root
 
-config.FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+config.EDA_DIR.mkdir(parents=True, exist_ok=True)
 P = load_panel()
 fy = P["fy"]
 covid = shock_mask(fy, config.COVID_SHOCK_FYS)
@@ -32,7 +32,7 @@ covid = shock_mask(fy, config.COVID_SHOCK_FYS)
 
 def savefig(name: str) -> None:
     plt.tight_layout()
-    plt.savefig(config.FIGURES_DIR / f"{name}.png", dpi=150)
+    plt.savefig(config.EDA_DIR / f"{name}.png", dpi=150)
     plt.show()
 
 

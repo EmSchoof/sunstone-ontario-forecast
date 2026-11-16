@@ -18,7 +18,7 @@
     <br /><br />
     <a href="docs/conclusions.md"><strong>Read the conclusions »</strong></a>
     ·
-    <a href="reports/final/">Browse the charts</a>
+    <a href="outputs/charts/">Browse the charts</a>
     ·
     <a href="#quick-start">Run it yourself</a>
   </p>
@@ -30,7 +30,7 @@
     <li><a href="#at-a-glance">At a glance</a></li>
     <li><a href="#documentation">Documentation</a></li>
     <li><a href="#quick-start">Quick start</a></li>
-    <li><a href="#built-with">Built with</a></li>
+    <li><a href="#repository-layout">Repository layout</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
@@ -47,7 +47,7 @@
 | **R4** | International & employer attraction | Use ONT's Taiwan/Mexico flights and the trade zone to attract and keep employers |
 | **R1→R4** | The link between them | A ready local workforce (R1) makes employers easier to attract (R4) |
 
-[![How each recommendation builds Ontario's fiscal base](reports/final/impact_pathways.png)](docs/conclusions.md)
+[![How each recommendation builds Ontario's fiscal base](outputs/charts/impact_pathways.png)](docs/conclusions.md)
 
 > **Preliminary:** most program inputs are still team estimates. The ranking of the findings is meaningful
 > now; the exact dollar figures will change as inputs are sourced.
@@ -67,10 +67,10 @@
 
 | | Document | What's in it |
 |---|---|---|
-| 1 | **[Background](docs/background.md)** | The Sunstone challenge and our client. Ontario's problem: only ~15.5% of working residents work locally, visitors pass through, and businesses cite safety and cost. Also the four recommendations and what this project sets out to test. |
-| 2 | **[Decisions](docs/decisions.md)** | How the team's pre-forecast research (commute data, wage data, asset review, business survey, budget) shaped the model. Why each data source was chosen (official sources first). The modeling and engineering choices, with the alternatives we rejected. |
-| 3 | **[Methods](docs/methods.md)** | The full data engineering pipeline (dlt → DuckDB SQL → quality checks → Nx) and the data science: exploratory analysis, baseline model selection, likely-range scenarios, and an impact formula for each recommendation, plus ROI, sensitivity and limitations. |
-| 4 | **[Conclusions](docs/conclusions.md)** | Results with charts: the status-quo forecasts, short- and long-term impact per recommendation, return per $1 and break-even City cost, which City investments carry the most value, what drives the answer, and how the model judges each recommendation's success. |
+| 1 | **[Background](docs/background.md)** | The challenge, Ontario's problem, and the four recommendations being tested |
+| 2 | **[Decisions](docs/decisions.md)** | *Why*: how the team's research shaped the model, why each data source, choices and rejected alternatives |
+| 3 | **[Methods](docs/methods.md)** | *How*: the data pipeline, model selection, scenarios, the impact formula for each recommendation, ROI and limitations |
+| 4 | **[Conclusions](docs/conclusions.md)** | *Results*: forecasts, short- and long-term impact, return per $1, what drives the answer, and the verdict |
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -96,13 +96,36 @@ uv sync --all-extras && pnpm install && uv run pre-commit install
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Built with
+## Repository layout
 
-[Python](https://www.python.org/) + [uv](https://docs.astral.sh/uv/) ·
-[dlt](https://dlthub.com/) · [DuckDB](https://duckdb.org/) ·
-[statsmodels](https://www.statsmodels.org/) + [SciPy](https://scipy.org/) + numpy ·
-[matplotlib](https://matplotlib.org/) · [Nx](https://nx.dev/) + [pnpm](https://pnpm.io/) ·
-[ruff](https://docs.astral.sh/ruff/), [pre-commit](https://pre-commit.com/), [pytest](https://pytest.org/)
+```
+sunstone-ontario-forecast/
+├── README.md
+├── docs/                         background · decisions · methods · conclusions
+├── src/ontario_forecast/
+│   ├── config.py · db.py         settings (single source of truth) + DuckDB → numpy
+│   ├── ingest/                   dlt sources, LODES aggregation
+│   ├── transform/                SQL staging → marts, data-quality checks
+│   ├── modeling/                 stats · features · evaluation · model · scenarios · impact
+│   └── reporting/                charts · export
+├── analysis/                     pipeline steps: 01_eda → 02 selection → 03 scenarios → 04 impact
+├── tests/                        pytest
+├── data/
+│   ├── reference/                hand-entered source data (budget, airport): loaded by dlt
+│   └── assumptions/              impact-model inputs, each with a source and status
+├── outputs/
+│   ├── charts/                   deliverable PNG · SVG · PDF
+│   ├── tables/                   charted numbers + analysis-ready marts as CSV
+│   ├── models/                   fitted model coefficients (JSON)
+│   └── eda/                      exploratory figures (not tracked)
+├── tools/pipeline-plugin/        Nx generator for new analysis steps
+└── pyproject.toml · uv.lock · package.json · pnpm-*.yaml · nx.json · project.json
+```
+
+Tools and why each was chosen: [Decisions §5](docs/decisions.md#5-engineering-decisions).
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 
 ## Roadmap
 
@@ -110,7 +133,7 @@ uv sync --all-extras && pnpm install && uv run pre-commit install
 - [x] Status-quo forecasts and the recommendation impact model, including ROI
 - [x] Nx orchestration + stage generator
 - [ ] Source the five highest-impact inputs (Stay +1 uptake, Downtown uplift and share, R2 cost, R2 additionality)
-- [ ] Add the City's adopted FY2026–27 budget to `data/manual/city_budget_revenue.csv`
+- [ ] Add the City's adopted FY2026–27 budget to `data/reference/city_budget_revenue.csv`
 - [ ] Load LODES and ACS for the live/work charts
 - [ ] Reconcile the proposal's $216.3M sales-tax figure with State Controller actuals (~$139M)
 

@@ -6,9 +6,10 @@
 #
 # Project conventions:
 # * read data with ontario_forecast.db (DuckDB -> numpy); heavy work belongs in SQL
-# * reuse shared rules (features.py: lags, COVID masks) instead of re-writing them
+# * reuse shared rules (modeling/features.py: lags, COVID masks) instead of re-writing them
 # * official sources first: headline numbers come from marts.headline_metrics
-# * move reusable logic into src/ontario_forecast/ and test it in tests/
+# * move reusable logic into src/ontario_forecast/modeling/ and test it in tests/
+# * charts go to config.CHARTS_DIR, tables to config.TABLES_DIR (reporting/export.py)
 
 # %%
 import matplotlib
@@ -17,7 +18,7 @@ matplotlib.use("Agg")
 
 from ontario_forecast import config  # noqa: E402
 from ontario_forecast.db import load_panel  # noqa: E402
-from ontario_forecast.reporting import write_csv  # noqa: E402
+from ontario_forecast.reporting.export import write_csv  # noqa: E402
 
 P = load_panel()
 fy = P["fy"]
@@ -32,4 +33,4 @@ rows = [{"fy": int(y)} for y in fy]  # replace with this stage's results
 # ## 2. Export
 
 # %%
-write_csv(rows, config.FINAL_DIR / "<%= name %>.csv")
+write_csv(rows, config.TABLES_DIR / "<%= name %>.csv")
