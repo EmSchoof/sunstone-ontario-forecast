@@ -1,4 +1,5 @@
-"""Scenario engine: three statistically likely outcomes (P10 / P50 / P90). numpy only.
+"""Scenario engine: three statistically likely outcomes (P10 / P50 / P90).
+numpy + scipy.special (analysis-time; never imported by the deployed model).
 
 Method (bootstrap of OUT-OF-SAMPLE errors):
     g_{T+h} = mu_h + e*,  e* drawn with replacement from the model's rolling-origin
@@ -22,9 +23,14 @@ Known limits (state them next to the charts):
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 import numpy as np
+from scipy.special import expit, logit
+
+from ontario_forecast.evaluation import mae, rolling_origin
+from ontario_forecast.features import fit_mask, shock_mask
 
 
 @dataclass(frozen=True)
@@ -91,6 +97,61 @@ def ar1_growth(
         prev = a + b * prev + shocks[:, h]
         g[:, h] = prev
     return g
+
+
+def share_paths(
+    periods: np.ndarray,
+    shares: np.ndarray,
+    shock_periods: Iterable[int],
+    horizon: int,
+    n_sims: int,
+    rng: np.random.Generator,
+    min_train: int = 8,
+) -> tuple[np.ndarray, str, int]:
+    """Status-quo simulation of a bounded share (e.g. live/work) on the logit scale.
+
+    Drift is used only if it beats no-change out of sample (same discipline as 02).
+    Returns (paths (n_sims, horizon) in share units, model label, n out-of-sample errors).
+    """
+    z = logit(np.asarray(shares, float))
+    dz, p = np.diff(z), np.asarray(periods)[1:]
+    fit_ok, scored = fit_mask(p, shock_periods), ~shock_mask(p, shock_periods)
+    drift = rolling_origin(dz, None, lambda y, X, x: float(np.mean(y)), min_train, fit_ok)
+    naive = rolling_origin(dz, None, lambda y, X, x: 0.0, min_train, fit_ok)
+    ex = scored[drift.test_idx]
+    use_drift = mae(drift.errors[ex]) < mae(naive.errors[ex])
+    bt = drift if use_drift else naive
+    mu = np.full(horizon, float(np.mean(dz[fit_ok])) if use_drift else 0.0)
+    paths = expit(z[-1] + np.cumsum(bootstrap_growth(mu, bt.errors[ex], n_sims, rng), axis=1))
+    return paths, ("trend" if use_drift else "no change"), int(ex.sum())
+
+
+def model_growth(
+    model,
+    panel: dict,
+    growth_col: str,
+    fit_rows: np.ndarray,
+    horizon: int,
+    n_sims: int,
+    rng: np.random.Generator,
+) -> np.ndarray:
+    """Simulated real log-growth paths (n_sims, horizon) for a saved GrowthForecaster.
+
+    AR(1): recursion from the last observed growth. Lag-1 drivers: year 1 uses the last
+    observed driver; later years use the driver's average over the fitting rows (its
+    future values are unknown). Trend/naive: intercept only.
+    """
+    b = np.asarray(model.coef)
+    e = np.asarray(model.backtest_errors)
+    if model.predictors == [f"lag1_{growth_col}"]:
+        return ar1_growth(b[0], b[1], panel[growth_col][-1], e, horizon, n_sims, rng)
+    mu = np.full(horizon, b[0])
+    if model.predictors:
+        x_last = np.array([panel[p][-1] for p in model.predictors])
+        x_mean = np.array([np.nanmean(panel[p][fit_rows]) for p in model.predictors])
+        mu[0] = b[0] + b[1:] @ x_last
+        mu[1:] = b[0] + b[1:] @ x_mean
+    return bootstrap_growth(mu, e, n_sims, rng)
 
 
 def fan(samples: np.ndarray, first_year: int, quantiles: tuple[float, ...], n_errors: int) -> Fan:

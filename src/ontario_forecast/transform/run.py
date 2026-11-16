@@ -37,9 +37,9 @@ def param_table(con: duckdb.DuckDBPyConnection, name: str, columns: str, rows: l
 PARAMS = {
     "covid_fys": ("fy integer", [[fy] for fy in config.COVID_SHOCK_FYS]),
     "acs_vintages": ("acs_year integer", [[y] for y in config.ACS_NONOVERLAPPING_VINTAGES]),
-    "fred_series": (
+    "bls_series": (
         "series_id varchar, column_name varchar, description varchar",
-        [[sid, col, desc] for sid, (col, desc) in config.FRED_SERIES.items()],
+        [[sid, col, desc] for sid, (col, desc) in config.BLS_SERIES.items()],
     ),
     # Proposal figures: FALLBACKS / comparison columns only (see marts.headline_metrics).
     "proposal_benchmarks": (

@@ -38,25 +38,26 @@ SCO_BASE_URL = "https://bythenumbers.sco.ca.gov/resource/"
 SCO_CITY_REVENUES = "rrtv-rsj9.json"  # Socrata dataset: City - Revenues
 CKAN_PACKAGE_SHOW = "https://data.ca.gov/api/3/action/package_show"
 LAUS_MONTHLY_PACKAGE = "59218446-5760-4683-b52e-f6210021840a"  # EDD LAUS (monthly)
-FRED_CSV_URL = "https://fred.stlouisfed.org/graph/fredgraph.csv"
+BLS_FIRST_YEAR = 1990  # monthly CES/LAUS/CPI history requested from the BLS API
 QCEW_AREA_URL = "https://data.bls.gov/cew/data/api/{year}/a/area/{area}.csv"
 QCEW_FIRST_YEAR = 2014
 LODES_BASE = "https://lehd.ces.census.gov/data/lodes/LODES8/ca"
 LODES_FIRST_YEAR = 2002
 
-# series_id -> (panel column name, description). The ONLY place series IDs live:
-# transform/run.py loads this as staging.fred_series and the SQL pivots by column name.
-FRED_SERIES = {
-    "RIVE106NA": (
+# BLS series_id -> (panel column name, description). The ONLY place series IDs live:
+# transform/run.py loads this as staging.bls_series and the SQL pivots by column name.
+# Requested from the BLS API directly (primary source; FRED only republishes these).
+BLS_SERIES = {
+    "SMU06401400000000001": (
         "msa_nonfarm_jobs_k",
-        "Total nonfarm jobs, Riverside-San Bernardino-Ontario MSA (thousands, NSA)",
+        "CES total nonfarm jobs, Riverside-San Bernardino-Ontario MSA (thousands, NSA)",
     ),
-    "RIVE106LEIHN": ("msa_leisure_jobs_k", "Leisure & hospitality jobs, MSA (thousands, NSA)"),
+    "SMU06401407000000001": ("msa_leisure_jobs_k", "CES leisure & hospitality jobs, MSA (thousands, NSA)"),
     "SMU06401404300000001": (
         "msa_transport_jobs_k",
-        "Transportation & warehousing jobs, MSA (thousands, NSA)",
+        "CES transportation & warehousing jobs, MSA (thousands, NSA)",
     ),
-    "RIVE106UR": ("msa_unemployment_rate", "Unemployment rate, MSA (%, NSA)"),
+    "LAUMT064014000000003": ("msa_unemployment_rate", "LAUS unemployment rate, MSA (%, NSA)"),
     "CUURS49ASA0": ("cpi_la", "CPI-U, Los Angeles area, all items (NSA) - deflator"),
     "CUSR0000SEHB": ("cpi_us_lodging", "CPI-U, US, lodging away from home (SA) - hotel price proxy"),
 }
@@ -128,6 +129,15 @@ SCENARIO_SEED = 20261115  # fixed for reproducible charts
 SCENARIO_QUANTILES = (0.10, 0.50, 0.90)
 LODES_COVID_YEARS = (2020, 2021)  # calendar years (LODES); revenue uses COVID_SHOCK_FYS
 FINAL_DIR = REPORTS_DIR / "final"
+
+# Recommendation impact model (analysis/04_impact.py)
+IMPACT_ASSUMPTIONS = MANUAL_DIR / "impact_assumptions.csv"
+IMPACT_PHASES = MANUAL_DIR / "impact_phases.csv"
+ANCHOR_VISITORS = MANUAL_DIR / "anchor_visitors.csv"
+CITY_INVESTMENTS = MANUAL_DIR / "city_investments.csv"
+IMPACT_HORIZON = 11  # FY2026-FY2036: 10 years after the FY2027 launch
+IMPACT_WINDOWS = {"Short term (FY27-29)": (2027, 2029), "Long term (FY30-36)": (2030, 2036)}
+IMPACT_SIMS = 20_000
 
 # Fiscal years ending June 2020-2022 contain the pandemic collapse and rebound.
 # Flagged so EDA/backtests can show results with and without them.

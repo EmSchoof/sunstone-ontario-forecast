@@ -2,7 +2,7 @@
 
 python -m ontario_forecast.ingest.run --skip-lodes        # fast sources (~1 min)
 python -m ontario_forecast.ingest.run --lodes-years 2002-2024
-python -m ontario_forecast.ingest.run --only fred_observations
+python -m ontario_forecast.ingest.run --only bls_observations
 """
 
 from __future__ import annotations

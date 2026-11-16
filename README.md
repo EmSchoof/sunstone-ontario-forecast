@@ -24,7 +24,7 @@ brings pandas in at analysis time only, and the deployed model never imports it.
 ```
 src/ontario_forecast/
   config.py               paths, geography, source IDs, COVID years, proposal benchmarks
-  ingest/sources.py       dlt resources (SCO, EDD LAUS, FRED, QCEW, LODES, ACS, OEWS, manual CSVs)
+  ingest/sources.py       dlt resources (SCO, EDD LAUS, BLS API, QCEW, LODES, ACS, OEWS, manual CSVs)
   ingest/lodes.py         DuckDB aggregation of LODES origin-destination files
   ingest/run.py           CLI: load raw.*
   transform/sql/*.sql     staging + marts (fiscal-year aligned panel)
@@ -40,7 +40,8 @@ src/ontario_forecast/
 analysis/
   01_eda.py               EDA (# %% cells)
   02_variable_selection.py
-  03_scenarios.py         final export -> reports/final/
+  03_scenarios.py         final export -> reports/final/ (status-quo baselines)
+  04_impact.py            recommendation impact model -> reports/final/impact_*
 tests/                    pytest
 data/manual/              hand-entered sources (tracked)
 data/warehouse/, data/processed/, reports/figures/   generated (git-ignored)
@@ -50,7 +51,7 @@ data/warehouse/, data/processed/, reports/figures/   generated (git-ignored)
 
 | Defined once in | Used by |
 |---|---|
-| `config.py`: cities, FRED series IDs + column names, COVID years, ACS vintages, forecast targets, proposal fallbacks | ingest, SQL (via `staging.*` parameter tables), analyses |
+| `config.py`: cities, BLS series IDs + column names, COVID years, ACS vintages, forecast targets, proposal fallbacks | ingest, SQL (via `staging.*` parameter tables), analyses |
 | `transform/run.py: PARAMS` | every SQL parameter. Add it here, then reference `staging.<name>` |
 | `features.py` | lag + COVID fit/score rules for selection (02) and scenarios (03) |
 | `db.load_panel()` | the one panel query |
@@ -72,12 +73,13 @@ uv run pre-commit install     # ruff + hygiene checks on every git commit
 ## Run order
 
 ```bash
-uv run python -m ontario_forecast.ingest.run --skip-lodes          # SCO, LAUS, FRED, QCEW, ACS, OEWS, manual
+uv run python -m ontario_forecast.ingest.run --skip-lodes          # SCO, LAUS, BLS, QCEW, ACS, OEWS, manual
 uv run python -m ontario_forecast.ingest.run --only lodes_ontario_flows   # ~2 GB streamed, incremental
 uv run python -m ontario_forecast.transform.run                    # build marts, run checks, export
 uv run python analysis/01_eda.py
 uv run python analysis/02_variable_selection.py
-uv run python analysis/03_scenarios.py                             # final charts -> reports/final/
+uv run python analysis/03_scenarios.py                             # status-quo charts -> reports/final/
+uv run python analysis/04_impact.py                                # recommendation impact -> reports/final/
 uv run pytest
 ```
 
@@ -96,7 +98,7 @@ bls_api_key = "..."      # https://data.bls.gov/registrationEngine/     (raises 
 |---|---|---|---|
 | CA State Controller, City Revenues | `raw.sco_city_revenue_lines` | city x FY x line item | FY2003+ (Ontario + 10 peers) |
 | CA EDD LAUS (data.ca.gov) | `raw.laus_city_monthly` | city x month | ~2010+ |
-| FRED (BLS CES, CPI) | `raw.fred_observations` | series x month | 1990+ |
+| BLS API (CES jobs, LAUS unemployment, CPI) | `raw.bls_observations` | series x month | 1990+ |
 | BLS QCEW, San Bernardino County | `raw.qcew_county_annual` | sector x year | 2014+ |
 | Census LODES 8 OD (main + aux) | `raw.lodes_ontario_flows` | year (aggregated) | 2002+ |
 | Census ACS 5-year (key) | `raw.acs_place` | geo x vintage x variable | 2010+ |
@@ -142,6 +144,34 @@ simulation draws 20,000 paths by resampling the selected model's *out-of-sample*
 which makes them the counterfactual the proposal's dashboard metrics are judged against. The hotel-tax chart
 marks the City's FY27 budget figure and reports its percentile. Every charted number is
 in `reports/final/scenarios_summary.csv`.
+
+## Recommendation impact model (`impact.py`, `analysis/04_impact.py`)
+
+The baseline answers "what happens if nothing changes." The impact model answers
+"what does each recommendation add on top of the City's existing investments, in the short and long term?"
+
+| Recommendation | Builds on | Mechanism (each step is an input) | Fiscal channels | Dashboard KPI |
+|---|---|---|---|---|
+| R1 Career Pathways | employers at ONT/HUB@ONT, Chaffey/CPP/CSUSB, Ontario Ranch | interns -> conversions -> *additional* resident hires (with attrition) -> wages + new households | sales tax, property tax | residents working in Ontario, conversion, starting wage |
+| R2 Connected Destination | ONT, Sports Empire, Toyota Arena, Mills, West Valley Connector | anchor visits x overnight share x de-duplication x Stay +1 uptake -> added nights | hotel tax, sales tax | average stay, hotel tax |
+| R3 Clean, Safe & Green | Downtown, DOIA | district share of sales x uplift x non-displacement | sales tax | foot traffic, perceived safety |
+| R4 International & employers | ONT nonstop Taiwan/Mexico, FTZ 50 | firms x jobs x attribution -> resident hires + business sales | sales tax, property tax | partner firms, retention |
+| R1 -> R4 synergy | the Career Pathways workforce | Career Pathways workforce in place (lagged one year) -> additional firms attracted | sales tax, property tax | firms citing the pipeline |
+
+- **Inputs** live in `data/manual/`: `impact_assumptions.csv` (low/mode/high, unit, status, source),
+  `impact_phases.csv` (start and full-scale fiscal years from proposal Sec. 5), `anchor_visitors.csv`,
+  and `city_investments.csv`.
+- **Status:** `official` (e.g. BLS OEWS wages, which override the proposal's wages automatically),
+  `proposal` (the team's own plan and costs), or `assumption` (a placeholder that every chart footnote counts).
+  Source the assumptions with the biggest effect first; the sensitivity chart ranks them.
+- **Conservative by design:** every effect is net of additionality (what would have happened anyway)
+  and displacement, and includes City cost. Multiplier effects are excluded.
+- **Outputs** (`reports/final/impact_*`):
+  - pathway page (logic model with short- and long-term values)
+  - annual net by recommendation, and short- vs long-term bars
+  - hotel tax and live/work share, status quo vs with recommendations
+  - investment leverage, and sensitivity (tornado)
+  - CSVs of every number, including `impact_inputs_used.csv`
 
 Retraining cadence: annually, when the State Controller publishes a new fiscal year.
 Monitor each new year's actual against the forecast interval.

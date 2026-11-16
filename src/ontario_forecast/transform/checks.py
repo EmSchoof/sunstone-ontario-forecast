@@ -37,7 +37,7 @@ CHECKS: tuple[Check, ...] = (
     ),
     Check(
         "no fiscal year has more than 12 months (duplicate months)",
-        "select 'fred' src, series_id, fy, n_months from marts.fred_fy where n_months > 12 "
+        "select 'bls' src, series_id, fy, n_months from marts.bls_fy where n_months > 12 "
         "union all select 'laus', city, fy, n_months from marts.laus_city_fy where n_months > 12",
     ),
     Check(

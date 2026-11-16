@@ -28,7 +28,7 @@ from ontario_forecast.ingest.lodes import aggregate_flows, load_ontario_blocks
 
 
 def _num(x: str | None) -> float | None:
-    """Parse numbers; FRED uses '.', other sources use '' for missing."""
+    """Parse numbers; '.', '-' and '' mean missing; BLS suppression codes ('*', '#') -> None."""
     if x is None:
         return None
     x = x.strip().replace(",", "")
@@ -133,15 +133,53 @@ def laus_city_monthly(cities: tuple[str, ...] = config.ALL_CITIES) -> Iterator[l
 
 
 # ---------------------------------------------------------------------------
-# FRED - MSA employment and CPI (monthly), long format
+# BLS API (shared by monthly series and OEWS)
 # ---------------------------------------------------------------------------
-@dlt.resource(name="fred_observations", write_disposition="replace")
-def fred_observations(series: tuple[str, ...] = tuple(config.FRED_SERIES)) -> Iterator[list[dict]]:
-    for sid in series:
-        text = requests.get(config.FRED_CSV_URL, params={"id": sid}, timeout=180).text
-        reader = csv.reader(io.StringIO(text))
-        next(reader)  # header
-        yield [{"series_id": sid, "obs_date": date.fromisoformat(d), "value": _num(v)} for d, v in reader]
+def _bls_series(series_ids: list[str], **params) -> list[dict]:
+    """POST to the BLS API in chunks; returns the Results.series list.
+
+    Limits: 25 series and 10 years per request without a key; 50 and 20 with
+    BLS_API_KEY (which also raises the daily cap from 25 to 500 requests).
+    """
+    key = _secret("bls_api_key")
+    chunk = 50 if key else 25
+    out = []
+    for i in range(0, len(series_ids), chunk):
+        payload = {"seriesid": series_ids[i : i + chunk], **params}
+        if key:
+            payload["registrationkey"] = key
+        resp = requests.post(config.BLS_API_URL, json=payload, timeout=120).json()
+        if resp.get("status") != "REQUEST_SUCCEEDED":
+            raise RuntimeError(f"BLS API: {resp.get('message')}")
+        for msg in resp.get("message", []):
+            log.warning("BLS API: %s", msg)  # e.g. a series that does not exist
+        out += resp["Results"]["series"]
+    return out
+
+
+# ---------------------------------------------------------------------------
+# BLS monthly series: MSA employment (CES), unemployment (LAUS), CPI - long format
+# ---------------------------------------------------------------------------
+@dlt.resource(name="bls_observations", write_disposition="replace")
+def bls_observations(
+    series: tuple[str, ...] = tuple(config.BLS_SERIES),
+    first_year: int = config.BLS_FIRST_YEAR,
+    last_year: int = date.today().year,
+) -> Iterator[list[dict]]:
+    span = 20 if _secret("bls_api_key") else 10  # years per request allowed by BLS
+    for start in range(first_year, last_year + 1, span):
+        end = min(start + span - 1, last_year)
+        for s in _bls_series(list(series), startyear=str(start), endyear=str(end)):
+            yield [
+                {
+                    "series_id": s["seriesID"],
+                    "obs_date": date(int(d["year"]), int(d["period"][1:]), 1),
+                    "value": _num(d["value"]),
+                    "preliminary": any(f.get("code") == "P" for f in d.get("footnotes", []) if f),
+                }
+                for d in s["data"]
+                if d["period"].startswith("M") and d["period"] != "M13"  # M13 = annual average
+            ]
 
 
 # ---------------------------------------------------------------------------
@@ -265,37 +303,28 @@ def acs_place(
 # ---------------------------------------------------------------------------
 @dlt.resource(name="oews_msa_occupations", write_disposition="replace")
 def oews_msa_occupations() -> Iterator[list[dict]]:
-    key = _secret("bls_api_key")
     ids = {
         f"OEUM{config.OEWS_MSA}000000{soc}{dt}": (soc, dt)
         for soc in config.OEWS_OCCUPATIONS
         for dt in config.OEWS_DATATYPES
     }
-    sids, chunk = list(ids), (50 if key else 25)  # BLS per-request series limits
-    for i in range(0, len(sids), chunk):
-        payload: dict = {"seriesid": sids[i : i + chunk]}
-        if key:
-            payload["registrationkey"] = key
-        resp = requests.post(config.BLS_API_URL, json=payload, timeout=120).json()
-        if resp.get("status") != "REQUEST_SUCCEEDED":
-            raise RuntimeError(f"BLS API: {resp.get('message')}")
-        rows = []
-        for s in resp["Results"]["series"]:
-            soc, dt = ids[s["seriesID"]]
-            title, pathway = config.OEWS_OCCUPATIONS[soc]
-            rows += [
-                {
-                    "series_id": s["seriesID"],
-                    "soc": f"{soc[:2]}-{soc[2:]}",
-                    "occupation": title,
-                    "pathway": pathway,
-                    "measure": config.OEWS_DATATYPES[dt],
-                    "year": int(d["year"]),
-                    "value": _num(d["value"]),
-                }  # '*'/'#' suppressed -> None
-                for d in s["data"]
-            ]
-        yield rows
+    rows = []
+    for s in _bls_series(list(ids)):
+        soc, dt = ids[s["seriesID"]]
+        title, pathway = config.OEWS_OCCUPATIONS[soc]
+        rows += [
+            {
+                "series_id": s["seriesID"],
+                "soc": f"{soc[:2]}-{soc[2:]}",
+                "occupation": title,
+                "pathway": pathway,
+                "measure": config.OEWS_DATATYPES[dt],
+                "year": int(d["year"]),
+                "value": _num(d["value"]),
+            }  # '*'/'#' suppressed -> None
+            for d in s["data"]
+        ]
+    yield rows
 
 
 # ---------------------------------------------------------------------------
@@ -325,7 +354,7 @@ def ontario_source(
     resources = [
         sco_city_revenue_lines(),
         laus_city_monthly(),
-        fred_observations(),
+        bls_observations(),
         qcew_county_annual(),
         acs_place(),
         oews_msa_occupations(),

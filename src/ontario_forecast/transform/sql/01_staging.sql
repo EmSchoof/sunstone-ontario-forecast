@@ -70,10 +70,10 @@ where seasonally_adjusted = 'N'
   and month in ('January','February','March','April','May','June','July',
                 'August','September','October','November','December');
 
--- FRED: long monthly ----------------------------------------------------------
-create or replace table staging.fred_month as
+-- BLS (CES, LAUS, CPI): long monthly -----------------------------------------
+create or replace table staging.bls_month as
 select series_id, obs_date::date as month_start, value
-from raw.fred_observations
+from raw.bls_observations
 where value is not null;
 
 -- QCEW: county x NAICS sector, calendar year ---------------------------------

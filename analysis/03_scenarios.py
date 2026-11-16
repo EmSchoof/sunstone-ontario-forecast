@@ -12,22 +12,17 @@
 #   python analysis/03_scenarios.py      (after 01 and 02)
 
 # %%
-import csv
-
 import matplotlib
 import numpy as np
 
 matplotlib.use("Agg")  # file export only; must precede pyplot (imported by charts)
 
-from matplotlib.backends.backend_pdf import PdfPages  # noqa: E402
-from scipy.special import expit, logit  # noqa: E402
-
 from ontario_forecast import config, scenarios  # noqa: E402
 from ontario_forecast.charts import fan_chart, pct, usd_m  # noqa: E402
 from ontario_forecast.db import fetch, load_panel  # noqa: E402
-from ontario_forecast.evaluation import mae, rolling_origin  # noqa: E402
-from ontario_forecast.features import fit_mask, shock_mask  # noqa: E402
+from ontario_forecast.features import fit_mask  # noqa: E402
 from ontario_forecast.model import GrowthForecaster  # noqa: E402
+from ontario_forecast.reporting import export_figures, write_csv  # noqa: E402
 
 config.FINAL_DIR.mkdir(parents=True, exist_ok=True)
 rng = np.random.default_rng(config.SCENARIO_SEED)
@@ -47,18 +42,7 @@ pages, summary = [], []
 
 
 def growth_paths(model: GrowthForecaster, ycol: str) -> np.ndarray:
-    """Simulated real log-growth paths for the selected model."""
-    b = np.asarray(model.coef)
-    e = np.asarray(model.backtest_errors)
-    if model.predictors == [f"lag1_{ycol}"]:  # AR(1)
-        return scenarios.ar1_growth(b[0], b[1], P[ycol][-1], e, H, N, rng)
-    mu = np.full(H, b[0])
-    if model.predictors:  # lag-1 drivers
-        x_last = np.array([P[p][-1] for p in model.predictors])  # known at forecast time
-        x_mean = np.array([np.nanmean(P[p][fit_ok]) for p in model.predictors])  # same rows as fit
-        mu[0] = b[0] + b[1:] @ x_last  # year 1: driver observed
-        mu[1:] = b[0] + b[1:] @ x_mean  # later years: driver unknown -> its average
-    return scenarios.bootstrap_growth(mu, e, N, rng)
+    return scenarios.model_growth(model, P, ycol, fit_ok, H, N, rng)
 
 
 # %% [markdown]
@@ -142,21 +126,9 @@ L = fetch(
     "where share_residents_work_local is not null order by cy"
 )
 if len(L.get("cy", [])) >= 12:
-    cy, z = L["cy"], logit(L["s"])
-    dz = np.diff(z)
-    yrs = cy[1:]
-    fit_ok_l = fit_mask(yrs, config.LODES_COVID_YEARS)  # same rule as the revenue models
-    scored = ~shock_mask(yrs, config.LODES_COVID_YEARS)
-    min_train = 8
-    drift = rolling_origin(dz, None, lambda y, X, x: float(np.mean(y)), min_train, fit_ok_l)
-    naive = rolling_origin(dz, None, lambda y, X, x: 0.0, min_train, fit_ok_l)
-    ex = scored[drift.test_idx]
-    use_drift = mae(drift.errors[ex]) < mae(naive.errors[ex])
-    bt = drift if use_drift else naive
-    model_label = "trend" if use_drift else "no change"
-    mu = np.full(H, float(np.mean(dz[fit_ok_l])) if use_drift else 0.0)
-    paths = expit(z[-1] + np.cumsum(scenarios.bootstrap_growth(mu, bt.errors[ex], N, rng), axis=1))
-    f = scenarios.fan(paths, int(cy[-1]) + 1, Q, int(ex.sum()))
+    cy = L["cy"]
+    paths, model_label, n_err = scenarios.share_paths(cy, L["s"], config.LODES_COVID_YEARS, H, N, rng)
+    f = scenarios.fan(paths, int(cy[-1]) + 1, Q, n_err)
     lo, mid, hi = f.final()
     fig = fan_chart(
         f,
@@ -166,7 +138,7 @@ if len(L.get("cy", [])) >= 12:
         subtitle=(
             f"{f.years[-1]}: central {pct(mid)}, {band} of outcomes between {pct(lo)} and {pct(hi)} "
             f"if nothing changes. Model: {model_label} "
-            f"({int(ex.sum())} out-of-sample errors). Career Pathways success = beating this band."
+            f"({n_err} out-of-sample errors). Career Pathways success = beating this band."
         ),
         fmt=pct,
         x_label=lambda v: f"{int(v)}",
@@ -185,17 +157,5 @@ else:
 # ## Export
 
 # %%
-with PdfPages(config.FINAL_DIR / "scenarios.pdf") as pdf:
-    for key, fig in pages:
-        fig.savefig(config.FINAL_DIR / f"{key}_scenarios.png", dpi=200)
-        fig.savefig(config.FINAL_DIR / f"{key}_scenarios.svg")
-        pdf.savefig(fig)
-with open(config.FINAL_DIR / "scenarios_summary.csv", "w", newline="") as fh:
-    if summary:
-        w = csv.DictWriter(fh, fieldnames=list(summary[0]))
-        w.writeheader()
-        w.writerows(summary)
-print(
-    f"Exported {len(pages)} chart(s) + scenarios.pdf + scenarios_summary.csv to "
-    f"{config.FINAL_DIR.relative_to(config.ROOT)}/"
-)
+export_figures(pages, config.FINAL_DIR, suffix="_scenarios", pdf_name="scenarios.pdf")
+write_csv(summary, config.FINAL_DIR / "scenarios_summary.csv")

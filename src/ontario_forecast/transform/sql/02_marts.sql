@@ -2,9 +2,9 @@
 
 -- Monthly -> fiscal-year averages. n_months lets the panel drop partial years
 -- (averaging 7 months of a growing series would bias the FY level).
-create or replace table marts.fred_fy as
+create or replace table marts.bls_fy as
 select series_id, fiscal_year(month_start) as fy, avg(value) as value, count(*) as n_months
-from staging.fred_month group by all;
+from staging.bls_month group by all;
 
 create or replace table marts.laus_city_fy as
 select city, fiscal_year(month_start) as fy,
@@ -16,7 +16,7 @@ from staging.laus_city_month group by all;
 
 -- Peer comparison: tax revenue for Ontario and neighbors -----------------------
 create or replace table marts.city_tax_fy as
-with cpi as (select fy, value as cpi from marts.fred_fy join staging.fred_series using (series_id)
+with cpi as (select fy, value as cpi from marts.bls_fy join staging.bls_series using (series_id)
              where column_name = 'cpi_la' and n_months = 12),
 base as (select cpi as cpi_base from cpi
          where fy = (select max(fy) from staging.city_tax_fy where fy in (select fy from cpi)))
@@ -32,8 +32,8 @@ left join base b on true;   -- not a cross join: an empty base must not drop eve
 
 -- Ontario modeling panel: one row per fiscal year ------------------------------
 create or replace table marts.ontario_fy_panel as
--- FRED series IDs live only in config.FRED_SERIES (staging.fred_series); pivot by column name.
-with fred as (
+-- BLS series IDs live only in config.BLS_SERIES (staging.bls_series); pivot by column name.
+with bls as (
     select fy,
         max(value) filter (where column_name = 'msa_nonfarm_jobs_k')    as msa_nonfarm_jobs_k,
         max(value) filter (where column_name = 'msa_leisure_jobs_k')    as msa_leisure_jobs_k,
@@ -41,7 +41,7 @@ with fred as (
         max(value) filter (where column_name = 'msa_unemployment_rate') as msa_unemployment_rate,
         max(value) filter (where column_name = 'cpi_la')                as cpi_la,
         max(value) filter (where column_name = 'cpi_us_lodging')        as cpi_us_lodging
-    from marts.fred_fy join staging.fred_series using (series_id)
+    from marts.bls_fy join staging.bls_series using (series_id)
     where n_months = 12 group by fy),
 laus as (
     select fy, labor_force as laus_labor_force, employment as laus_employment,
@@ -60,7 +60,7 @@ base as (
            f.* exclude (fy), l.* exclude (fy), o.* exclude (fy),
            t.fy in (select fy from staging.covid_fys) as covid_shock   -- from config.COVID_SHOCK_FYS
     from marts.city_tax_fy t
-    left join fred f using (fy) left join laus l using (fy) left join lodes o using (fy)
+    left join bls f using (fy) left join laus l using (fy) left join lodes o using (fy)
     where t.city = 'Ontario')
 select *,
     -- Growth rates (log differences). Levels of trending series are non-stationary;

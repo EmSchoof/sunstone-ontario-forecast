@@ -23,7 +23,7 @@ def con():
         ) t(entity_name, fiscal_year, line_description, value, estimated_population)""")
     # CPI flat at 100 for full fiscal years 2015-2017 (Jul 2014 .. Jun 2017)
     # Explicit AS: `value` is a keyword in DuckDB >= 1.5, so implicit aliases fail to parse.
-    c.execute("""create table raw.fred_observations as
+    c.execute("""create table raw.bls_observations as
         select 'CUURS49ASA0' as series_id, d::date as obs_date, 100.0 as value
         from range(date '2014-07-01', date '2017-07-01', interval 1 month) as r(d)""")
     c.execute("""create table raw.laus_city_monthly as select * from (values
@@ -61,8 +61,8 @@ def test_partial_fiscal_years_excluded_from_panel(con):
     assert con.execute("select count(laus_employment) from marts.ontario_fy_panel").fetchone()[0] == 0
 
 
-def test_fred_series_ids_come_from_config(con):
-    # CPI is joined by column name via staging.fred_series, so the deflator resolves
+def test_bls_series_ids_come_from_config(con):
+    # CPI is joined by column name via staging.bls_series, so the deflator resolves
     assert con.execute("select count(cpi_la) from marts.ontario_fy_panel").fetchone()[0] == 3
 
 
