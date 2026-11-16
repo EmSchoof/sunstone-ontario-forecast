@@ -75,10 +75,14 @@ is a labeled fallback only (`is_fallback` in `marts.headline_metrics`), and diff
 | Model **growth rates**, not levels | Regress levels on levels | Trending series correlate by coincidence (spurious regression) |
 | **At most 1 predictor**, chosen from **6 named in advance** | Search many indicators | ~20 annual points; searching dozens of indicators always "finds" something |
 | Predictors enter **with a one-year lag** | Same-year predictors | Same-year values aren't known when the forecast is made |
-| Choose by **out-of-sample error vs "same as last year"** | In-sample R² or p-values | Only out-of-sample error shows forecasting skill |
+| Choose by **out-of-sample error vs "same as last year"**, and require a **10% margin** | In-sample R² or p-values; accepting any edge over naive | Only out-of-sample error shows forecasting skill, and a few-percent edge among ~9 models on ~8 test years is luck |
 | **COVID FYs (2020–23) excluded from fitting** | Fit through them | Two pandemic years would set the slope on their own |
 | **Classical statistics** (statsmodels/scipy) + numpy simulation | Darts, XGBoost, neural networks | Far too few observations; flexible models would fit noise |
-| **Ranges from real forecast errors** (bootstrap) | Textbook normal intervals | Uses how wrong the model actually was on unseen years |
+| **Ranges from real forecast errors** (bootstrap), **centered** | Textbook normal intervals; raw errors | Uses how wrong the model actually was on unseen years, while keeping the central path equal to the selected model's forecast |
+| City sales-tax rate of **2% on in-person spending** (Bradley-Burns + Measure Q), 1% on business-to-business sales | 1% everywhere | Measure Q (1%, approved 2022) applies to sales made or delivered in Ontario; ignoring it halves visitor, Downtown and resident sales tax |
+| ONT visitors = **half the passenger count** | Use all 7M passengers | Airports report enplaned + deplaned, so each traveler is counted twice |
+| Residents who'd live here anyway add only their **spending gain** | Count the full wage of every placed resident | Their spending was already in Ontario before the program |
+| ROI over the **whole program, in present value**; R1 + R4 also judged as one package | ROI for FY30–36 only, undiscounted | A late window skips the start-up years; the R1→R4 revenue is paid for by R1 |
 | Impact counts only **additional, non-displaced** effects, net of **City cost**; **no multipliers** | Gross economic impact with multipliers | Conservative, defensible to a City finance reviewer |
 
 ## 5. Engineering decisions

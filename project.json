@@ -51,9 +51,15 @@
       "dependsOn": ["select"],
       "options": { "command": "uv run python analysis/04_impact.py" }
     },
+    "docs-pdf": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "dependsOn": ["scenarios", "impact"],
+      "options": { "command": "uv run python -m ontario_forecast.reporting.pdf docs/conclusions.md" }
+    },
     "report": {
       "executor": "nx:noop",
-      "dependsOn": ["eda", "scenarios", "impact"]
+      "dependsOn": ["eda", "scenarios", "impact", "docs-pdf"]
     },
     "e2e": {
       "executor": "nx:run-commands",

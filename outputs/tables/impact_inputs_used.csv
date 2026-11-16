@@ -1,5 +1,6 @@
 key,recommendation,description,low,mode,high,unit,status,source
 local_sales_tax_rate,shared,City share of taxable sales (Bradley-Burns local 1%),0.01,0.01,0.01,share,official,CA Rev. & Tax. Code 7202 (Bradley-Burns 1% local rate)
+measure_q_rate,shared,Ontario Measure Q transactions and use tax on sales made or delivered in the city (added to Bradley-Burns for in-person spending),0.01,0.01,0.01,share,official,City of Ontario FY 2026-27 Adopted Annual Operating Budget PDF p. 14 and p. 64 (Measure Q: 1% transactions and use tax effective April 1 2023; destination-based)
 pathway_wage,R1,Annual wage of a converted pathway hire (overridden by OEWS medians when loaded),63850.0,75080.0,109990.0,USD/yr,official,"BLS OEWS 2025, Riverside-San Bernardino-Ontario MSA, pathway occupation medians"
 taxable_spend_share,shared,Share of a worker's income spent on taxable goods,0.25,0.3,0.35,share,assumption,TEAM ASSUMPTION - source from BLS Consumer Expenditure Survey (West region)
 local_capture,shared,Share of a resident's taxable spending made inside Ontario,0.3,0.45,0.6,share,assumption,TEAM ASSUMPTION - source from CDTFA/retail leakage study
@@ -13,7 +14,7 @@ dedup_factor,R2,Share of anchor visits that are unique trips (visitors attend se
 stay1_uptake,R2,Share of overnight visitor parties that add one night through Stay +1,0.005,0.02,0.05,share,assumption,TEAM ASSUMPTION - package uptake; measured in Phase 1
 persons_per_room,R2,Visitors per room-night (also party size),2.0,2.5,3.0,people,assumption,TEAM ASSUMPTION - sports/event families skew higher
 adr,R2,Average daily room rate (real FY2025 dollars),120.0,145.0,175.0,USD,assumption,TEAM ASSUMPTION - source from STR or Greater Ontario CVB
-tot_rate,R2,Ontario Transient Occupancy Tax rate,0.11,0.115,0.12,share,assumption,TEAM ASSUMPTION - VERIFY in Ontario Municipal Code before use
+tot_rate,R2,Ontario Transient Occupancy Tax rate,0.1175,0.1175,0.1175,share,official,City of Ontario FY 2026-27 Adopted Annual Operating Budget PDF p. 66 (Ontario Municipal Code 3-6.03: 11.75% of rent)
 visitor_daily_taxable_spend,R2,Non-lodging taxable spend per visitor per added day (real $),40.0,70.0,110.0,USD/person-day,assumption,TEAM ASSUMPTION - source from Visit California / Dean Runyan county visitor spending
 r2_additionality,R2,Share of added nights that would NOT have happened without Stay +1,0.4,0.6,0.8,share,assumption,TEAM ASSUMPTION - removes visitors who would have extended anyway
 downtown_share_of_sales,R3,Downtown pilot district share of citywide taxable sales,0.02,0.04,0.07,share,assumption,TEAM ASSUMPTION - source from CDTFA/HdL district sales data
@@ -33,7 +34,9 @@ persons_per_household,shared,Residents per household formed by a retained/new re
 city_property_tax_per_household,shared,City General Fund property tax per household (real $/yr),300.0,500.0,800.0,USD/yr,assumption,TEAM ASSUMPTION - VERIFY from City budget property tax / housing units (Ontario Ranch new homes skew higher)
 nonworker_spend_per_resident,shared,Taxable spending in Ontario per additional household member who is not the worker (real $/yr),2000.0,3500.0,5000.0,USD/person-yr,assumption,TEAM ASSUMPTION - source from BLS Consumer Expenditure Survey
 r1_to_r4_synergy,R4,Added firms/yr per 100 Career Pathways placements in the local workforce stock (workforce pipeline as an attraction tool),0.0,0.3,1.0,firms/yr per 100 workers,assumption,TEAM ASSUMPTION - the proposal's core claim; test via business attraction pipeline tracking
-overnight_Ontario International Airport,R2,Ontario International Airport overnight share,0.1,0.2,0.3,share,assumption,"Proposal Sec. 3 (7M+ passengers); overnight share = arriving visitors staying in Ontario, TEAM ASSUMPTION; replace with ONT traffic reports"
+stayer_spending_gain,shared,Share of a placed worker's local taxable spending that is new when the worker would have lived in Ontario anyway (higher wage; spending near a local job),0.0,0.15,0.3,share,assumption,TEAM ASSUMPTION - counterfactual: these residents already spent in Ontario; source from wage gain at placement
+discount_rate,shared,Real annual discount rate for present-value return on investment,0.02,0.03,0.05,share/yr,assumption,TEAM ASSUMPTION - OMB Circular A-4 uses 2% (2023) and 3% (2003) real; confirm the rate City Finance uses
+overnight_Ontario International Airport,R2,Ontario International Airport overnight share,0.1,0.2,0.3,share,assumption,"Proposal Sec. 3 (7M+ passengers); overnight share = arriving visitors staying in Ontario, TEAM ASSUMPTION; replace with ONT traffic reports. arrival_share 0.5: the 7M count is enplaned + deplaned (ONT traffic report Jan 2024: 235,084 deplaned of 469,589)"
 overnight_Ontario Mills,R2,Ontario Mills overnight share,0.01,0.03,0.06,share,assumption,Proposal Sec. 3 (~12M visits); overnight share TEAM ASSUMPTION (mostly day trips)
 overnight_Toyota Arena,R2,Toyota Arena overnight share,0.05,0.1,0.2,share,assumption,Proposal Sec. 3 (~1.2M guests); overnight share TEAM ASSUMPTION
 overnight_Ontario Sports Empire,R2,Ontario Sports Empire overnight share,0.15,0.3,0.45,share,assumption,"Proposal Sec. 3 (City projection ~1.2M); tournaments drive overnight stays, TEAM ASSUMPTION"

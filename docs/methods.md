@@ -54,6 +54,8 @@ All API keys come from environment variables or `.dlt/secrets.toml`, which is ne
   `config.py` into `staging.*` tables, so the SQL never hard-codes them.
 - **Staging:** one cleaned, typed table per source.
   - `city_tax_fy`: the hotel-tax rename is joined, the triple flip is added back, and only General Revenues lines are kept.
+    Measure Q (the City's 1% transactions and use tax, approved November 2022) is kept as its own column,
+    outside the forecast series, so it doesn't create a false jump.
   - `laus_city_month`, `bls_month`: monthly series.
   - `lodes_ontario_cy`: live/work counts and shares.
   - `acs_place`, `oews_msa`, `city_budget`.
@@ -123,18 +125,22 @@ The marts listed above are exported as CSV to `outputs/tables/` once the checks 
    rows excluded from fitting. It predicts year *t*, and errors are converted to dollars using the known prior-year level.
 4. **Fair comparison:** each model is compared with "same as last year" **on its own available years**, giving
    `rel = MAE / naive MAE`. A model needs at least 5 test years outside COVID to be eligible.
-5. **Selection:** a model must beat naive both with and without COVID. Among those, pick the simplest within 5%
-   of the best. Otherwise naive is used.
+5. **Selection:** a model must cut naive's error by **at least 10%** (`config.SELECTION_MIN_GAIN`), both with and
+   without COVID. Among those, pick the simplest within 5% of the best. Otherwise naive is used. The margin
+   exists because about 9 models are compared on about 8 test years: a 2–7% edge there is what luck looks like.
 6. **Saved model:** fitted with statsmodels OLS and stored as JSON (coefficients plus out-of-sample errors),
    so the deployed model is numpy only.
 
 ### B3. Status-quo scenarios (`analysis/03_scenarios.py`)
 
-$$g^{(s)}_{T+h} = \mu_h + e^{(s)}, \qquad e^{(s)} \sim \text{resample(out-of-sample errors)}$$
+$$g^{(s)}_{T+h} = \mu_h + e^{(s)}, \qquad e^{(s)} \sim \text{resample(out-of-sample errors} - \bar e)$$
 
 $$R^{(s)}_{T+h} = R_T \cdot \exp\Big(\sum_{k \le h} g^{(s)}_{T+k}\Big)$$
 
 - **Simulation:** 20,000 simulated futures with a fixed seed. P10/P50/P90 are taken per year.
+- **Centered errors:** the average error is removed before resampling, so the middle of the range is the
+  selected model's own forecast. Without this, a "same as last year" model would grow each year by its
+  average past error, which is the trend model it was chosen over.
 - **Model types:** AR(1) runs recursively. A lag-1 driver uses its last observed value in year 1 and its
   historical average afterwards.
 - **Live/work share:** simulated on the logit scale, so shares stay between 0 and 1.
@@ -149,8 +155,12 @@ $$R^{(s)}_{T+h} = R_T \cdot \exp\Big(\sum_{k \le h} g^{(s)}_{T+k}\Big)$$
   (`impact_phases.csv`, from proposal §5).
 - **Outputs:** real FY2025 dollars, per recommendation and channel (hotel, sales, property tax), net of City cost.
 
-Notation: $r_t$ = phase ramp, $\tau$ = 1% Bradley-Burns local sales-tax rate,
-$S(x)_t = S_{t-1}(1-a) + x_t$ = a cumulative total with yearly attrition $a$.
+Notation: $r_t$ = phase ramp, $S(x)_t = S_{t-1}(1-a) + x_t$ = a cumulative total with yearly attrition $a$.
+
+**City sales-tax rate $\tau$.** Spending made in person in Ontario (visitors, Downtown, residents) earns the
+City **2%**: the 1% Bradley-Burns share plus the 1% Measure Q transactions and use tax. Business-to-business
+sales of attracted firms earn **1%** (Bradley-Burns only), because Measure Q follows the delivery address,
+which is usually outside the city.
 
 #### R1 Career Pathways
 
@@ -160,8 +170,11 @@ $$\text{hires}_t = I \cdot r_t \cdot c \cdot \alpha_1 \cdot \rho_1$$
 have happened anyway, $\rho_1$ = share of hires who live in Ontario.
 
 - **Residents working in Ontario:** $W^{R1}_t = S(\text{hires})_t$
-- **Sales tax:** $W_t \cdot \text{wage} \cdot \text{taxable share} \cdot \text{local capture} \cdot \tau$, where
+- **Sales tax:** $W_t \cdot \text{wage} \cdot \text{taxable share} \cdot \text{local capture} \cdot \tau \cdot \nu$, where
   wage = the OEWS range across pathway occupations (official).
+- **Counterfactual $\nu$:** a placed worker who would have lived in Ontario anyway was already spending here.
+  Only new or retained residents count in full; for the rest, only the *gain* in local spending counts:
+  $\nu = s + (1 - s)\cdot g$, with *s* = share who are new or retained residents and *g* = spending gain.
 - **Residency:** households = $W_t \cdot$ share who are new or retained residents. These add property tax, plus
   taxable spending by the other household members.
 - **Success metric:** added residents working locally, compared with the LODES status-quo share.
@@ -172,19 +185,23 @@ For each anchor *k* (ONT, Mills, Toyota Arena, Sports Empire):
 
 $$\text{nights}_{k,t} = V_k (1+\gamma)^t \cdot o_k \cdot d \,/\, p \cdot u \cdot \alpha_2 \cdot r_t$$
 
-$V_k$ = visitors, $\gamma$ = growth in visits, $o_k$ = overnight share, *d* = share of unique trips,
+$V_k$ = inbound visitor trips (for ONT, half the passenger count: airports count each traveler on arrival
+*and* departure), $\gamma$ = growth in visits, $o_k$ = overnight share, *d* = share of unique trips,
 *p* = people per room, *u* = Stay +1 uptake, $\alpha_2$ = share of extra nights that wouldn't have happened anyway.
 
 - **Hotel tax:** nights × average room rate × TOT rate.
 - **Sales tax:** nights × *p* × daily visitor spending × $\tau$.
 - **Leverage by investment:** revenue is reported per anchor (`impact_stay1_by_anchor.csv`).
+- **Sanity check:** the overnight parties this chain implies are compared with the room-nights implied by
+  actual hotel tax (`04_impact.py` prints both). The anchors can't fill more rooms than the city sold.
 - **Success metric:** hotel tax with vs without Stay +1, and average stay.
 
 #### R3 Clean, Safe & Green
 
 $$\Delta\text{ST}_t = \text{baseline sales tax}_t \cdot \text{downtown share} \cdot \text{uplift} \cdot \alpha_3 \cdot r_t$$
 
-$\alpha_3$ = share of the uplift not shifted from elsewhere in Ontario. The baseline comes from the B3 simulation.
+$\alpha_3$ = share of the uplift not shifted from elsewhere in Ontario. The baseline comes from the B3 simulation
+(Bradley-Burns revenue), scaled to the 2% in-person rate.
 
 - **Success metric:** district taxable sales, foot traffic and perceived safety. The last two are dashboard KPIs, not modeled in dollars.
 
@@ -208,7 +225,14 @@ $\alpha_3$ = share of the uplift not shifted from elsewhere in Ontario. The base
 
 For each recommendation (R4 grouped with the R1→R4 synergy, which has no cost of its own), per simulation:
 
-- **Return per $1:** benefit-cost ratio = cumulative gross tax revenue ÷ cumulative City cost. Real, undiscounted.
+- **Headline window = the whole program (FY27–36).** It includes the start-up years, when the City pays in full
+  while revenue is still ramping. The FY30–36 window on its own leaves those out and overstates the return, so
+  it's shown only to describe how returns mature.
+- **Return per $1:** benefit-cost ratio = gross tax revenue ÷ City cost, both in **present value** at the launch
+  year, using a real discount rate of 2–5% (likely 3%).
+- **R1 + R4 together:** the R1→R4 link earns revenue only because R1 is funded. Crediting that revenue to R4
+  while R1 carries the cost makes R4 look better and R1 worse than they are, so the pair is also reported as one
+  group with both costs.
 - **Break-even annual City cost:** gross ÷ years the program has cost. This is the most the City could
   contribute each year and still be repaid by the program's own tax revenue.
 - **Probability it pays for itself:** share of simulations where gross ≥ cost.
@@ -218,10 +242,16 @@ Output: `impact_roi.csv` and the `impact_roi` chart.
 
 ### B7. Known limitations
 
-- 32 of 38 impact inputs are team assumptions, and the dollar figures depend on them.
+- 33 of 41 impact inputs are team assumptions, and the dollar figures depend on them.
 - Resampling forecast errors independently ignores year-to-year correlation in errors. About 10 out-of-sample
   errors make the ranges coarse.
 - Picking the best of about 9 models on the same years makes the winner's error slightly optimistic.
-- Not modeled: multiplier effects, the program's effect on venue attendance itself, and dollar values for safety and quality of life.
+- Not modeled: multiplier effects, spending by non-resident workers, the program's effect on venue attendance
+  itself, and dollar values for safety and quality of life. These omissions make the model conservative.
+- **Not conservative: housing supply.** New resident households add property tax and population only if the
+  home would otherwise be empty or unbuilt. The model doesn't test that, so treat the residency figures as an
+  upper bound.
+- A "same as last year" baseline means flat real revenue for ten years. It's the honest result of the
+  backtest, not a prediction that Ontario stops growing; faster growth raises R3 in proportion.
 
 Next: [Conclusions →](conclusions.md)

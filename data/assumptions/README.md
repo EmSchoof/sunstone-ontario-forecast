@@ -8,7 +8,7 @@ warehouse, because they are inputs, not observed data.
 |---|---|
 | `impact_assumptions.csv` | Every model input as a low / likely / high range, with unit, **status** (`official`, `proposal` or `assumption`) and **source** |
 | `impact_phases.csv` | Start year and full-scale year of each recommendation (proposal §5 phases) |
-| `anchor_visitors.csv` | Annual visitors and overnight share for each City venue Stay +1 builds on |
+| `anchor_visitors.csv` | Annual visitors, overnight share and `arrival_share` for each City venue Stay +1 builds on. `arrival_share` converts a venue's count into inbound trips (0.5 for the airport, which counts arrivals and departures) |
 | `city_investments.csv` | How each City investment maps to the parts of the model that measure it |
 
 **Rules:**

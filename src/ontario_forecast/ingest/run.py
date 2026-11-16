@@ -11,6 +11,7 @@ import argparse
 import logging
 
 import dlt
+import duckdb
 
 from ontario_forecast import config
 from ontario_forecast.ingest.sources import ontario_source
@@ -19,6 +20,37 @@ from ontario_forecast.ingest.sources import ontario_source
 def _years(s: str) -> tuple[int, int]:
     a, _, b = s.partition("-")
     return int(a), int(b or a)
+
+
+def drop_empty_placeholders(con: duckdb.DuckDBPyConnection | None = None) -> list[str]:
+    """Drop empty raw.* tables that dlt did not create.
+
+    The transform SQL creates empty placeholder tables for sources that have not been loaded
+    yet (so the SQL stays valid). dlt cannot load into them: it would have to add its
+    bookkeeping columns as NOT NULL, which DuckDB refuses on an existing table. Removing
+    the placeholder lets dlt create the table properly. Tables holding rows are never touched.
+    """
+    own = con is None
+    if own:
+        if not config.WAREHOUSE.exists():
+            return []
+        con = duckdb.connect(str(config.WAREHOUSE))
+    try:
+        placeholders = con.execute(
+            "select table_name from information_schema.tables t where table_schema = 'raw' "
+            "and table_name not like '\\_dlt%' escape '\\' and not exists ("
+            "  select 1 from information_schema.columns c where c.table_schema = 'raw' "
+            "  and c.table_name = t.table_name and c.column_name = '_dlt_load_id') order by 1"
+        ).fetchall()
+        dropped = []
+        for (name,) in placeholders:
+            if con.execute(f'select count(*) from raw."{name}"').fetchone()[0] == 0:
+                con.execute(f'drop table raw."{name}"')
+                dropped.append(name)
+        return dropped
+    finally:
+        if own:
+            con.close()
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -40,6 +72,10 @@ def main(argv: list[str] | None = None) -> None:
     )
     if args.only:
         source = source.with_resources(*args.only)
+
+    dropped = drop_empty_placeholders()
+    if dropped:
+        print(f"Removed empty placeholder table(s) so dlt can create them: {', '.join(dropped)}")
 
     pipeline = dlt.pipeline(
         pipeline_name="ontario_ingest",

@@ -4,7 +4,7 @@ import duckdb
 import pytest
 
 from ontario_forecast.transform.checks import run_checks
-from ontario_forecast.transform.run import build
+from ontario_forecast.transform.run import build, source_snapshot
 
 
 @pytest.fixture
@@ -45,6 +45,44 @@ def test_triple_flip_in_lieu_added_back(con):
     assert v == 130.0
 
 
+def test_measure_q_is_kept_out_of_the_forecast_series_but_reported(con):
+    # The State Controller files Measure Q under a catch-all line: read it only for Ontario, FY2024+
+    con.execute("""insert into raw.sco_city_revenue_lines values
+        ('Ontario', 2017, 'Other Taxes – Other (Specify)_General Revenues', 5.0, 172000),
+        ('Ontario', 2024, 'Sales and Use Taxes_General Revenues', 150.0, 172000),
+        ('Ontario', 2024, 'Transient Occupancy Taxes_General Revenues', 12.0, 172000),
+        ('Ontario', 2024, 'Other Taxes – Other (Specify)_General Revenues', 90.0, 172000),
+        ('Fontana', 2024, 'Other Taxes – Other (Specify)_General Revenues', 7.0, 210000)""")
+    build(con)
+    rows = con.execute(
+        "select city, fy, sales_tax_total, sales_tax_measure_q from marts.city_tax_fy "
+        "where fy in (2017, 2024) order by city, fy"
+    ).fetchall()
+    assert rows == [
+        ("Fontana", 2024, None, 0.0),  # another city's catch-all line is not Measure Q
+        ("Ontario", 2017, 150.0, 0.0),  # before Measure Q existed
+        ("Ontario", 2024, 150.0, 90.0),  # the forecast target stays Bradley-Burns only
+    ]
+    v = con.execute(
+        "select value from marts.headline_metrics where metric = 'sales_tax_incl_measure_q_actual'"
+    ).fetchone()[0]
+    assert v == 240.0
+
+
+def test_city_budget_split_gives_a_like_for_like_sales_tax_marker(con):
+    con.execute("""insert into raw.manual_city_sales_tax_detail values
+        ('2027', 'adopted', '148,791,668', '3213875', '64250000', '216255543', '18500000', 'Budget p. 69')""")
+    build(con)
+    got = dict(
+        con.execute(
+            "select metric, value from marts.headline_metrics where metric like '%fy27_budget'"
+        ).fetchall()
+    )
+    assert got["sales_tax_bradley_burns_fy27_budget"] == 148_791_668
+    assert got["measure_q_fy27_budget"] == 64_250_000
+    assert [c.name for c, _ in run_checks(con) if c.severity == "error"] == []
+
+
 def test_tot_rename_is_continuous_and_functional_lines_excluded(con):
     rows = con.execute("select fy, tot_revenue from marts.ontario_fy_panel order by fy").fetchall()
     assert rows == [(2015, 10.0), (2016, 11.0), (2017, 12.0)]
@@ -74,3 +112,22 @@ def test_headline_metrics_prefer_official_values(con):
 
 def test_checks_pass_on_clean_data(con):
     assert [c.name for c, _ in run_checks(con) if c.severity == "error"] == []
+
+
+def test_source_snapshot_lists_every_raw_table_with_row_counts(con):
+    snap = {r["raw_table"]: r for r in source_snapshot(con)}
+    assert snap["sco_city_revenue_lines"]["rows"] == 8
+    assert snap["manual_city_budget_revenue"]["rows"] == 0  # empty template is still listed
+    assert snap["sco_city_revenue_lines"]["last_loaded_at"] == ""  # no dlt load log in this test
+
+
+def test_ingest_drops_only_empty_placeholders_dlt_did_not_create(con):
+    # build() made empty placeholders (e.g. the budget tables); dlt-loaded tables carry _dlt_load_id.
+    from ontario_forecast.ingest.run import drop_empty_placeholders
+
+    con.execute("create table raw.loaded_by_dlt (x integer, _dlt_load_id varchar)")
+    dropped = drop_empty_placeholders(con)
+    assert "manual_city_budget_revenue" in dropped and "manual_city_sales_tax_detail" in dropped
+    assert "loaded_by_dlt" not in dropped  # dlt's own table, even though empty
+    assert "sco_city_revenue_lines" not in dropped  # has rows: never touched
+    assert con.execute("select count(*) from raw.sco_city_revenue_lines").fetchone()[0] == 8

@@ -13,6 +13,10 @@ Logic model (each arrow is a parameter in data/assumptions/impact_assumptions.cs
                        anchor growth (airport, Sports Empire) multiplies it.
   R3 Clean/Safe/Green  downtown share of taxable sales x district uplift x additionality
                        -> sales tax (applied to the simulated baseline sales tax).
+  LOCAL TAX RATE       spending made in person inside Ontario earns the City the 1%
+                       Bradley-Burns share PLUS the 1% Measure Q transactions tax (2022).
+                       Business-to-business sales of attracted firms earn Bradley-Burns only
+                       (Measure Q follows the delivery address, usually outside the city).
   R4 International &   firms attracted/retained x jobs x additionality -> resident jobs
      employer pipeline (live/work) + wages -> sales tax, and firm taxable sales -> sales tax.
   SYN R1 -> R4         the Career Pathways workforce stock (lagged 1 yr) attracts additional
@@ -20,11 +24,17 @@ Logic model (each arrow is a parameter in data/assumptions/impact_assumptions.cs
                        as its own line so it can be judged separately.
   RESIDENCY (R1, R4, SYN)  workers who are new/retained Ontario residents form households
                        (e.g. Ontario Ranch) -> City property tax + household taxable spending.
+  COUNTERFACTUAL       a placed worker who would have lived in Ontario anyway already spent
+                       here: only `stayer_spending_gain` of their local spending is new.
+                       Workers who are new/retained residents count in full.
 
 Every input is a triangular (low, mode, high) range; Monte Carlo propagates them jointly.
-Outputs are in real (base-FY) dollars, gross of and net of the City's cost.
-Not modeled (stated, not hidden): property tax, multiplier/induced effects, and any
-effect of the proposal on the anchors themselves. Omitting these makes the model conservative.
+Outputs are in real (base-FY) dollars, gross of and net of the City's cost. Return on
+investment is reported in present value (real `discount_rate`) over the whole program.
+Not modeled (stated, not hidden): multiplier/induced effects, spending by non-resident
+workers, and any effect of the proposal on the anchors themselves (conservative). Also not
+modeled, and NOT conservative: housing supply. A new resident household only adds property
+tax and population if the home would otherwise be empty or unbuilt.
 """
 
 from __future__ import annotations
@@ -80,6 +90,9 @@ class Anchor:
     overnight: Assumption  # share of visitors staying overnight in Ontario
     status: str
     source: str
+    # Share of the venue's count that is one inbound trip. Airports report enplaned +
+    # deplaned passengers, so each traveler is counted twice (ONT: about half are arrivals).
+    arrival_share: float = 1.0
 
 
 def _rows(path: Path) -> list[dict]:
@@ -130,7 +143,10 @@ def load_anchors(path: Path) -> list[Anchor]:
             "assumption",
             r["source"],
         )
-        out.append(Anchor(r["anchor"], float(r["annual_visitors"]), ovn, r["status"], r["source"]))
+        share = float(r.get("arrival_share") or 1.0)
+        if not 0 < share <= 1:
+            raise ValueError(f"{r['anchor']}: arrival_share must be in (0, 1]")
+        out.append(Anchor(r["anchor"], float(r["annual_visitors"]), ovn, r["status"], r["source"], share))
     return out
 
 
@@ -166,6 +182,13 @@ class ImpactResult:
     local_workers: dict[str, np.ndarray]  # rec -> (n, T) added residents working in Ontario
     new_residents: dict[str, np.ndarray]  # rec -> (n, T) added Ontario residents (household members)
     by_anchor: dict[str, np.ndarray] = field(default_factory=dict)  # R2 revenue by anchor
+    discount_rate: np.ndarray | None = None  # (n, 1) real annual rate, drawn per simulation
+
+    def pv_factor(self, base_year: int) -> np.ndarray:
+        """(n, T) present-value factors: 1 in `base_year`, (1 + d)^-k for k years later."""
+        k = np.clip(self.years - base_year, 0, None)[None, :]
+        d = np.zeros((1, 1)) if self.discount_rate is None else self.discount_rate
+        return (1.0 + d) ** -k
 
     def gross(self, rec: str | None = None, channel: str | None = None) -> np.ndarray:
         recs = RECS if rec is None else (rec,)
@@ -198,23 +221,28 @@ def simulate(
     v = {k: a.draw(n, rng)[:, None] for k, a in A.items()}  # (n, 1) each
     r = {rec: ramp(years, s, f)[None, :] for rec, (s, f, _) in phases.items()}
     active = {rec: (r[rec] > 0).astype(float) for rec in r}
-    rate = v["local_sales_tax_rate"]
+    bb = v["local_sales_tax_rate"]  # Bradley-Burns 1%: follows the point of sale
+    rate = bb + v["measure_q_rate"]  # in-person spending inside Ontario also pays Measure Q
     zeros = np.zeros((n, T))
     resident_spend = v["taxable_spend_share"] * v["local_capture"] * rate  # $ tax per $ of wages
+    # Counterfactual: residents who would live here anyway already spend here.
+    kept = v["retained_resident_share"]
+    new_spend = kept + (1 - kept) * v["stayer_spending_gain"]
 
     # R1 Career Pathways --------------------------------------------------------
     hires = (
         v["r1_interns_full"] * r["R1"] * v["r1_conversion"] * v["r1_additionality"] * v["r1_resident_share"]
     )
     r1_workers = _stock(np.broadcast_to(hires, (n, T)).copy(), v["worker_attrition"])
-    r1_tax = r1_workers * v["pathway_wage"] * resident_spend
+    r1_tax = r1_workers * v["pathway_wage"] * resident_spend * new_spend
 
     # R2 Connected Destination (Stay +1 on top of the City's anchors) -----------
     growth = (1 + v["visitor_growth"]) ** np.arange(T)[None, :]
     r2_tot, r2_st, by_anchor = zeros.copy(), zeros.copy(), {}
     for an in anchors:
         overnight = an.overnight.draw(n, rng)[:, None]
-        parties = an.visitors * growth * overnight * v["dedup_factor"] / v["persons_per_room"]
+        trips = an.visitors * an.arrival_share * growth  # inbound visitor trips
+        parties = trips * overnight * v["dedup_factor"] / v["persons_per_room"]
         nights = parties * v["stay1_uptake"] * v["r2_additionality"] * r["R2"]  # +1 night per party
         tot = nights * v["adr"] * v["tot_rate"]
         st = nights * v["persons_per_room"] * v["visitor_daily_taxable_spend"] * rate
@@ -224,15 +252,23 @@ def simulate(
 
     # R3 Clean, Safe & Green districts ------------------------------------------
     base_st = zeros if baseline_sales_tax is None else np.broadcast_to(baseline_sales_tax, (n, T))
+    # The baseline is Bradley-Burns revenue; district sales are in person, so scale to the full rate.
     r3_st = (
-        base_st * v["downtown_share_of_sales"] * v["district_sales_uplift"] * v["r3_additionality"] * r["R3"]
+        (base_st * rate / bb)
+        * v["downtown_share_of_sales"]
+        * v["district_sales_uplift"]
+        * v["r3_additionality"]
+        * r["R3"]
     )
 
     # R4 International & employer pipeline --------------------------------------
     def firm_channel(jobs_inflow):
         jobs = _stock(np.broadcast_to(jobs_inflow, (n, T)).copy(), v["worker_attrition"])
         workers = jobs * v["r4_resident_share"]
-        st = workers * v["pathway_wage"] * resident_spend + jobs * v["r4_taxable_sales_per_job"] * rate
+        st = (
+            workers * v["pathway_wage"] * resident_spend * new_spend
+            + jobs * v["r4_taxable_sales_per_job"] * bb
+        )
         return workers, st
 
     r4_jobs_in = v["r4_firms_per_year"] * v["r4_jobs_per_firm"] * v["r4_additionality"] * r["R4"]
@@ -266,7 +302,19 @@ def simulate(
         local_workers=workers,
         new_residents={k: r_[0] for k, r_ in res.items()},
         by_anchor=by_anchor,
+        discount_rate=v["discount_rate"] if "discount_rate" in v else None,
     )
+
+
+def stay1_base_parties(A: dict[str, Assumption], anchors: list[Anchor]) -> float:
+    """Overnight visitor parties per year the Stay +1 offer is applied to (all inputs at mode).
+
+    Sanity check: compare with the room-nights implied by actual hotel tax. If the parties
+    alone (times a typical stay length) exceed the city's room-nights, the visitor counts,
+    overnight shares or dedup factor are too high.
+    """
+    per_party = A["dedup_factor"].mode / A["persons_per_room"].mode
+    return float(sum(an.visitors * an.arrival_share * an.overnight.mode for an in anchors) * per_party)
 
 
 # ---------------------------------------------------------------------------
@@ -296,31 +344,50 @@ ROI_GROUPS = {
     "R2 Connected Destination (Stay +1)": ("R2",),
     "R3 Clean, Safe & Green": ("R3",),
     "R4 Employers (+ R1→R4 link)": ("R4", "SYN"),
+    # The link's revenue exists only because R1 is funded, so judge the pair with both costs.
+    "R1 + R4 together (shared cost)": ("R1", "R4", "SYN"),
     "All recommendations": RECS,
 }
 
 
-def benefit_cost(result: ImpactResult, first: int, last: int, q=(0.10, 0.50, 0.90)) -> list[dict]:
-    """Return on City money per recommendation over [first, last] (real, undiscounted).
+def benefit_cost(
+    result: ImpactResult,
+    first: int,
+    last: int,
+    q=(0.10, 0.50, 0.90),
+    discount_from: int | None = None,
+) -> list[dict]:
+    """Return on City money per recommendation over [first, last] (real dollars).
+
+    discount_from: if given, revenue and cost are converted to present value in that year
+    with each simulation's real discount rate (later dollars count less). None = undiscounted.
 
     * bcr: tax revenue returned per $1 of City cost, per simulation (1.0 = pays for itself).
     * budgeted_annual_cost: City cost per year the program runs (the proposal's ranges).
     * breakeven_annual_cost: the most the City could spend per year and still be repaid by
       the program's own tax revenue. That is the "limited investment" answer: a City share above
       it has to be justified by non-fiscal outcomes or covered by partners.
-    R4 is grouped with the R1->R4 synergy, which has no cost of its own.
+    R4 is grouped with the R1->R4 synergy, which has no cost of its own; because that
+    synergy is paid for by R1, the "R1 + R4 together" group is the fair test of the pair.
     """
     years = result.years
     m = (years >= first) & (years <= last)
+    pv = 1.0 if discount_from is None else result.pv_factor(discount_from)
     out = []
     for label, recs in ROI_GROUPS.items():
-        gross = sum(window_sum(result.gross(r), years, first, last) for r in recs)
-        cost_t = sum(result.cost[r] for r in recs)[:, m]
+        gross = sum(window_sum(result.gross(r) * pv, years, first, last) for r in recs)
+        cost_t = (sum(result.cost[r] for r in recs) * pv)[:, m]
         cost = cost_t.sum(axis=1)
         active_years = max(int((cost_t[0] > 0).sum()), 1)  # same phase pattern in every simulation
         ok = cost > 0
         bcr = np.where(ok, gross / np.where(ok, cost, 1.0), np.nan)
-        row = {"group": label, "first_fy": first, "last_fy": last, "years_with_cost": active_years}
+        row = {
+            "group": label,
+            "first_fy": first,
+            "last_fy": last,
+            "present_value": discount_from is not None,
+            "years_with_cost": active_years,
+        }
         row.update(
             zip(
                 ("bcr_p10", "bcr_p50", "bcr_p90"),
@@ -413,5 +480,7 @@ def tornado(
             continue
         lo = run({**fixed, k: a.fixed(a.low)})
         hi = run({**fixed, k: a.fixed(a.high)})
+        if lo == hi:  # no effect on the undiscounted net (e.g. the discount rate)
+            continue
         out.append((k, lo, hi, base))
     return sorted(out, key=lambda t: -abs(t[2] - t[1]))

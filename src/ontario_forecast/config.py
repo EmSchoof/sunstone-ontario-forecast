@@ -20,6 +20,7 @@ CHARTS_DIR = OUTPUTS_DIR / "charts"  # deliverable PNG / SVG / PDF (tracked)
 TABLES_DIR = OUTPUTS_DIR / "tables"  # charted numbers + analysis-ready marts as CSV (tracked)
 MODELS_DIR = OUTPUTS_DIR / "models"  # fitted model JSON (tracked)
 EDA_DIR = OUTPUTS_DIR / "eda"  # exploratory figures (git-ignored)
+DOCS_PDF_DIR = OUTPUTS_DIR / "docs"  # shareable PDFs of docs/*.md (tracked)
 
 # ---- Geography -----------------------------------------------------------
 CITY = "Ontario"
@@ -82,7 +83,8 @@ FORECAST_TARGETS = {
         "level_real": "sales_tax_total_real",
         "level": "sales_tax_total",
         "label": "Sales & use tax",
-        "budget_metric": "sales_tax_fy27_budget",
+        # Bradley-Burns part of the budget only: the forecast series excludes Measure Q / Prop 172
+        "budget_metric": "sales_tax_bradley_burns_fy27_budget",
     },
 }
 
@@ -142,7 +144,15 @@ ANCHOR_VISITORS = ASSUMPTIONS_DIR / "anchor_visitors.csv"
 CITY_INVESTMENTS = ASSUMPTIONS_DIR / "city_investments.csv"
 IMPACT_HORIZON = 11  # FY2026-FY2036: 10 years after the FY2027 launch
 IMPACT_WINDOWS = {"Short term (FY27-29)": (2027, 2029), "Long term (FY30-36)": (2030, 2036)}
+# Headline return on investment: every year the City pays, start-up years included,
+# in present value. The short/long windows above only show how returns mature.
+IMPACT_ROI_WINDOW = ("Whole program (FY27-36)", (2027, 2036))
 IMPACT_SIMS = 20_000
+
+# Baseline model selection (analysis/02): a model replaces "same as last year" only if it
+# cuts the out-of-sample error by at least this share, with AND without the COVID years.
+# With ~8 test years and ~9 models tried, smaller edges are indistinguishable from luck.
+SELECTION_MIN_GAIN = 0.10
 
 # Fiscal years ending June 2020-2022 contain the pandemic collapse and rebound.
 # Flagged so EDA/backtests can show results with and without them.

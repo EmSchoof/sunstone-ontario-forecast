@@ -14,8 +14,10 @@
 #   using it would leak future information. Lag-1 only ("nowcast" shown as context).
 # * **Selection by out-of-sample error**, never in-sample R^2 or p-values.
 #   Expanding-window, chronological backtest; all models scored on the SAME years.
-# * **Baselines must be beaten** (naive = no change, drift = average growth).
-#   If nothing beats them, the baseline is the answer, and that is reportable.
+# * **Baselines must be beaten by a clear margin** (naive = no change, drift = average
+#   growth): at least `config.SELECTION_MIN_GAIN` lower error, with and without COVID.
+#   A 2-7% edge on ~8 test years, picked as the best of ~9 models, is luck, not skill.
+#   If nothing clears the margin, the baseline is the answer, and that is reportable.
 # * **Multiple comparisons.** Screening p-values are Holm-adjusted and descriptive only.
 # * **COVID.** Fitting excludes COVID-affected rows; scoring is shown with and without them.
 # * **MAE/RMSE in dollars**, not MAPE (unstable when growth is near zero).
@@ -49,6 +51,7 @@ CANDIDATES = {
     "d_msa_unemployment_rate": ("labor-market slack", "-"),
 }
 MIN_TRAIN = 10
+BEAT = 1 - config.SELECTION_MIN_GAIN  # relative error a model must get under to replace naive
 
 
 X_LAG = {k: lag(P[k]) for k in CANDIDATES}
@@ -205,12 +208,13 @@ for tname, t in TARGETS.items():
             f"{s['rel_mae_vs_naive_ex_covid']:8.2f}{note}"
         )
 
-    # Selection: enough history AND beats naive on both samples; among those, the simplest
-    # (fewest predictors) within 5% of the best relative error. Otherwise naive wins.
+    # Selection: enough history AND beats naive by the required margin on both samples; among
+    # those, the simplest (fewest predictors) within 5% of the best relative error. Otherwise
+    # naive wins.
     eligible = [
         s
         for s in scores.values()
-        if s["enough_history"] and s["rel_mae_vs_naive"] < 1 and s["rel_mae_vs_naive_ex_covid"] < 1
+        if s["enough_history"] and s["rel_mae_vs_naive"] <= BEAT and s["rel_mae_vs_naive_ex_covid"] <= BEAT
     ]
     if eligible:
         floor = min(s["rel_mae_vs_naive_ex_covid"] for s in eligible)
@@ -220,8 +224,8 @@ for tname, t in TARGETS.items():
         best = scores["naive"]
     selected[tname] = best
     print(
-        f"-> selected: {best['model']}  (picked as the best of {len(scores)}: its backtest error is "
-        "slightly optimistic)"
+        f"-> selected: {best['model']}  (needs rel <= {BEAT:.2f} on both samples to replace naive; "
+        f"{len(eligible)} of {len(scores)} models qualified)"
     )
 
 # %% [markdown]

@@ -18,6 +18,8 @@
     <br /><br />
     <a href="docs/conclusions.md"><strong>Read the conclusions »</strong></a>
     ·
+    <a href="outputs/docs/conclusions.pdf">Download them as a PDF</a>
+    ·
     <a href="outputs/charts/">Browse the charts</a>
     ·
     <a href="#quick-start">Run it yourself</a>
@@ -82,7 +84,8 @@ tax. So the question is: **can our recommendations keep more of that activity, a
 - **Simple, tested methods over flashy ones.** About 20 years of yearly data is too little for AI-style models,
   which would find patterns that aren't really there.
 
-**Learn more:** [Decisions](docs/decisions.md) explains each choice, the data sources, and the alternatives we rejected.
+**Learn more:** [Decisions](docs/decisions.md) explains each choice and the alternatives we rejected.
+[Sources](docs/sources.md) lists every data and content source and where it lives in the repo.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -107,35 +110,39 @@ for each recommendation.
 > **Preliminary.** Many of the model's estimates are still team placeholders waiting for an official source.
 > Which recommendations come out ahead is already meaningful; the exact dollar amounts will change.
 
-**Bottom line:** the plan is well designed and affordable: about **$348K** of City money in Year 1, under the
-**$500K** cap. In tax revenue alone it doesn't fully pay for itself yet: about **76¢ comes back for every $1** the
-City spends. Its strongest case is more residents in good local jobs, with partners sharing the cost.
+**Bottom line:** the plan is affordable: about **$348K** of City money in Year 1, under the **$500K** cap. In
+tax revenue alone it doesn't pay for itself: about **70¢ comes back for every $1** the City spends over the
+whole program. Its strongest case is more residents in good local jobs, with partners sharing the cost.
 
-| | What the model says | Tax revenue back per $1 (2030–36) | Chance it pays for itself |
+| | What the model says | Tax revenue back per $1 (2027–36) | Chance it pays for itself |
 |---|---|---|---|
-| **R1** Career Pathways | Builds the workforce; brings in little tax directly | 16¢ | ~0% |
-| **R2** Stay +1 | Biggest money-maker *if* enough visitors take the offer | 74¢ | 27% |
-| **R3** Clean, Safe & Green | Nearly pays for itself; its main value is safety and keeping businesses | 88¢ | 42% |
-| **R4** Employers (+ R1→R4) | **Pays for itself**, because Career Pathways supplies the workers | **$1.11** | 55% |
-| **All together** | | 76¢ | 20% |
+| **R1** Career Pathways | Builds the workforce; brings in little tax directly | 13¢ | ~0% |
+| **R2** Stay +1 | Returns about half its cost unless roughly twice as many visitors take the offer | 50¢ | 6% |
+| **R3** Clean, Safe & Green | **Pays for itself** in the likely case, but rests on two unsourced Downtown estimates | **$1.36** | 68% |
+| **R4** Employers (+ R1→R4) | About break-even; 38¢ once Career Pathways' cost is counted with it | 95¢ | 47% |
+| **All together** | | 70¢ | 13% |
 
 [![Tax revenue returned per $1 of City money](outputs/charts/impact_roi.png)](docs/conclusions.md#3-cost-and-return-on-investment)
 
 **Also worth knowing:**
-- **About 117 more residents working in Ontario by 2036**, and about 145 more people living here.
+- **About 118 more residents working in Ontario by 2036**, and about 145 more people living here.
 - **The airport is the most valuable venue** for Stay +1: it brings the most visitors who could stay another night.
-- **The City's FY27 hotel-tax budget looks optimistic.** Without new programs, it's higher than 77% of the likely outcomes.
+- **The City's FY27 hotel-tax budget ($18.5M) looks optimistic.** Without new programs, it's higher than 70%
+  of the likely outcomes.
+- **The sales-tax numbers reconcile.** The City's $216.3M includes Measure Q ($64.3M) and Prop 172; the State
+  Controller's $139M is the original 1% only. The model's FY27 estimate for that part ($147.4M) is close to the
+  City's budget ($148.8M).
 
 **What we recommend:**
-1. **Lead with Stay +1 (R2) and Downtown (R3)** for near-term results, and **run Career Pathways (R1) lean** as
-   the engine that makes employer attraction (R4) work.
-2. **Set a clear test for Stay +1:** expand it only if at least about 3.5% of overnight visitors add a night.
-   That's roughly where it starts paying for itself.
-3. **Have Downtown property owners cover a little more of the ambassador program** (about $15K a year) to break even.
-4. **Replace the team's estimates with real data first**, starting with Stay +1 uptake and Downtown sales.
+1. **Lead with Downtown (R3)**, the strongest fiscal case, and **run Career Pathways (R1) lean** with employers
+   funding most of it.
+2. **Set a clear test for Stay +1:** expand it only if at least about 4% of overnight visitors add a night, or
+   cut the City's share to about $112K a year. That's roughly where it pays for itself.
+3. **Replace the team's estimates with real data first**, starting with Downtown sales and Stay +1 uptake.
+   The Downtown result depends on them.
 
-**Learn more:** [Conclusions](docs/conclusions.md) has every chart and number, how each recommendation's success
-would be measured, and what drives the result.
+**Learn more:** [Conclusions](docs/conclusions.md) ([PDF](outputs/docs/conclusions.pdf)) has every chart and
+number, how each recommendation's success would be measured, and what drives the result.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -170,7 +177,7 @@ uv sync --all-extras && pnpm install && uv run pre-commit install
 ```
 sunstone-ontario-forecast/
 ├── README.md
-├── docs/                         background · decisions · methods · conclusions
+├── docs/                         background · decisions · methods · conclusions · sources
 ├── src/ontario_forecast/
 │   ├── config.py · db.py         settings (single source of truth) + DuckDB → numpy
 │   ├── ingest/                   dlt sources, LODES aggregation
@@ -186,6 +193,7 @@ sunstone-ontario-forecast/
 │   ├── charts/                   deliverable PNG · SVG · PDF
 │   ├── tables/                   charted numbers + analysis-ready marts as CSV
 │   ├── models/                   fitted model coefficients (JSON)
+│   ├── docs/                     shareable PDFs of the docs (conclusions.pdf)
 │   └── eda/                      exploratory figures (not tracked)
 ├── tools/pipeline-plugin/        Nx generator for new analysis steps
 └── pyproject.toml · uv.lock · package.json · pnpm-*.yaml · nx.json · project.json
@@ -201,10 +209,11 @@ Tools and why each was chosen: [Decisions §5](docs/decisions.md#5-engineering-d
 - [x] Public-data pipeline with data-quality checks
 - [x] Status-quo forecasts and the recommendation impact model, including ROI
 - [x] Nx orchestration + stage generator
-- [ ] Source the five highest-impact inputs (Stay +1 uptake, Downtown uplift and share, R2 cost, R2 additionality)
-- [ ] Add the City's adopted FY2026–27 budget to `data/reference/city_budget_revenue.csv`
+- [ ] Source the highest-impact inputs (Downtown uplift and share, Stay +1 uptake, R2 and R4 cost)
+- [ ] Close the open items in the [source register](docs/sources.md#open-items) (proposal document, airport traffic)
+- [x] Add the City's adopted FY2026–27 budget to `data/reference/`
 - [ ] Load LODES and ACS for the live/work charts
-- [ ] Reconcile the proposal's $216.3M sales-tax figure with State Controller actuals (~$139M)
+- [x] Reconcile the proposal's $216.3M sales-tax figure with State Controller actuals (~$139M): Measure Q + Prop 172
 
 ## Contact
 

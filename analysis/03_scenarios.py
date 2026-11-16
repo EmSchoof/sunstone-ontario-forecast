@@ -69,10 +69,8 @@ def budget_marker(metric: str) -> tuple[int, float, str] | None:
 for key, t in config.FORECAST_TARGETS.items():
     ycol, levcol, name = t["growth"], t["level"], t["label"]
     ref = budget_marker(t["budget_metric"])
-    # Sales-tax budget marker only from the City budget itself: the proposal's figure
-    # appears to use a different definition than State Controller actuals.
-    if key == "sales_tax" and ref and "proposal" in ref[2]:
-        ref = None
+    # The sales-tax marker is the Bradley-Burns part of the City budget (no proposal fallback):
+    # the budget's "Sales Tax" total also holds Measure Q and Prop 172, which this series excludes.
     path = config.MODELS_DIR / f"{key}_model.json"
     if not path.exists():
         print(f"{key}: run analysis/02_variable_selection.py first")
@@ -85,7 +83,7 @@ for key, t in config.FORECAST_TARGETS.items():
     )
     lo, mid, hi = f.final()
     ac = scenarios.error_autocorr(model.backtest_errors)
-    model_label = ", ".join(model.predictors) or "trend"
+    model_label = ", ".join(model.predictors) or ("no change" if not any(model.coef) else "trend")
 
     sub = (
         f"FY{f.years[-1]}: central {usd(mid)}, {band} of outcomes between {usd(lo)} and "
@@ -107,7 +105,7 @@ for key, t in config.FORECAST_TARGETS.items():
         reference=reference,
         source=(
             "Source: CA State Controller city revenues (sales tax incl. in-lieu, FY2005-16). "
-            f"Simulated {N:,} paths from out-of-sample errors; excludes pandemic-scale shocks; "
+            f"Simulated {N:,} paths from centered out-of-sample errors; excludes pandemic-scale shocks; "
             f"assumes {np.expm1(infl):.1%}/yr inflation; no policy effect assumed."
             + (f" Error autocorrelation {ac:+.2f}." if np.isfinite(ac) else "")
         ),

@@ -89,9 +89,16 @@ FOOT = (
 
 # Sanity check on the TOT inputs: implied room-nights vs. actual hotel tax
 implied_nights = P["tot_revenue_real"][-1] / (A["tot_rate"].mode * A["adr"].mode)
+base_parties = impact.stay1_base_parties(A, anchors)
 print(
     f"Implied FY{base_fy} room-nights at mode ADR/rate: {implied_nights:,.0f} "
     "(compare with STR/CVB data when available)"
+)
+print(
+    f"Stay +1 base: {base_parties:,.0f} overnight visitor parties/yr from the anchors = "
+    f"{base_parties / implied_nights:.0%} of those room-nights at ONE night each. "
+    "At a 2-night average stay, a share above 50% means the anchor inputs claim every hotel "
+    "room in the city: lower the visitor counts, overnight shares or dedup factor."
 )
 
 # %% [markdown]
@@ -398,12 +405,23 @@ pages.append(
 )
 
 # 4h. Return on City money (benefit-cost) and the "limited investment" each can justify
+# Headline = the whole program (start-up years included), in present value at launch.
+# The short/long windows only show how the return matures; a late window on its own
+# leaves out the start-up years, when the City pays in full and revenue is still ramping.
+launch = min(s for s, _, _ in phases.values())
+roi_windows = {config.IMPACT_ROI_WINDOW[0]: config.IMPACT_ROI_WINDOW[1], **WINDOWS}
 roi = []
-for wname, (a, b) in WINDOWS.items():
-    roi += [{"window": wname, **r} for r in impact.benefit_cost(res, a, b, Q)]
-yr1 = impact.first_year_city_cost(res, min(s for s, _, _ in phases.values()), Q)
+for wname, (a, b) in roi_windows.items():
+    roi += [{"window": wname, **r} for r in impact.benefit_cost(res, a, b, Q, discount_from=launch)]
+yr1 = impact.first_year_city_cost(res, launch, Q)
 print(f"Year 1 City cost: {usd(yr1[1])} (P10-P90 {usd(yr1[0])}-{usd(yr1[2])}) vs the $500K cap")
-code = {g: c for g, c in zip(impact.ROI_GROUPS, ("R1", "R2", "R3", "R4", "ALL"), strict=True)}
+for r in roi[: len(impact.ROI_GROUPS)]:
+    print(
+        f"  {r['window']}  {r['group']:36s} ${r['bcr_p50']:.2f} per $1 "
+        f"(P10-P90 ${r['bcr_p10']:.2f}-${r['bcr_p90']:.2f}); pays for itself in "
+        f"{r['prob_pays_for_itself']:.0%} of simulations"
+    )
+code = {g: c for g, c in zip(impact.ROI_GROUPS, ("R1", "R2", "R3", "R4", "R1+R4", "ALL"), strict=True)}
 pages.append(
     (
         "impact_roi",
@@ -418,12 +436,14 @@ pages.append(
                 }
                 for r in roi
             ],
-            wn,
+            list(roi_windows),
             {code[g]: g for g in impact.ROI_GROUPS},
             title="Tax revenue returned per $1 of City money",
             subtitle=(
-                "Median (bar) and P10-P90 (line). Right of the $1 line, a recommendation pays for "
-                f"itself in City tax revenue alone. Year 1 City cost: {usd(yr1[1])} (cap $500K)."
+                "Median (bar) and P10-P90 (line), present value. Right of the $1 line, a "
+                "recommendation pays for itself in City tax revenue alone. The whole-program panel "
+                f"is the headline: it includes the start-up years. Year 1 City cost: {usd(yr1[1])} "
+                "(cap $500K)."
             ),
             source=FOOT,
             fmt=lambda v: f"\\${v:.2f}",

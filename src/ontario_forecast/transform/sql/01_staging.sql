@@ -28,6 +28,25 @@ create table if not exists raw.manual_city_budget_revenue (
     fy varchar, tot_budget varchar, sales_tax_budget varchar, source varchar
 );
 
+create table if not exists raw.manual_city_sales_tax_detail (
+    fy varchar, basis varchar, sales_use_tax varchar, prop_172 varchar, measure_q varchar,
+    total_sales_tax varchar, tot varchar, source varchar
+);
+
+-- City budget "Sales Tax" split into its parts. Only sales_use_tax (Bradley-Burns) is
+-- comparable with the State Controller series the forecast is built on.
+create or replace table staging.city_sales_tax_detail as
+select try_cast(fy as integer)                                   as fy,
+       lower(basis)                                              as basis,
+       try_cast(replace(sales_use_tax, ',', '') as double)       as sales_use_tax,
+       try_cast(replace(prop_172, ',', '') as double)            as prop_172,
+       try_cast(replace(measure_q, ',', '') as double)           as measure_q,
+       try_cast(replace(total_sales_tax, ',', '') as double)     as total_sales_tax,
+       try_cast(replace(tot, ',', '') as double)                 as tot,
+       source
+from raw.manual_city_sales_tax_detail
+where try_cast(fy as integer) is not null;
+
 -- City adopted budget (hand-entered from the budget document; cite page in `source`)
 create or replace table staging.city_budget as
 select try_cast(fy as integer)                                   as fy,
@@ -43,6 +62,13 @@ where try_cast(fy as integer) is not null;
 --   cities as "In-Lieu Local Sales and Use Taxes". Adding it back removes a false
 --   level break in 2005 and 2016.
 -- * Only "_General Revenues" lines; "_Functional Revenues" duplicates are excluded.
+-- * Measure Q (1% transactions and use tax, effective April 1, 2023) has no line of its own:
+--   the State Controller files it under "Other Taxes - Other (Specify)". Verified for
+--   FY2025: that line is $61,594,662, exactly the Measure Q actual in the City's FY2026-27
+--   budget book. The line is a catch-all, so it is read only for Ontario from FY2024 (the
+--   first full year). It is kept SEPARATE from the Bradley-Burns series the forecast uses
+--   (adding it would create a false jump), but it reconciles State Controller sales tax
+--   with the City's budgeted "Sales Tax".
 create or replace table staging.city_tax_fy as
 select
     entity_name                                                                 as city,
@@ -53,6 +79,9 @@ select
                                                                                 as sales_tax_bradley_burns,
     coalesce(sum(value) filter (where line_description =
         'In-Lieu Local Sales and Use Taxes_General Revenues'), 0)               as sales_tax_in_lieu,
+    coalesce(sum(value) filter (where entity_name = 'Ontario' and fiscal_year::integer >= 2024
+        and line_description ilike 'Other Taxes%Other (Specify)_General Revenues'), 0)
+                                                                                as sales_tax_measure_q,
     max(estimated_population)                                                   as population
 from raw.sco_city_revenue_lines
 group by all;

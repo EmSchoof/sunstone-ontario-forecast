@@ -115,6 +115,7 @@ def test_benefit_cost_and_breakeven(inputs):
     res = run(fixed, phases, anchors)
     rows = {r["group"]: r for r in impact.benefit_cost(res, 2030, 2036)}
     assert set(rows) == set(impact.ROI_GROUPS)
+    assert not any(r["present_value"] for r in rows.values())
     r2 = rows["R2 Connected Destination (Stay +1)"]
     gross = impact.window_sum(res.gross("R2"), YEARS, 2030, 2036)[0]
     cost = impact.window_sum(res.cost["R2"], YEARS, 2030, 2036)[0]
@@ -130,3 +131,75 @@ def test_tornado_sorted_by_swing(inputs):
     rows = impact.tornado(A, phases, anchors, YEARS, np.full((1, len(YEARS)), 140e6), 2030, 2036)
     swings = [abs(hi - lo) for _, lo, hi, _ in rows]
     assert swings == sorted(swings, reverse=True)
+
+
+def test_airport_counts_each_traveler_once(inputs):
+    # ONT reports enplaned + deplaned passengers: only the arriving half can add a night.
+    _, fixed, phases, anchors = inputs
+    ont = next(an for an in anchors if "Airport" in an.name)
+    assert ont.arrival_share == 0.5
+    full = [replace(an, arrival_share=1.0) if an is ont else an for an in anchors]
+    halved = run(fixed, phases, anchors).by_anchor[ont.name]
+    assert np.allclose(halved, run(fixed, phases, full).by_anchor[ont.name] / 2)
+
+
+def test_in_person_spending_earns_measure_q_but_business_sales_do_not(inputs):
+    _, fixed, phases, anchors = inputs
+    with_q, without_q = run(fixed, phases, anchors), run(fixed, phases, anchors, measure_q_rate=0.0)
+    for rec in ("R2", "R3"):  # visitor and district spending: 1% + 1%
+        assert np.allclose(with_q.gross(rec, "sales_tax"), 2 * without_q.gross(rec, "sales_tax"))
+    assert np.allclose(with_q.gross("R2", "tot"), without_q.gross("R2", "tot"))
+    # R4 mixes resident spending (2%) with business-to-business sales (1%): less than double
+    r4, r4_no_q = with_q.gross("R4", "sales_tax")[0, -1], without_q.gross("R4", "sales_tax")[0, -1]
+    assert r4_no_q < r4 < 2 * r4_no_q
+
+
+def test_residents_who_would_live_here_anyway_add_only_their_spending_gain(inputs):
+    _, fixed, phases, anchors = inputs
+    kw = dict(retained_resident_share=0.0, r4_taxable_sales_per_job=0.0)
+    none = run(fixed, phases, anchors, stayer_spending_gain=0.0, **kw)
+    assert none.gross("R1").sum() == 0 and none.gross("R4").sum() == 0  # nothing new to tax
+    assert none.workers()[0, -1] > 0  # ...but the live/work outcome is still counted
+    all_new = run(fixed, phases, anchors, stayer_spending_gain=1.0, **kw)
+    assert all_new.gross("R1", "sales_tax").sum() > 0
+
+
+def test_present_value_lowers_late_dollars_and_keeps_launch_year(inputs):
+    _, fixed, phases, anchors = inputs
+    res = run(fixed, phases, anchors, discount_rate=0.05)
+    pv = res.pv_factor(2027)[0]
+    assert pv[YEARS <= 2027].tolist() == [1.0, 1.0]
+    assert pv[-1] == pytest.approx(1.05**-9)
+    flat = {r["group"]: r for r in impact.benefit_cost(res, 2027, 2036)}
+    disc = {r["group"]: r for r in impact.benefit_cost(res, 2027, 2036, discount_from=2027)}
+    # Stock-building programs earn late, so discounting lowers their return per dollar
+    assert disc["R1 Career Pathways"]["bcr_p50"] < flat["R1 Career Pathways"]["bcr_p50"]
+    assert all(r["present_value"] for r in disc.values())
+
+
+def test_whole_program_return_includes_startup_years(inputs):
+    # A late window alone flatters the return: start-up costs are left out.
+    _, fixed, phases, anchors = inputs
+    res = run(fixed, phases, anchors)
+    late = {r["group"]: r for r in impact.benefit_cost(res, 2030, 2036)}
+    whole = {r["group"]: r for r in impact.benefit_cost(res, 2027, 2036)}
+    g = "R2 Connected Destination (Stay +1)"
+    assert whole[g]["bcr_p50"] < late[g]["bcr_p50"]
+
+
+def test_r1_r4_package_carries_both_costs(inputs):
+    _, fixed, phases, anchors = inputs
+    res = run(fixed, phases, anchors)
+    rows = {r["group"]: r for r in impact.benefit_cost(res, 2027, 2036)}
+    gross = sum(impact.window_sum(res.gross(r), YEARS, 2027, 2036)[0] for r in ("R1", "R4", "SYN"))
+    cost = sum(impact.window_sum(res.cost[r], YEARS, 2027, 2036)[0] for r in ("R1", "R4"))
+    pair = rows["R1 + R4 together (shared cost)"]["bcr_p50"]
+    assert pair == pytest.approx(gross / cost)
+    assert pair < rows["R4 Employers (+ R1→R4 link)"]["bcr_p50"]
+
+
+def test_stay1_base_parties_matches_the_chain_at_mode(inputs):
+    A, _, _, anchors = inputs
+    expect = sum(an.visitors * an.arrival_share * an.overnight.mode for an in anchors)
+    expect *= A["dedup_factor"].mode / A["persons_per_room"].mode
+    assert impact.stay1_base_parties(A, anchors) == pytest.approx(expect)

@@ -91,6 +91,25 @@ CHECKS: tuple[Check, ...] = (
         severity="warn",
     ),
     Check(
+        "Measure Q not found after FY2023: check the State Controller 'Other Taxes - Other' "
+        "line matched in staging.city_tax_fy",
+        "select fy from marts.ontario_fy_panel where fy >= 2024 and sales_tax_measure_q = 0",
+        severity="warn",
+    ),
+    Check(
+        "State Controller Measure Q differs from the City budget actual by >1% "
+        "(the 'Other Taxes - Other' line may hold something else that year)",
+        "select p.fy, p.sales_tax_measure_q, d.measure_q from marts.ontario_fy_panel p "
+        "join staging.city_sales_tax_detail d on d.fy = p.fy and d.basis = 'actual' "
+        "where abs(p.sales_tax_measure_q / nullif(d.measure_q, 0) - 1) > 0.01",
+        severity="warn",
+    ),
+    Check(
+        "City budget sales-tax parts do not add up to the stated total",
+        "select fy, basis from staging.city_sales_tax_detail "
+        "where abs(sales_use_tax + prop_172 + measure_q - total_sales_tax) > 1",
+    ),
+    Check(
         "LODES years missing the out-of-state (aux) file",
         "select cy from staging.lodes_ontario_cy where not includes_aux",
         severity="warn",

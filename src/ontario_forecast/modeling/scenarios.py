@@ -5,6 +5,9 @@ Method (bootstrap of OUT-OF-SAMPLE errors):
     g_{T+h} = mu_h + e*,  e* drawn with replacement from the model's rolling-origin
     forecast errors (ex-COVID). Those errors were made on years the model had not
     seen, so they already contain parameter-estimation error, not just noise.
+    Errors are centered (mean removed) before resampling, so the middle of the fan is
+    the selected model's own forecast. Uncentered, a "no change" model would quietly
+    grow at the average of its past errors, i.e. become the trend model it beat.
     Paths are accumulated (levels: L_T * exp(sum g); shares: logistic(logit_T + sum g))
     and quantiles are taken per year.
 
@@ -70,12 +73,20 @@ class Fan:
         return float(np.mean(self.samples[:, h] < value))
 
 
-def bootstrap_growth(mu: np.ndarray, errors: np.ndarray, n_sims: int, rng: np.random.Generator) -> np.ndarray:
-    """(n_sims, horizon) growth draws: mu[h] + resampled out-of-sample error."""
+def bootstrap_growth(
+    mu: np.ndarray, errors: np.ndarray, n_sims: int, rng: np.random.Generator, center: bool = True
+) -> np.ndarray:
+    """(n_sims, horizon) growth draws: mu[h] + resampled out-of-sample error.
+
+    center=True removes the mean error first (standard residual bootstrap), so the
+    simulated paths spread around the model's forecast instead of around forecast + bias.
+    """
     e = np.asarray(errors, float)
     e = e[~np.isnan(e)]
     if e.size < 5:
         raise ValueError(f"only {e.size} out-of-sample errors; too few to simulate")
+    if center:
+        e = e - e.mean()
     mu = np.asarray(mu, float)
     return mu[None, :] + rng.choice(e, size=(n_sims, len(mu)), replace=True)
 

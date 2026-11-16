@@ -56,7 +56,7 @@ lodes as (
     from staging.lodes_ontario_cy),
 base as (
     select t.fy, t.population, t.tot_revenue, t.sales_tax_bradley_burns, t.sales_tax_in_lieu,
-           t.sales_tax_total, t.tot_revenue_real, t.sales_tax_total_real,
+           t.sales_tax_total, t.tot_revenue_real, t.sales_tax_total_real, t.sales_tax_measure_q,
            f.* exclude (fy), l.* exclude (fy), o.* exclude (fy),
            t.fy in (select fy from staging.covid_fys) as covid_shock   -- from config.COVID_SHOCK_FYS
     from marts.city_tax_fy t
@@ -143,6 +143,13 @@ official(metric, period, "value", source) as (   -- quoted: keyword in DuckDB >=
     union all select 'tot_revenue_actual', fy, tot_revenue, 'CA State Controller' from tax
     union all select 'sales_tax_actual', fy, sales_tax_total,
            'CA State Controller (Bradley-Burns + in-lieu)' from tax
+    union all select 'sales_tax_incl_measure_q_actual', fy, sales_tax_total + sales_tax_measure_q,
+           'CA State Controller (Bradley-Burns + Measure Q; excludes Prop 172)' from tax
+           where sales_tax_measure_q > 0
+    union all select 'sales_tax_bradley_burns_fy27_budget', fy, sales_use_tax, source
+              from staging.city_sales_tax_detail where fy = 2027 and basis = 'adopted'
+    union all select 'measure_q_fy27_budget', fy, measure_q, source
+              from staging.city_sales_tax_detail where fy = 2027 and basis = 'adopted'
     union all select 'tot_fy27_budget', fy, tot_budget, source from staging.city_budget
               where fy = 2027 and tot_budget is not null
     union all select 'sales_tax_fy27_budget', fy, sales_tax_budget, source from staging.city_budget

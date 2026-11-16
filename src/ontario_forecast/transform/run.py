@@ -5,6 +5,7 @@ python -m ontario_forecast.transform.run
 
 from __future__ import annotations
 
+import csv
 import sys
 from pathlib import Path
 
@@ -61,11 +62,47 @@ def build(con: duckdb.DuckDBPyConnection) -> None:
         con.execute(path.read_text())
 
 
+def source_snapshot(con: duckdb.DuckDBPyConnection) -> list[dict]:
+    """One row per raw table: how many rows were loaded and when dlt last loaded it.
+
+    The raw downloads are not committed (large, public, rebuildable), so this small table
+    is the tracked record of which data the committed charts and tables were built from.
+    """
+
+    def exists(table: str, column: str | None = None) -> bool:
+        sql = "select count(*) from information_schema.{} where table_schema = 'raw' and table_name = ?"
+        if column is None:
+            return con.execute(sql.format("tables"), [table]).fetchone()[0] > 0
+        return con.execute(sql.format("columns") + " and column_name = ?", [table, column]).fetchone()[0] > 0
+
+    tables = con.execute(
+        "select table_name from information_schema.tables where table_schema = 'raw' order by 1"
+    ).fetchall()
+    has_loads = exists("_dlt_loads")
+    out = []
+    for (t,) in tables:
+        if t.startswith("_dlt"):
+            continue
+        n = con.execute(f'select count(*) from raw."{t}"').fetchone()[0]
+        loaded = None
+        if n and has_loads and exists(t, "_dlt_load_id"):
+            loaded = con.execute(
+                f'select max(l.inserted_at) from raw."{t}" t '
+                "join raw._dlt_loads l on l.load_id = t._dlt_load_id"
+            ).fetchone()[0]
+        out.append({"raw_table": t, "rows": n, "last_loaded_at": "" if loaded is None else str(loaded)})
+    return out
+
+
 def export(con: duckdb.DuckDBPyConnection, out_dir: Path = config.TABLES_DIR) -> None:
     """Analysis-ready marts as CSV next to the other tables (for teammates and Excel)."""
     out_dir.mkdir(parents=True, exist_ok=True)
     for t in EXPORT_TABLES:
         con.execute(f"copy marts.{t} to '{out_dir / f'{t}.csv'}' (format csv)")
+    with open(out_dir / "source_snapshot.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["raw_table", "rows", "last_loaded_at"])
+        w.writeheader()
+        w.writerows(source_snapshot(con))
     print(f"  exported {len(EXPORT_TABLES)} marts to {out_dir.relative_to(config.ROOT)}/")
 
 

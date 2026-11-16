@@ -19,6 +19,7 @@ dependencies = [
 # (no statsmodels.api). statsmodels brings pandas; that stays out of model.py.
 analysis = [
     "matplotlib>=3.8",
+    "reportlab>=4.0",      # docs/*.md -> outputs/docs/*.pdf
     "scipy>=1.11",
     "statsmodels>=0.15",   # result_object= argument on adfuller/kpss
 ]

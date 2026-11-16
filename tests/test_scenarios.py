@@ -72,3 +72,13 @@ def test_predict_with_driver():
     out = m.predict(100.0, np.array([0.02]))
     assert out["growth"] == pytest.approx(0.02)
     assert out["lower"] == out["point"] == out["upper"]  # zero errors -> zero width
+
+
+def test_centered_errors_keep_the_model_forecast_in_the_middle():
+    # A "no change" model must not drift at the average of its past errors.
+    rng = np.random.default_rng(0)
+    biased = np.array([0.06, 0.09, 0.12, -0.05, -0.02, 0.04, -0.07, -0.06, 0.11])  # mean +0.024
+    g = scenarios.bootstrap_growth(np.zeros(5), biased, 20_000, rng)
+    assert abs(g.mean()) < 0.002
+    raw = scenarios.bootstrap_growth(np.zeros(5), biased, 20_000, rng, center=False)
+    assert raw.mean() == pytest.approx(biased.mean(), abs=0.002)

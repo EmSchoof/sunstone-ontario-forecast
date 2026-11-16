@@ -50,3 +50,6 @@ outputs/eda/
 #   outputs/charts/     deliverable charts (PNG, SVG, PDF)
 #   outputs/tables/     every charted number as CSV
 #   outputs/models/     fitted model coefficients (small, reviewable)
+#   outputs/docs/       shareable PDFs of docs/*.md
+# Every source is registered in docs/sources.md; outputs/tables/source_snapshot.csv records
+# what the (untracked) raw downloads contained when the outputs were built.
