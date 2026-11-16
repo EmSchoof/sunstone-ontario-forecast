@@ -1,0 +1,10 @@
+metric,value,period,source,is_fallback,proposal_value,pct_diff_vs_proposal
+employed_residents,79826.0,,Proposal text (fallback: no official source loaded),true,79826.0,
+inflow_commuters,123552.0,,Proposal text (fallback: no official source loaded),true,123552.0,
+live_and_work_in_ontario,12377.0,,Proposal text (fallback: no official source loaded),true,12377.0,
+sales_tax_actual,138813304.0,2025,CA State Controller (Bradley-Burns + in-lieu),false,,
+sales_tax_fy27_budget,216300000.0,2027,Proposal text (fallback: no official source loaded),true,216300000.0,
+share_jobs_held_by_residents,0.091,,Proposal text (fallback: no official source loaded),true,0.091,
+share_residents_work_local,0.155,,Proposal text (fallback: no official source loaded),true,0.155,
+tot_fy27_budget,18500000.0,2027,Proposal text (fallback: no official source loaded),true,18500000.0,
+tot_revenue_actual,16671971.0,2025,CA State Controller,false,,

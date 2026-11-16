@@ -12,12 +12,16 @@ from ontario_forecast import config
 
 
 def export_figures(pages: list[tuple[str, object]], out_dir: Path, *, suffix: str, pdf_name: str) -> None:
-    """Each figure -> <key><suffix>.png (200 dpi) + .svg, and all of them -> one PDF."""
+    """Each figure -> <key><suffix>.png (200 dpi) + .svg, and all of them -> one PDF.
+
+    Output is byte-for-byte reproducible: no timestamps, and fixed SVG element IDs
+    (svg.hashsalt), so rerunning with unchanged results leaves git clean.
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
-    with PdfPages(out_dir / pdf_name) as pdf:
+    with PdfPages(out_dir / pdf_name, metadata={"CreationDate": None, "ModDate": None}) as pdf:
         for key, fig in pages:
             fig.savefig(out_dir / f"{key}{suffix}.png", dpi=200)
-            fig.savefig(out_dir / f"{key}{suffix}.svg")
+            fig.savefig(out_dir / f"{key}{suffix}.svg", metadata={"Date": None})
             pdf.savefig(fig)
     print(f"Exported {len(pages)} chart(s) + {pdf_name} to {out_dir.relative_to(config.ROOT)}/")
 

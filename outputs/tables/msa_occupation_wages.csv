@@ -1,0 +1,15 @@
+soc,occupation,pathway,employment,mean_annual_wage,median_annual_wage,year,median_vs_all_occupations,proposal_median_wage,pct_diff_vs_proposal
+17-2071,Electrical engineers,Engineering & infrastructure,1150.0,116800.0,109990.0,2025,2.272520661157025,,
+17-2112,Industrial engineers,Engineering & infrastructure,1580.0,107640.0,101700.0,2025,2.1012396694214877,101700.0,0.0
+11-3071,"Transportation, storage & distribution managers",Logistics & operations,3550.0,111220.0,98700.0,2025,2.0392561983471076,98700.0,0.0
+13-1081,Logisticians,Logistics & operations,2310.0,84140.0,77370.0,2025,1.5985537190082644,77370.0,0.0
+47-2111,Electricians,Green economy & trades,7880.0,80090.0,72790.0,2025,1.5039256198347108,,
+53-1047,"First-line supervisors, transportation & material moving",Logistics & operations,11610.0,67960.0,69920.0,2025,1.4446280991735536,69920.0,0.0
+49-9021,HVAC mechanics & installers,Green economy & trades,4820.0,68660.0,64300.0,2025,1.328512396694215,,
+13-1121,"Meeting, convention & event planners",Visitor & entertainment,1090.0,68810.0,63850.0,2025,1.3192148760330578,63850.0,0.0
+00-0000,All occupations,benchmark,1716760.0,65160.0,48400.0,2025,1.0,,
+53-7062,"Laborers & freight, stock & material movers",Logistics entry,69820.0,46160.0,46060.0,2025,0.9516528925619835,,
+53-7065,Stockers & order fillers,Logistics entry,77160.0,43350.0,43200.0,2025,0.8925619834710744,,
+43-4081,"Hotel, motel & resort desk clerks",Visitor entry,2450.0,39220.0,37030.0,2025,0.7650826446280992,,
+41-2031,Retail salespersons,Visitor entry,41270.0,41230.0,36720.0,2025,0.7586776859504132,,
+35-3031,Waiters & waitresses,Visitor entry,20810.0,45660.0,34800.0,2025,0.71900826446281,,

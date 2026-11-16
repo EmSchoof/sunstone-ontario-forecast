@@ -6,7 +6,6 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-11-15T18:44:43.243073</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -72,27 +71,27 @@ z
    <g id="line2d_1">
     <path d="M 34.56 137 
 L 838.08 137 
-" clip-path="url(#p702982e0f5)" style="fill: none; stroke: #e6e5e1; stroke-linecap: square"/>
+" clip-path="url(#pbd255e1580)" style="fill: none; stroke: #e6e5e1; stroke-linecap: square"/>
    </g>
    <g id="line2d_2">
     <path d="M 34.56 202.88 
 L 838.08 202.88 
-" clip-path="url(#p702982e0f5)" style="fill: none; stroke: #e6e5e1; stroke-linecap: square"/>
+" clip-path="url(#pbd255e1580)" style="fill: none; stroke: #e6e5e1; stroke-linecap: square"/>
    </g>
    <g id="line2d_3">
     <path d="M 34.56 268.76 
 L 838.08 268.76 
-" clip-path="url(#p702982e0f5)" style="fill: none; stroke: #e6e5e1; stroke-linecap: square"/>
+" clip-path="url(#pbd255e1580)" style="fill: none; stroke: #e6e5e1; stroke-linecap: square"/>
    </g>
    <g id="line2d_4">
     <path d="M 34.56 334.64 
 L 838.08 334.64 
-" clip-path="url(#p702982e0f5)" style="fill: none; stroke: #e6e5e1; stroke-linecap: square"/>
+" clip-path="url(#pbd255e1580)" style="fill: none; stroke: #e6e5e1; stroke-linecap: square"/>
    </g>
    <g id="line2d_5">
     <path d="M 34.56 400.52 
 L 838.08 400.52 
-" clip-path="url(#p702982e0f5)" style="fill: none; stroke: #e6e5e1; stroke-linecap: square"/>
+" clip-path="url(#pbd255e1580)" style="fill: none; stroke: #e6e5e1; stroke-linecap: square"/>
    </g>
    <g id="text_1">
     <text style="font-weight: 700; font-size: 9.5px; font-family: 'DejaVu Sans', 'Bitstream Vera Sans', 'Computer Modern Sans Serif', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', sans-serif; text-anchor: start; fill: #0b0b0b" x="34.56" y="124.835773" transform="rotate(-0 34.56 124.835773)">Recommendation</text>
@@ -236,7 +235,7 @@ L 838.08 400.52
   </g>
  </g>
  <defs>
-  <clipPath id="p702982e0f5">
+  <clipPath id="pbd255e1580">
    <rect x="34.56" y="137" width="803.52" height="329.4"/>
   </clipPath>
  </defs>

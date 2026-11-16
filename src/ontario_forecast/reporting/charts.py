@@ -36,6 +36,7 @@ plt.rcParams.update(
         "axes.facecolor": SURFACE,
         "savefig.facecolor": SURFACE,
         "svg.fonttype": "none",
+        "svg.hashsalt": "ontario-forecast",  # fixed element IDs -> reproducible SVGs
     }
 )
 
