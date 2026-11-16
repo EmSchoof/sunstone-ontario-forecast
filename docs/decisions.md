@@ -2,6 +2,12 @@
 
 [← Background](background.md) · [README](../README.md) · Next: [Methods →](methods.md)
 
+> **Key:** **R1** Career Pathways (students → paid internships → local jobs) ·
+> **R2** Connected Destination / Stay +1 (turn existing visitors into extra hotel nights) ·
+> **R3** Clean, Safe & Green Downtown (ambassadors + upgrades) ·
+> **R4** International & employer attraction (ONT flights, trade zone) ·
+> **R1→R4** Career Pathways workforce helping attract employers. Full descriptions: [Background](background.md#the-recommendations-being-tested).
+
 This document records *why* the model is built the way it is: the approach, why each data source was
 chosen, and how the team's pre-forecast research shaped what the model tests.
 
@@ -85,6 +91,6 @@ is a labeled fallback only (`is_fallback` in `marts.headline_metrics`), and diff
 | **Targeted imports** from statsmodels/scipy | Proven implementations without loading unused model families |
 | **Single source of truth** (`config.py`, SQL parameter tables, `features.py`) | Every rule and ID is defined once and reused (DRY) |
 | **uv** + **pnpm/Nx** | Locked environments; the pipeline runs as a graph with cached lint and tests |
-| **pre-commit + ruff + pytest** | Style and correctness checked on every commit; 39 tests cover the math, SQL and impact logic |
+| **pre-commit + ruff + pytest** | Style and correctness checked on every commit; 40 tests cover the math, SQL, impact and ROI logic |
 
 Next: [Methods →](methods.md)

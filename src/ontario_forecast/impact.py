@@ -289,6 +289,56 @@ def break_even_year(net_cum_p50: np.ndarray, years: np.ndarray) -> int | None:
     return int(years[hit[0]]) if len(hit) else None
 
 
+ROI_GROUPS = {
+    "R1 Career Pathways": ("R1",),
+    "R2 Connected Destination (Stay +1)": ("R2",),
+    "R3 Clean, Safe & Green": ("R3",),
+    "R4 Employers (+ R1→R4 link)": ("R4", "SYN"),
+    "All recommendations": RECS,
+}
+
+
+def benefit_cost(result: ImpactResult, first: int, last: int, q=(0.10, 0.50, 0.90)) -> list[dict]:
+    """Return on City money per recommendation over [first, last] (real, undiscounted).
+
+    * bcr: tax revenue returned per $1 of City cost, per simulation (1.0 = pays for itself).
+    * budgeted_annual_cost: City cost per year the program runs (the proposal's ranges).
+    * breakeven_annual_cost: the most the City could spend per year and still be repaid by
+      the program's own tax revenue. That is the "limited investment" answer: a City share above
+      it has to be justified by non-fiscal outcomes or covered by partners.
+    R4 is grouped with the R1->R4 synergy, which has no cost of its own.
+    """
+    years = result.years
+    m = (years >= first) & (years <= last)
+    out = []
+    for label, recs in ROI_GROUPS.items():
+        gross = sum(window_sum(result.gross(r), years, first, last) for r in recs)
+        cost_t = sum(result.cost[r] for r in recs)[:, m]
+        cost = cost_t.sum(axis=1)
+        active_years = max(int((cost_t[0] > 0).sum()), 1)  # same phase pattern in every simulation
+        ok = cost > 0
+        bcr = np.where(ok, gross / np.where(ok, cost, 1.0), np.nan)
+        row = {"group": label, "first_fy": first, "last_fy": last, "years_with_cost": active_years}
+        row.update(
+            zip(
+                ("bcr_p10", "bcr_p50", "bcr_p90"),
+                np.nanquantile(bcr, q) if ok.any() else (np.nan,) * 3,
+                strict=True,
+            )
+        )
+        row["budgeted_annual_cost_p50"] = float(np.median(cost)) / active_years
+        row["breakeven_annual_cost_p50"] = float(np.median(gross)) / active_years
+        row["prob_pays_for_itself"] = float(np.mean(gross >= cost)) if ok.any() else np.nan
+        out.append(row)
+    return out
+
+
+def first_year_city_cost(result: ImpactResult, fy: int, q=(0.10, 0.50, 0.90)) -> tuple[float, ...]:
+    """City cost in a single fiscal year (checks the proposal's $500K Year 1 cap)."""
+    i = int(np.flatnonzero(result.years == fy)[0])
+    return quantiles(sum(result.cost[r][:, i] for r in RECS), q)
+
+
 def investment_leverage(result: ImpactResult, investments: list[dict], first: int, last: int) -> list[dict]:
     """Cumulative modeled increment (P10/P50/P90, real $) that each City investment enables.
 

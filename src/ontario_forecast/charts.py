@@ -117,8 +117,7 @@ def fan_chart(
         f"Downside (P{int(lo_q * 100)})",
     ]
     _end_labels(ax, xf[-1], [hi[-1], mid[-1], lo[-1]], names, fmt)
-    ax.legend(loc="upper left", frameon=False, fontsize=9, labelcolor=INK_2)
-    _frame(fig, title, subtitle, source)
+    _frame(fig, title, subtitle, source, legend_ax=ax, ncol=4)
     return fig
 
 
@@ -131,9 +130,10 @@ BASELINE = "#8a8984"  # neutral gray for the status quo
 DIVERGE_LOW, DIVERGE_HIGH = "#e34948", "#2a78d6"  # red <-> blue poles
 
 
-def _new_figure(right: float = 0.80, bottom: float = 0.17):
-    fig, ax = plt.subplots(figsize=(10, 5.6))
-    fig.subplots_adjust(left=0.08, right=right, top=0.80, bottom=bottom)
+def _new_figure(right: float = 0.80):
+    """Top and bottom margins are set later by _frame, once the text heights are known."""
+    fig, ax = plt.subplots(figsize=(10, 6.2))
+    fig.subplots_adjust(left=0.08, right=right)
     return fig, ax
 
 
@@ -158,9 +158,16 @@ def _forecast_divider(ax, x: float, text: str = "Forecast →") -> None:
 
 
 def _end_labels(ax, x: float, values: list[float], names: list[str], fmt) -> None:
-    """Direct labels at the right edge, spread so they never collide."""
+    """Direct labels at the right edge, spread so they never collide.
+
+    Labels are two lines tall, so they're kept >= 11% of the axis apart. If spreading pushes
+    the lowest label below the axis, the axis is extended so it never meets the tick labels.
+    """
     ymin, ymax = ax.get_ylim()
-    ys = _spread(values, gap=0.09 * (ymax - ymin))
+    gap = 0.11 * (ymax - ymin)
+    ys = _spread(values, gap=gap)
+    if min(ys) - gap / 2 < ymin:
+        ax.set_ylim(min(ys) - gap / 2, ymax)
     for name, v, y in zip(names, values, ys, strict=True):
         ax.annotate(
             f"{name}\n{fmt(v)}",
@@ -176,10 +183,66 @@ def _end_labels(ax, x: float, values: list[float], names: list[str], fmt) -> Non
         )
 
 
-def _frame(fig, title: str, subtitle: str, source: str) -> None:
-    fig.text(0.08, 0.93, title, fontsize=15, fontweight="bold", color=INK, ha="left")
-    fig.text(0.08, 0.875, subtitle, fontsize=10, color=INK_2, ha="left", va="top", wrap=True)
-    fig.text(0.08, 0.035, source, fontsize=7.5, color=INK_2, ha="left", va="bottom", wrap=True)
+def _wrap(text: str, width: int) -> str:
+    """Wrap each paragraph to `width` characters (explicit newlines are kept)."""
+    return "\n".join(textwrap.fill(p, width) if p else "" for p in text.split("\n"))
+
+
+def _frame(
+    fig,
+    title: str,
+    subtitle: str,
+    source: str,
+    *,
+    legend_ax=None,
+    legend_handles=None,
+    ncol: int = 3,
+    adjust: bool = True,
+) -> tuple[float, float]:
+    """Title, subtitle, legend and footnote, with the plot area sized so nothing overlaps.
+
+    Text is wrapped to the figure width up front (not left to matplotlib), so the number
+    of lines is known and the axes are placed below the subtitle and above the legend
+    and footnote. Returns (top, bottom) of the free area in figure fractions.
+    """
+    w, h = fig.get_size_inches()
+    pt = 1 / (72 * h)  # one typographic point as a fraction of the figure height
+    left = 0.08
+    sub, src = _wrap(subtitle, int(w * 10.5)), _wrap(source, int(w * 15))
+    n_sub, n_src = sub.count("\n") + 1, src.count("\n") + 1
+
+    title_y = 1 - 24 * pt
+    fig.text(left, title_y, title, fontsize=15, fontweight="bold", color=INK, ha="left", va="top")
+    sub_y = title_y - 26 * pt
+    fig.text(left, sub_y, sub, fontsize=10, color=INK_2, ha="left", va="top", linespacing=1.35)
+    src_y = 10 * pt
+    fig.text(left, src_y, src, fontsize=7.5, color=INK_2, ha="left", va="bottom", linespacing=1.3)
+    src_top = src_y + n_src * 10 * pt
+
+    handles = legend_handles
+    labels = [hd.get_label() for hd in handles] if handles else None
+    if handles is None and legend_ax is not None:
+        handles, labels = legend_ax.get_legend_handles_labels()
+    rows = 0
+    if handles:
+        rows = -(-len(handles) // ncol)
+        fig.legend(
+            handles,
+            labels,
+            loc="lower left",
+            bbox_to_anchor=(left, src_top + 6 * pt),
+            ncol=ncol,
+            frameon=False,
+            fontsize=8.5,
+            labelcolor=INK_2,
+            borderaxespad=0,
+        )
+
+    top = sub_y - n_sub * 13.5 * pt - 26 * pt  # clearance for in-plot labels and panel titles
+    bottom = src_top + 6 * pt + rows * 16 * pt + 36 * pt  # legend rows + x tick labels
+    if adjust:
+        fig.subplots_adjust(top=top, bottom=bottom)
+    return top, bottom
 
 
 # ---------------------------------------------------------------------------
@@ -214,8 +277,7 @@ def compare_fan_chart(
     ax.set_xlim(hist_x[0] - 0.5, xf[-1] + 0.4)
     _forecast_divider(ax, hist_x[-1])
     _end_labels(ax, xf[-1], list(pts.values()), list(pts), fmt)
-    ax.legend(loc="upper left", frameon=False, fontsize=9, labelcolor=INK_2)
-    _frame(fig, title, subtitle, source)
+    _frame(fig, title, subtitle, source, legend_ax=ax, ncol=3)
     return fig
 
 
@@ -234,7 +296,7 @@ def recommendation_lines_chart(
 ):
     """Annual net impact per recommendation (median lines) + total P10-P90 band.
     Full names in a legend below the plot; short codes as direct labels at the right edge."""
-    fig, ax = _new_figure(right=0.86, bottom=0.27)
+    fig, ax = _new_figure(right=0.86)
     lo, mid, hi = np.quantile(total, q, axis=0)
     ax.fill_between(years, lo, hi, color=INK_2, alpha=0.08, linewidth=0, label="All recommendations, P10-P90")
     ax.plot(years, mid, color=INK, lw=2, label="All recommendations (median)")
@@ -251,10 +313,7 @@ def recommendation_lines_chart(
         [short[r] for r in medians] + ["All"],
         fmt,
     )
-    ax.legend(
-        loc="upper left", bbox_to_anchor=(0, -0.09), ncol=3, frameon=False, fontsize=8.5, labelcolor=INK_2
-    )
-    _frame(fig, title, subtitle, source)
+    _frame(fig, title, subtitle, source, legend_ax=ax, ncol=3)
     return fig
 
 
@@ -267,11 +326,14 @@ def window_bars_chart(
     subtitle: str,
     source: str,
     fmt,
+    ref_x: float = 0.0,
+    ref_label: str | None = None,
 ):
-    """Small multiples (one panel per time window): median cumulative net per recommendation
-    with P10-P90 whiskers. rows: {rec, window, p10, p50, p90}."""
-    fig, axes = plt.subplots(1, len(windows), figsize=(10, 5.6), sharex=True)
-    fig.subplots_adjust(left=0.31, right=0.95, top=0.74, bottom=0.17, wspace=0.18)
+    """Small multiples (one panel per time window): median per group with P10-P90 whiskers.
+    rows: {rec, window, p10, p50, p90}. ref_x draws the reference line (0 for net dollars,
+    1 for benefit-cost ratios)."""
+    fig, axes = plt.subplots(1, len(windows), figsize=(10, 6.2), sharex=True)
+    fig.subplots_adjust(left=0.31, right=0.95, wspace=0.22)
     recs = list(names)
     for ax, w in zip(np.atleast_1d(axes), windows, strict=True):
         sub = {r["rec"]: r for r in rows if r["window"] == w}
@@ -283,7 +345,7 @@ def window_bars_chart(
             # median label just past the right end of the bar/whisker, never on top of it
             ax.annotate(
                 fmt(r["p50"]),
-                xy=(max(r["p90"], r["p50"], 0.0), yi),
+                xy=(max(r["p90"], r["p50"], ref_x), yi),
                 xytext=(5, 0),
                 textcoords="offset points",
                 va="center",
@@ -291,10 +353,29 @@ def window_bars_chart(
                 fontsize=8.5,
                 color=INK,
             )
-        ax.axvline(0, color=INK_2, lw=1)
+        ax.axvline(ref_x, color=INK_2, lw=1)
+        if ref_label:
+            ax.annotate(
+                ref_label,
+                xy=(ref_x, 1.0),
+                xycoords=("data", "axes fraction"),
+                xytext=(4, -2),
+                textcoords="offset points",
+                va="top",
+                ha="left",
+                fontsize=8,
+                color=INK_2,
+            )
         ax.set_yticks(y, [names[r] for r in recs] if ax is np.atleast_1d(axes)[0] else [""] * len(recs))
-        ax.set_title(w, fontsize=10.5, color=INK, loc="left")
+        ax.set_title(w, fontsize=10.5, color=INK, loc="left", pad=10)
         _style_axes(ax, fmt, value_axis="x")
+    # Room on the right for the value labels (shared x, so once is enough), and fewer ticks so
+    # tick labels never touch at this width.
+    first = np.atleast_1d(axes)[0]
+    x0, x1 = first.get_xlim()
+    first.set_xlim(x0 - 0.04 * (x1 - x0), x1 + 0.28 * (x1 - x0))
+    for ax in np.atleast_1d(axes):
+        ax.xaxis.set_major_locator(MaxNLocator(nbins=4 if len(windows) > 1 else 7))
     _frame(fig, title, subtitle, source)
     return fig
 
@@ -305,8 +386,12 @@ def pathway_chart(rows: list[dict], headers: tuple[str, ...], *, title: str, sub
     rows: {rec, name, chain, kpi, short, long}. Color bar = recommendation identity
     (same slots as every other impact chart); all text in ink.
     """
-    fig = plt.figure(figsize=(12, 6.8))
-    ax = fig.add_axes([0.04, 0.11, 0.93, 0.62])  # top at 0.73 leaves room for 2-line subtitle + headers
+    fig = plt.figure(figsize=(12, 7.2))
+    free_top, free_bottom = _frame(fig, title, subtitle, source, adjust=False)
+    header_h = 34 / (72 * 7.2)  # two-line column headers sit above the table
+    ax = fig.add_axes(
+        [0.04, free_bottom - 20 / (72 * 7.2), 0.93, free_top - header_h - free_bottom + 20 / (72 * 7.2)]
+    )
     ax.axis("off")
     xs, widths = (0.0, 0.19, 0.54, 0.75, 0.875), (24, 50, 28, 16, 16)
     for h, x in zip(headers, xs, strict=True):
@@ -336,7 +421,6 @@ def pathway_chart(rows: list[dict], headers: tuple[str, ...], *, title: str, sub
                 fontweight="bold" if key == "name" else "normal",
                 transform=ax.transAxes,
             )
-    _frame(fig, title, subtitle, source)
     return fig
 
 
@@ -350,29 +434,36 @@ def tornado_chart(
     fmt,
     top: int = 12,
 ):
-    """One-at-a-time sensitivity: bars from the all-mode result to the low/high result."""
+    """One-at-a-time sensitivity: bars from the all-mode result to the low/high result.
+
+    Input labels are never truncated: long ones wrap onto extra lines, and the figure grows
+    by ~0.5 in per row so wrapped labels never touch the row above or below.
+    """
     rows = rows[:top]
-    fig, ax = plt.subplots(figsize=(10, 5.6))
-    fig.subplots_adjust(left=0.34, right=0.95, top=0.80, bottom=0.17)
+    label_width = 34  # characters per line in the left label column
+    wrapped = [textwrap.fill(labels.get(k, k), label_width) for k, *_ in rows]
+    max_lines = max((w.count("\n") + 1 for w in wrapped), default=1)
+    fig, ax = plt.subplots(figsize=(10, 3.2 + len(rows) * (0.22 + 0.14 * max_lines)))
+    fig.subplots_adjust(left=0.33, right=0.95)
     base = rows[0][3] if rows else 0.0
     y = np.arange(len(rows))[::-1]
     for yi, (_, lo, hi, _base) in zip(y, rows, strict=True):
         ax.barh(yi, lo - base, left=base, height=0.55, color=DIVERGE_LOW, edgecolor=SURFACE, lw=2)
         ax.barh(yi, hi - base, left=base, height=0.55, color=DIVERGE_HIGH, edgecolor=SURFACE, lw=2)
     ax.axvline(base, color=INK, lw=1)
-    ax.set_yticks(
-        y, [textwrap.shorten(labels.get(k, k), 46, placeholder="…") for k, *_ in rows], fontsize=8.5
-    )
-    ax.legend(
-        handles=[
+    ax.set_yticks(y, wrapped, fontsize=8.5, linespacing=1.15)
+    ax.set_ylim(-0.6, len(rows) - 0.4)
+    _style_axes(ax, fmt, value_axis="x")
+    ax.xaxis.set_major_locator(MaxNLocator(nbins=6))
+    _frame(
+        fig,
+        title,
+        subtitle,
+        source,
+        ncol=2,
+        legend_handles=[
             Patch(color=DIVERGE_LOW, label="input at its low value"),
             Patch(color=DIVERGE_HIGH, label="input at its high value"),
         ],
-        loc="lower right",
-        frameon=False,
-        fontsize=8.5,
-        labelcolor=INK_2,
     )
-    _style_axes(ax, fmt, value_axis="x")
-    _frame(fig, title, subtitle, source)
     return fig

@@ -88,14 +88,13 @@ for key, t in config.FORECAST_TARGETS.items():
 
     sub = (
         f"FY{f.years[-1]}: central {usd_m(mid)}, {band} of outcomes between {usd_m(lo)} and "
-        f"{usd_m(hi)}. Model: {model_label} ({len(model.backtest_errors)} "
-        f"out-of-sample errors)."
+        f"{usd_m(hi)}. Model: {model_label} ({len(model.backtest_errors)} out-of-sample errors)."
     )
     reference = None
     if ref and ref[0] in f.years:
         reference = ref
         pctl = f.percentile_of(ref[1], ref[0])
-        sub += f"\nThe {ref[2]} ({usd_m(ref[1])}) sits at the {pctl:.0%} percentile of simulated outcomes."
+        sub += f" {ref[2]}: {usd_m(ref[1])}, higher than {pctl:.0%} of simulated outcomes."
     fig = fan_chart(
         f,
         fy,

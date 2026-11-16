@@ -108,6 +108,21 @@ def test_investment_leverage_handles_modeled_and_unmodeled(inputs):
     assert out[1]["p50"] is None and out[1]["note"] == "enabling"
 
 
+def test_benefit_cost_and_breakeven(inputs):
+    _, fixed, phases, anchors = inputs
+    res = run(fixed, phases, anchors)
+    rows = {r["group"]: r for r in impact.benefit_cost(res, 2030, 2036)}
+    assert set(rows) == set(impact.ROI_GROUPS)
+    r2 = rows["R2 Connected Destination (Stay +1)"]
+    gross = impact.window_sum(res.gross("R2"), YEARS, 2030, 2036)[0]
+    cost = impact.window_sum(res.cost["R2"], YEARS, 2030, 2036)[0]
+    assert r2["bcr_p50"] == pytest.approx(gross / cost)
+    assert r2["breakeven_annual_cost_p50"] == pytest.approx(gross / 7)  # active all 7 years
+    assert r2["prob_pays_for_itself"] in (0.0, 1.0)  # one deterministic simulation
+    yr1 = impact.first_year_city_cost(res, 2027)
+    assert yr1[1] == pytest.approx(fixed["cost_R1"].mode + fixed["cost_R2"].mode)  # R3/R4 start later
+
+
 def test_tornado_sorted_by_swing(inputs):
     A, _, phases, anchors = inputs
     rows = impact.tornado(A, phases, anchors, YEARS, np.full((1, len(YEARS)), 140e6), 2030, 2036)

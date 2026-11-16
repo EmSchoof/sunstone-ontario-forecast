@@ -377,6 +377,29 @@ pages.append(
 )
 
 # 4g. What drives the answer: sensitivity
+# Short chart labels (full descriptions stay in impact_inputs_used.csv)
+SHORT_LABELS = {
+    "stay1_uptake": "Stay +1 uptake (share of overnight parties)",
+    "district_sales_uplift": "Downtown sales uplift from R3",
+    "cost_R2": "City cost / yr: Stay +1 package (R2)",
+    "downtown_share_of_sales": "Downtown share of citywide sales",
+    "r2_additionality": "Stay +1 nights that are truly extra",
+    "cost_R4": "City cost / yr: employer partnerships (R4)",
+    "dedup_factor": "Venue visits that are unique trips",
+    "r4_taxable_sales_per_job": "Business taxable sales per attracted job",
+    "persons_per_room": "Visitors per room-night",
+    "adr": "Average daily room rate",
+    "r3_additionality": "Downtown uplift not shifted from elsewhere",
+    "r4_firms_per_year": "Firms attracted or retained per year",
+    "cost_R3": "City cost / yr: Downtown ambassadors (R3)",
+    "cost_R1": "City cost / yr: Career Pathways (R1)",
+    "tot_rate": "Hotel tax (TOT) rate",
+    "visitor_daily_taxable_spend": "Visitor spending per extra day",
+    "r1_to_r4_synergy": "Firms attracted per 100 pathway workers",
+    "r4_jobs_per_firm": "Jobs per attracted firm",
+    "visitor_growth": "Annual growth in venue visits",
+    "r4_additionality": "Firm decisions due to the program",
+}
 base_st_p50 = np.median(base_st, axis=0)[None, :]
 torn = impact.tornado(A, phases, anchors, years, base_st_p50, long_a, long_b)
 pages.append(
@@ -384,7 +407,10 @@ pages.append(
         "impact_sensitivity",
         tornado_chart(
             torn,
-            {k: f"{'* ' if a.status == 'assumption' else ''}{a.description}" for k, a in A.items()},
+            {
+                k: f"{'* ' if a.status == 'assumption' else ''}{SHORT_LABELS.get(k, a.description)}"
+                for k, a in A.items()
+            },
             title="Which inputs move the long-term result most",
             subtitle=(
                 "Every input at its single most likely value, swinging one at a time (so the center "
@@ -396,6 +422,42 @@ pages.append(
     )
 )
 
+# 4h. Return on City money (benefit-cost) and the "limited investment" each can justify
+roi = []
+for wname, (a, b) in WINDOWS.items():
+    roi += [{"window": wname, **r} for r in impact.benefit_cost(res, a, b, Q)]
+yr1 = impact.first_year_city_cost(res, min(s for s, _, _ in phases.values()), Q)
+print(f"Year 1 City cost: {usd_m(yr1[1])} (P10-P90 {usd_m(yr1[0])}-{usd_m(yr1[2])}) vs the $500K cap")
+code = {g: c for g, c in zip(impact.ROI_GROUPS, ("R1", "R2", "R3", "R4", "ALL"), strict=True)}
+pages.append(
+    (
+        "impact_roi",
+        window_bars_chart(
+            [
+                {
+                    "rec": code[r["group"]],
+                    "window": r["window"],
+                    "p10": r["bcr_p10"],
+                    "p50": r["bcr_p50"],
+                    "p90": r["bcr_p90"],
+                }
+                for r in roi
+            ],
+            wn,
+            {code[g]: g for g in impact.ROI_GROUPS},
+            title="Tax revenue returned per $1 of City money",
+            subtitle=(
+                "Median (bar) and P10-P90 (line). Right of the $1 line, a recommendation pays for "
+                f"itself in City tax revenue alone. Year 1 City cost: {usd_m(yr1[1])} (cap $500K)."
+            ),
+            source=FOOT,
+            fmt=lambda v: f"\\${v:.2f}",
+            ref_x=1.0,
+            ref_label="pays for itself",
+        ),
+    )
+)
+
 # %% [markdown]
 # ## 5. Export
 
@@ -403,6 +465,7 @@ pages.append(
 export_figures(pages, config.FINAL_DIR, suffix="", pdf_name="impact.pdf")
 write_csv(summary, config.FINAL_DIR / "impact_summary.csv")
 write_csv(lev, config.FINAL_DIR / "impact_investment_leverage.csv")
+write_csv(roi, config.FINAL_DIR / "impact_roi.csv")
 write_csv(
     [
         {"anchor": k, "p10": round(v[0]), "p50": round(v[1]), "p90": round(v[2])}

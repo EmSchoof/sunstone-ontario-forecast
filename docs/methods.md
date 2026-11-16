@@ -2,6 +2,12 @@
 
 [← Decisions](decisions.md) · [README](../README.md) · Next: [Conclusions →](conclusions.md)
 
+> **Key:** **R1** Career Pathways (students → paid internships → local jobs) ·
+> **R2** Connected Destination / Stay +1 (turn existing visitors into extra hotel nights) ·
+> **R3** Clean, Safe & Green Downtown (ambassadors + upgrades) ·
+> **R4** International & employer attraction (ONT flights, trade zone) ·
+> **R1→R4** Career Pathways workforce helping attract employers. Full descriptions: [Background](background.md#the-recommendations-being-tested).
+
 Part A is the **data engineering** that produces clean, fiscal-year-aligned tables. Part B is the
 **data science**: the status-quo baseline, then the impact method for each recommendation.
 
@@ -68,14 +74,14 @@ Each check is a query that returns the rows breaking a rule. **Errors stop the e
 
 ### A5. Testing and reproducibility
 
-- **39 pytest tests:**
+- **40 pytest tests:**
   - statsmodels/scipy wrappers
   - SQL run on hand-made tables
   - LODES aggregation
   - dlt resource construction
   - backtest and lookahead checks
   - scenario math
-  - every impact mechanism, run on the real input files
+  - every impact mechanism and the ROI math, run on the real input files
 - **Reproducibility:** `uv.lock` and `pnpm-lock.yaml` lock dependencies, and fixed random seeds make every simulation repeatable.
 
 ---
@@ -196,7 +202,19 @@ $\alpha_3$ = share of the uplift not shifted from elsewhere in Ontario. The base
 - **Sensitivity** (one input at a time): every input at its likely value, then each swung to its low and high.
   Inputs are ranked by their effect on the long-term cumulative net. This ranking sets the sourcing priority.
 
-### B6. Known limitations
+### B6. Cost and return on investment
+
+For each recommendation (R4 grouped with the R1→R4 synergy, which has no cost of its own), per simulation:
+
+- **Return per $1:** benefit-cost ratio = cumulative gross tax revenue ÷ cumulative City cost. Real, undiscounted.
+- **Break-even annual City cost:** gross ÷ years the program has cost. This is the most the City could
+  contribute each year and still be repaid by the program's own tax revenue.
+- **Probability it pays for itself:** share of simulations where gross ≥ cost.
+- **Year 1 City cost:** checked against the proposal's $500K cap.
+
+Output: `impact_roi.csv` and the `impact_roi` chart.
+
+### B7. Known limitations
 
 - 32 of 38 impact inputs are team assumptions, and the dollar figures depend on them.
 - Resampling forecast errors independently ignores year-to-year correlation in errors. About 10 out-of-sample
