@@ -135,75 +135,92 @@ def models_for(ycol: str) -> dict[str, tuple[list[str], np.ndarray | None, objec
     return m
 
 
+MIN_TESTS = 5  # ex-COVID out-of-sample years a model needs before it can be selected
+
+
+def safe_mae(e: np.ndarray) -> float:
+    return mae(e) if len(e) else float("nan")
+
+
+def safe_rmse(e: np.ndarray) -> float:
+    return rmse(e) if len(e) else float("nan")
+
+
+def backtest(ycol: str, levcol: str, X, fp, rows: np.ndarray):
+    """Backtest on `rows` (target + inputs present). Returns (backtest, dollar errors, ex-COVID mask)."""
+    bt = rolling_origin(
+        P[ycol][rows], None if X is None else X[rows], fp, MIN_TRAIN, train_mask=train_ok[rows]
+    )
+    prev_level = P[levcol][rows - 1][bt.test_idx]  # known prior-year level
+    usd = prev_level * (np.exp(bt.actual) - np.exp(bt.pred))
+    return bt, usd, ~covid[rows][bt.test_idx]
+
+
 results, selected = [], {}
 for tname, t in TARGETS.items():
     ycol, levcol = t["growth"], t["level_real"]
-    y_all, level = P[ycol], P[levcol]
-    models = models_for(ycol)
-    # Common sample: rows where the target AND every model's inputs exist, so all
-    # models are scored on identical test years (otherwise the comparison is unfair).
-    valid = np.isfinite(y_all)
-    for _, X, _ in models.values():
-        if X is not None:
-            valid &= np.isfinite(X).all(axis=1)
-    idx = np.flatnonzero(valid)
-    y, fyv, cov = y_all[idx], fy[idx], covid[idx]
-    prev_level = level[idx - 1]
-
+    target_ok = np.isfinite(P[ycol])
     scores = {}
-    for name, (preds, X, fp) in models.items():
-        bt = rolling_origin(y, None if X is None else X[idx], fp, MIN_TRAIN, train_mask=train_ok[idx])
-        # Growth errors -> dollar errors using the known prior-year level
-        err_usd = prev_level[bt.test_idx] * (np.exp(bt.actual) - np.exp(bt.pred))
-        ex = ~cov[bt.test_idx]
+    for name, (preds, X, fp) in models_for(ycol).items():
+        # Each model is judged against naive ON ITS OWN available years: a like-for-like
+        # comparison that does not let one short-history candidate (e.g. city LAUS, ~2010+)
+        # shrink the sample for every other model.
+        ok = target_ok if X is None else target_ok & np.isfinite(X).all(axis=1)
+        rows = np.flatnonzero(ok)
+        bt, usd, ex = backtest(ycol, levcol, X, fp, rows)
+        _, usd_naive, _ = backtest(ycol, levcol, None, fp_naive, rows)  # same test years
+        n_ex = int(ex.sum())
+        test_fys = fy[rows][bt.test_idx]
         scores[name] = dict(
             target=tname,
             model=name,
             predictors=preds,
-            n_test=len(bt.test_idx),
-            n_test_ex_covid=int(ex.sum()),
-            mae_usd=mae(err_usd),
-            rmse_usd=rmse(err_usd),
-            mae_usd_ex_covid=mae(err_usd[ex]),
-            rmse_usd_ex_covid=rmse(err_usd[ex]),
+            test_fys=f"{test_fys.min()}-{test_fys.max()}" if len(test_fys) else "none",
+            n_test=len(usd),
+            n_test_ex_covid=n_ex,
+            mae_usd=safe_mae(usd),
+            rmse_usd=safe_rmse(usd),
+            mae_usd_ex_covid=safe_mae(usd[ex]),
+            rmse_usd_ex_covid=safe_rmse(usd[ex]),
+            rel_mae_vs_naive=safe_mae(usd) / safe_mae(usd_naive) if len(usd) else np.nan,
+            rel_mae_vs_naive_ex_covid=safe_mae(usd[ex]) / safe_mae(usd_naive[ex]) if n_ex else np.nan,
+            enough_history=n_ex >= MIN_TESTS,
             _growth_err=bt.errors[ex],
             _X=X,
-            _test_fys=fyv[bt.test_idx],
         )
-    naive = scores["naive"]
-    for s in scores.values():
-        s["rel_mae_vs_naive"] = s["mae_usd"] / naive["mae_usd"]
-        s["rel_mae_vs_naive_ex_covid"] = s["mae_usd_ex_covid"] / naive["mae_usd_ex_covid"]
-        results.append(s)
+    results += scores.values()
 
-    print(
-        f"\n=== {tname}: test FYs {naive['_test_fys'].min()}-{naive['_test_fys'].max()} "
-        f"(n={naive['n_test']}, "
-        f"ex-COVID n={naive['n_test_ex_covid']}) ==="
+    print(f"\n=== {tname}: {ycol} ===   rel = MAE / naive MAE on the SAME years (<1 beats naive)")
+    print(f"{'model':28s} {'test FYs':>10s} {'n exC':>5s} {'MAE exC $M':>11s} {'rel':>5s} {'rel exC':>8s}")
+    order = sorted(
+        scores.values(),
+        key=lambda s: (not s["enough_history"], np.nan_to_num(s["rel_mae_vs_naive_ex_covid"], nan=np.inf)),
     )
-    print(f"{'model':28s} {'MAE $M':>8s} {'rel':>5s} {'MAE exC $M':>11s} {'rel exC':>8s}")
-    for s in sorted(scores.values(), key=lambda s: s["mae_usd_ex_covid"]):
+    for s in order:
+        note = "" if s["enough_history"] else f"  (only {s['n_test_ex_covid']} test yrs: not eligible)"
         print(
-            f"{s['model']:28s} {s['mae_usd']/1e6:8.2f} {s['rel_mae_vs_naive']:5.2f} "
-            f"{s['mae_usd_ex_covid']/1e6:11.2f} {s['rel_mae_vs_naive_ex_covid']:8.2f}"
+            f"{s['model']:28s} {s['test_fys']:>10s} {s['n_test_ex_covid']:5d} "
+            f"{s['mae_usd_ex_covid'] / 1e6:11.2f} {s['rel_mae_vs_naive']:5.2f} "
+            f"{s['rel_mae_vs_naive_ex_covid']:8.2f}{note}"
         )
 
-    # Selection rule: must beat naive on BOTH samples; among those, prefer the
-    # simplest (fewest predictors) model within 5% of the best ex-COVID MAE.
+    # Selection: enough history AND beats naive on both samples; among those, the simplest
+    # (fewest predictors) within 5% of the best relative error. Otherwise naive wins.
     eligible = [
-        s for s in scores.values() if s["rel_mae_vs_naive"] < 1 and s["rel_mae_vs_naive_ex_covid"] < 1
+        s
+        for s in scores.values()
+        if s["enough_history"] and s["rel_mae_vs_naive"] < 1 and s["rel_mae_vs_naive_ex_covid"] < 1
     ]
     if eligible:
-        floor = min(s["mae_usd_ex_covid"] for s in eligible)
-        near = [s for s in eligible if s["mae_usd_ex_covid"] <= 1.05 * floor]
-        best = min(near, key=lambda s: (len(s["predictors"]), s["mae_usd_ex_covid"]))
+        floor = min(s["rel_mae_vs_naive_ex_covid"] for s in eligible)
+        near = [s for s in eligible if s["rel_mae_vs_naive_ex_covid"] <= 1.05 * floor]
+        best = min(near, key=lambda s: (len(s["predictors"]), s["rel_mae_vs_naive_ex_covid"]))
     else:
-        best = naive
+        best = scores["naive"]
     selected[tname] = best
-    print(f"-> selected: {best['model']}")
     print(
-        "   Note: the winner's backtest MAE is optimistic (it was picked as the best of "
-        f"{len(scores)} on these years)."
+        f"-> selected: {best['model']}  (picked as the best of {len(scores)}: its backtest error is "
+        "slightly optimistic)"
     )
 
 # %% [markdown]
@@ -229,6 +246,11 @@ for tname, best in selected.items():
     else:
         coef = stats.ols_params(P[ycol][fit_rows], None if X is None else X[fit_rows])
     model = GrowthForecaster(target=levcol, predictors=best["predictors"], coverage=0.8)
+    if len(best["_growth_err"]) < MIN_TESTS:
+        raise SystemExit(
+            f"{tname}: only {len(best['_growth_err'])} out-of-sample errors; "
+            "need more history to calibrate a forecast interval"
+        )
     model.calibrate(coef, best["_growth_err"], last_fy=int(fy[fit_rows].max()))
     model.save(config.MODELS_DIR / f"{tname}_model.json")
     print(

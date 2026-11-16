@@ -7,10 +7,12 @@ the series color. The three outcomes are direct-labeled at the right edge.
 
 from __future__ import annotations
 
+import textwrap
 from collections.abc import Callable
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.patches import Patch, Rectangle
 from matplotlib.ticker import FuncFormatter, MaxNLocator
 
 from ontario_forecast.scenarios import Fan
@@ -38,8 +40,16 @@ plt.rcParams.update(
 )
 
 
-def usd_m(v: float) -> str:
-    return f"${v / 1e6:,.1f}M"
+def usd(v: float) -> str:
+    """'$1.3M', '$85K', '−$0.2M'. The $ is escaped: matplotlib reads text between two
+    unescaped $ signs as a math formula (it rendered '−0.2*M*(' on the pathway page)."""
+    sign = "−" if v < 0 else ""
+    a = abs(v)
+    body = f"{a / 1e6:,.1f}M" if a >= 1e6 else f"{a / 1e3:,.0f}K"
+    return f"{sign}\\${body}"
+
+
+usd_m = usd  # backwards-compatible name used by 03
 
 
 def pct(v: float) -> str:
@@ -101,7 +111,11 @@ def fan_chart(
     ax.set_xlim(hist_x[0] - 0.5, xf[-1] + 0.4)
     _forecast_divider(ax, hist_x[-1])
 
-    names = [f"Upside (P{int(hi_q*100)})", f"Central (P{int(mid_q*100)})", f"Downside (P{int(lo_q*100)})"]
+    names = [
+        f"Upside (P{int(hi_q * 100)})",
+        f"Central (P{int(mid_q * 100)})",
+        f"Downside (P{int(lo_q * 100)})",
+    ]
     _end_labels(ax, xf[-1], [hi[-1], mid[-1], lo[-1]], names, fmt)
     ax.legend(loc="upper left", frameon=False, fontsize=9, labelcolor=INK_2)
     _frame(fig, title, subtitle, source)
@@ -117,9 +131,9 @@ BASELINE = "#8a8984"  # neutral gray for the status quo
 DIVERGE_LOW, DIVERGE_HIGH = "#e34948", "#2a78d6"  # red <-> blue poles
 
 
-def _new_figure(right: float = 0.80):
+def _new_figure(right: float = 0.80, bottom: float = 0.17):
     fig, ax = plt.subplots(figsize=(10, 5.6))
-    fig.subplots_adjust(left=0.08, right=right, top=0.80, bottom=0.17)
+    fig.subplots_adjust(left=0.08, right=right, top=0.80, bottom=bottom)
     return fig, ax
 
 
@@ -218,8 +232,9 @@ def recommendation_lines_chart(
     x_label,
     q=(0.10, 0.50, 0.90),
 ):
-    """Annual net impact per recommendation (median lines) + total P10-P90 band."""
-    fig, ax = _new_figure(right=0.76)
+    """Annual net impact per recommendation (median lines) + total P10-P90 band.
+    Full names in a legend below the plot; short codes as direct labels at the right edge."""
+    fig, ax = _new_figure(right=0.86, bottom=0.27)
     lo, mid, hi = np.quantile(total, q, axis=0)
     ax.fill_between(years, lo, hi, color=INK_2, alpha=0.08, linewidth=0, label="All recommendations, P10-P90")
     ax.plot(years, mid, color=INK, lw=2, label="All recommendations (median)")
@@ -228,14 +243,17 @@ def recommendation_lines_chart(
     ax.axhline(0, color=INK_2, lw=1)
     _style_axes(ax, fmt, x_label)
     ax.set_xlim(years[0] - 0.5, years[-1] + 0.4)
+    short = {r: names[r].split(" ")[0] for r in medians}  # "R1", "R2", ..., "R1→R4"
     _end_labels(
         ax,
         years[-1],
         [m[-1] for m in medians.values()] + [mid[-1]],
-        [names[r] for r in medians] + ["All"],
+        [short[r] for r in medians] + ["All"],
         fmt,
     )
-    ax.legend(loc="upper left", frameon=False, fontsize=8.5, labelcolor=INK_2)
+    ax.legend(
+        loc="upper left", bbox_to_anchor=(0, -0.09), ncol=3, frameon=False, fontsize=8.5, labelcolor=INK_2
+    )
     _frame(fig, title, subtitle, source)
     return fig
 
@@ -253,7 +271,7 @@ def window_bars_chart(
     """Small multiples (one panel per time window): median cumulative net per recommendation
     with P10-P90 whiskers. rows: {rec, window, p10, p50, p90}."""
     fig, axes = plt.subplots(1, len(windows), figsize=(10, 5.6), sharex=True)
-    fig.subplots_adjust(left=0.22, right=0.97, top=0.78, bottom=0.17, wspace=0.12)
+    fig.subplots_adjust(left=0.31, right=0.95, top=0.74, bottom=0.17, wspace=0.18)
     recs = list(names)
     for ax, w in zip(np.atleast_1d(axes), windows, strict=True):
         sub = {r["rec"]: r for r in rows if r["window"] == w}
@@ -262,7 +280,17 @@ def window_bars_chart(
             r = sub[rec]
             ax.barh(yi, r["p50"], height=0.45, color=REC_COLORS.get(rec, INK_2), edgecolor=SURFACE, lw=2)
             ax.plot([r["p10"], r["p90"]], [yi, yi], color=INK, lw=1.25, solid_capstyle="round")
-            ax.text(r["p90"], yi + 0.32, fmt(r["p50"]), fontsize=8.5, color=INK, ha="right")
+            # median label just past the right end of the bar/whisker, never on top of it
+            ax.annotate(
+                fmt(r["p50"]),
+                xy=(max(r["p90"], r["p50"], 0.0), yi),
+                xytext=(5, 0),
+                textcoords="offset points",
+                va="center",
+                ha="left",
+                fontsize=8.5,
+                color=INK,
+            )
         ax.axvline(0, color=INK_2, lw=1)
         ax.set_yticks(y, [names[r] for r in recs] if ax is np.atleast_1d(axes)[0] else [""] * len(recs))
         ax.set_title(w, fontsize=10.5, color=INK, loc="left")
@@ -277,16 +305,12 @@ def pathway_chart(rows: list[dict], headers: tuple[str, ...], *, title: str, sub
     rows: {rec, name, chain, kpi, short, long}. Color bar = recommendation identity
     (same slots as every other impact chart); all text in ink.
     """
-    import textwrap
-
-    from matplotlib.patches import Rectangle
-
-    fig = plt.figure(figsize=(12, 6.6))
-    ax = fig.add_axes([0.04, 0.12, 0.93, 0.68])
+    fig = plt.figure(figsize=(12, 6.8))
+    ax = fig.add_axes([0.04, 0.11, 0.93, 0.62])  # top at 0.73 leaves room for 2-line subtitle + headers
     ax.axis("off")
-    xs, widths = (0.0, 0.19, 0.56, 0.78, 0.89), (24, 52, 30, 14, 14)
+    xs, widths = (0.0, 0.19, 0.54, 0.75, 0.875), (24, 50, 28, 16, 16)
     for h, x in zip(headers, xs, strict=True):
-        ax.text(x, 1.02, h, fontsize=9.5, fontweight="bold", color=INK, va="bottom", transform=ax.transAxes)
+        ax.text(x, 1.03, h, fontsize=9.5, fontweight="bold", color=INK, va="bottom", transform=ax.transAxes)
     step = 1.0 / len(rows)
     for i, r in enumerate(rows):
         top = 1.0 - i * step
@@ -336,10 +360,19 @@ def tornado_chart(
         ax.barh(yi, lo - base, left=base, height=0.55, color=DIVERGE_LOW, edgecolor=SURFACE, lw=2)
         ax.barh(yi, hi - base, left=base, height=0.55, color=DIVERGE_HIGH, edgecolor=SURFACE, lw=2)
     ax.axvline(base, color=INK, lw=1)
-    ax.set_yticks(y, [labels.get(k, k) for k, *_ in rows], fontsize=8.5)
-    ax.barh([], [], color=DIVERGE_LOW, label="input at its low value")
-    ax.barh([], [], color=DIVERGE_HIGH, label="input at its high value")
-    ax.legend(loc="lower right", frameon=False, fontsize=8.5, labelcolor=INK_2)
+    ax.set_yticks(
+        y, [textwrap.shorten(labels.get(k, k), 46, placeholder="…") for k, *_ in rows], fontsize=8.5
+    )
+    ax.legend(
+        handles=[
+            Patch(color=DIVERGE_LOW, label="input at its low value"),
+            Patch(color=DIVERGE_HIGH, label="input at its high value"),
+        ],
+        loc="lower right",
+        frameon=False,
+        fontsize=8.5,
+        labelcolor=INK_2,
+    )
     _style_axes(ax, fmt, value_axis="x")
     _frame(fig, title, subtitle, source)
     return fig

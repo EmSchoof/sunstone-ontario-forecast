@@ -1,0 +1,17 @@
+{
+  "name": "sunstone-ontario-forecast",
+  "private": true,
+  "description": "Nx orchestration for the Python pipeline (uv runs the Python; Nx runs the graph)",
+  "scripts": {
+    "lint": "nx run ontario-forecast:lint",
+    "test": "nx run ontario-forecast:test",
+    "report": "nx run ontario-forecast:report",
+    "e2e": "nx run ontario-forecast:e2e",
+    "graph": "nx graph"
+  },
+  "devDependencies": {
+    "@nx/devkit": "^20.8.0",
+    "@sunstone/pipeline-plugin": "workspace:*",
+    "nx": "^20.8.0"
+  }
+}

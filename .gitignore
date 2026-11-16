@@ -14,6 +14,11 @@ htmlcov/
 
 # uv: commit uv.lock and .python-version; nothing else from uv to ignore
 
+# --- Node / Nx (commit package.json, pnpm-lock.yaml, nx.json, project.json) ---
+node_modules/
+.nx/cache/
+.nx/workspace-data/
+
 # --- IDE / OS ----------------------------------------------------------
 .idea/
 .vscode/

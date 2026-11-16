@@ -1,0 +1,35 @@
+key,recommendation,description,low,mode,high,unit,status,source
+local_sales_tax_rate,shared,City share of taxable sales (Bradley-Burns local 1%),0.01,0.01,0.01,share,official,CA Rev. & Tax. Code 7202 (Bradley-Burns 1% local rate)
+pathway_wage,R1,Annual wage of a converted pathway hire (overridden by OEWS medians when loaded),55000,80000,100000,USD/yr,proposal,Proposal Sec. 3 quoted regional medians; replaced by BLS OEWS MSA medians when available
+taxable_spend_share,shared,Share of a worker's income spent on taxable goods,0.25,0.30,0.35,share,assumption,TEAM ASSUMPTION - source from BLS Consumer Expenditure Survey (West region)
+local_capture,shared,Share of a resident's taxable spending made inside Ontario,0.30,0.45,0.60,share,assumption,TEAM ASSUMPTION - source from CDTFA/retail leakage study
+r1_interns_full,R1,Paid interns/apprentices per year at full scale (10-20 employers),40,100,200,people/yr,proposal,Proposal Sec. 5 Phase 1 (10-20 employers); interns per employer is a team assumption
+r1_conversion,R1,Share of interns converted to a full-time job in Ontario,0.20,0.35,0.50,share,assumption,TEAM ASSUMPTION - source from NACE internship conversion benchmarks
+r1_resident_share,R1,Share of converted hires who live in Ontario,0.40,0.60,0.80,share,assumption,TEAM ASSUMPTION - program recruits Ontario residents first
+r1_additionality,R1,Share of hires that would NOT have happened without the program,0.30,0.50,0.70,share,assumption,TEAM ASSUMPTION - removes deadweight (hires that happen anyway)
+worker_attrition,shared,Annual share of program-placed local workers who leave the job or city,0.10,0.15,0.25,share/yr,assumption,TEAM ASSUMPTION - source from BLS JOLTS separations rate
+visitor_growth,R2,Annual real growth of anchor-venue visits (status quo),0.00,0.02,0.04,share/yr,assumption,TEAM ASSUMPTION - replace with ONT traffic trend once data/manual/ont_airport_passengers.csv is filled
+dedup_factor,R2,Share of anchor visits that are unique trips (visitors attend several anchors),0.50,0.70,0.90,share,assumption,TEAM ASSUMPTION - Stay +1 data collection (Phase 1) measures cross-visitation
+stay1_uptake,R2,Share of overnight visitor parties that add one night through Stay +1,0.005,0.02,0.05,share,assumption,TEAM ASSUMPTION - package uptake; measured in Phase 1
+persons_per_room,R2,Visitors per room-night (also party size),2.0,2.5,3.0,people,assumption,TEAM ASSUMPTION - sports/event families skew higher
+adr,R2,Average daily room rate (real FY2025 dollars),120,145,175,USD,assumption,TEAM ASSUMPTION - source from STR or Greater Ontario CVB
+tot_rate,R2,Ontario Transient Occupancy Tax rate,0.11,0.115,0.12,share,assumption,TEAM ASSUMPTION - VERIFY in Ontario Municipal Code before use
+visitor_daily_taxable_spend,R2,Non-lodging taxable spend per visitor per added day (real $),40,70,110,USD/person-day,assumption,TEAM ASSUMPTION - source from Visit California / Dean Runyan county visitor spending
+r2_additionality,R2,Share of added nights that would NOT have happened without Stay +1,0.40,0.60,0.80,share,assumption,TEAM ASSUMPTION - removes visitors who would have extended anyway
+downtown_share_of_sales,R3,Downtown pilot district share of citywide taxable sales,0.02,0.04,0.07,share,assumption,TEAM ASSUMPTION - source from CDTFA/HdL district sales data
+district_sales_uplift,R3,Taxable-sales uplift in the district from ambassadors + clean/safe/green upgrades,0.00,0.02,0.05,share,assumption,TEAM ASSUMPTION - source from BID ambassador program evaluations
+r3_additionality,R3,Share of district uplift not displaced from elsewhere in Ontario,0.50,0.70,0.90,share,assumption,TEAM ASSUMPTION - some spending shifts from other Ontario districts
+r4_firms_per_year,R4,Firms attracted or retained per year via workforce + international pipeline,0,1,3,firms/yr,assumption,TEAM ASSUMPTION - illustrative; track via business attraction pipeline
+r4_jobs_per_firm,R4,Jobs per attracted/retained firm,20,60,150,jobs,assumption,TEAM ASSUMPTION - source from QCEW establishment size for target sectors
+r4_resident_share,R4,Share of those jobs filled by Ontario residents,0.20,0.30,0.45,share,assumption,TEAM ASSUMPTION - LODES baseline share of jobs held by residents is a floor
+r4_additionality,R4,Share of firm decisions attributable to the program,0.20,0.40,0.60,share,assumption,TEAM ASSUMPTION - most location decisions have many causes
+r4_taxable_sales_per_job,R4,Taxable sales allocated to Ontario per job at attracted firms (real $),0,20000,100000,USD/job-yr,assumption,TEAM ASSUMPTION - point-of-sale logistics/distribution firms can be far higher
+cost_R1,R1,City cost per year: Career Pathways coordination,75000,85000,100000,USD/yr,proposal,Proposal Sec. 6 budget (City exposure)
+cost_R2,R2,City cost per year: Stay +1 + Ontario Pass + evening programming + circulator,200000,260000,325000,USD/yr,proposal,Proposal Sec. 6 budget (City exposure; sum of four lines)
+cost_R3,R3,City cost per year: Downtown ambassador match,100000,125000,150000,USD/yr,proposal,Proposal Sec. 6 budget (City exposure)
+cost_R4,R4,City cost per year: international/employer partnerships (Phase 3-4),0,50000,100000,USD/yr,assumption,TEAM ASSUMPTION - not budgeted in the proposal yet
+retained_resident_share,R1,Share of program-placed local workers who are new or retained Ontario residents (would otherwise live elsewhere),0.20,0.40,0.60,share,assumption,TEAM ASSUMPTION - track via participant address at hire and at 1/3/5 years
+persons_per_household,shared,Residents per household formed by a retained/new resident worker,2.5,3.2,3.8,people,assumption,TEAM ASSUMPTION - VERIFY with ACS B25010 (average household size) for Ontario
+city_property_tax_per_household,shared,City General Fund property tax per household (real $/yr),300,500,800,USD/yr,assumption,TEAM ASSUMPTION - VERIFY from City budget property tax / housing units (Ontario Ranch new homes skew higher)
+nonworker_spend_per_resident,shared,Taxable spending in Ontario per additional household member who is not the worker (real $/yr),2000,3500,5000,USD/person-yr,assumption,TEAM ASSUMPTION - source from BLS Consumer Expenditure Survey
+r1_to_r4_synergy,R4,Added firms/yr per 100 Career Pathways placements in the local workforce stock (workforce pipeline as an attraction tool),0.0,0.3,1.0,firms/yr per 100 workers,assumption,TEAM ASSUMPTION - the proposal's core claim; test via business attraction pipeline tracking

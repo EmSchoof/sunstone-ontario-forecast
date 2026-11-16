@@ -1,4 +1,7 @@
 # Install once:  uv run pre-commit install      Run on everything:  uv run pre-commit run --all-files
+# Generated outputs (charts, CSVs, fitted models, lockfiles) are written by tools, not people:
+# don't rewrite them, or every regeneration would fail the commit again.
+exclude: ^(reports/final/|models/|pnpm-lock\.yaml|uv\.lock)
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.9

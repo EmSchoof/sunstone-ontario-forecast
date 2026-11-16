@@ -1,0 +1,10 @@
+{
+  "name": "@sunstone/pipeline-plugin",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Local Nx plugin: generators for the Ontario forecast pipeline",
+  "generators": "./generators.json",
+  "peerDependencies": {
+    "@nx/devkit": ">=20"
+  }
+}

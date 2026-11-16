@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "PipelineStage",
+  "title": "Add a pipeline analysis stage",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "snake_case stage name, e.g. airport_passengers",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "$default": { "$source": "argv", "index": 0 },
+      "x-prompt": "Stage name (snake_case)?"
+    },
+    "dependsOn": {
+      "type": "string",
+      "description": "Nx target this stage runs after",
+      "enum": ["transform", "select", "scenarios", "impact"],
+      "default": "select"
+    },
+    "description": {
+      "type": "string",
+      "description": "One-line description shown at the top of the script",
+      "default": "New analysis stage"
+    },
+    "project": {
+      "type": "string",
+      "description": "Nx project to add the target to",
+      "default": "ontario-forecast"
+    }
+  },
+  "required": ["name"]
+}

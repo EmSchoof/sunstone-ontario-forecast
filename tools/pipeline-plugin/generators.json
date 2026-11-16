@@ -1,0 +1,9 @@
+{
+  "generators": {
+    "stage": {
+      "factory": "./src/stage/generator.js",
+      "schema": "./src/stage/schema.json",
+      "description": "Add an analysis stage: analysis/NN_<name>.py + its Nx target in the pipeline graph + a test stub"
+    }
+  }
+}

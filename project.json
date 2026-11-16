@@ -1,0 +1,71 @@
+{
+  "name": "ontario-forecast",
+  "$schema": "node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "src",
+  "targets": {
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": { "command": "uv run ruff check . && uv run ruff format --check ." }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": { "command": "uv run pytest" }
+    },
+    "ingest": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": { "command": "uv run python -m ontario_forecast.ingest.run --skip-lodes" }
+    },
+    "ingest-lodes": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": { "command": "uv run python -m ontario_forecast.ingest.run --only lodes_ontario_flows" }
+    },
+    "transform": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": { "command": "uv run python -m ontario_forecast.transform.run" }
+    },
+    "eda": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "dependsOn": ["transform"],
+      "options": { "command": "uv run python analysis/01_eda.py", "env": { "MPLBACKEND": "Agg" } }
+    },
+    "select": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "dependsOn": ["transform"],
+      "options": { "command": "uv run python analysis/02_variable_selection.py" }
+    },
+    "scenarios": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "dependsOn": ["select"],
+      "options": { "command": "uv run python analysis/03_scenarios.py" }
+    },
+    "impact": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "dependsOn": ["select"],
+      "options": { "command": "uv run python analysis/04_impact.py" }
+    },
+    "report": {
+      "executor": "nx:noop",
+      "dependsOn": ["eda", "scenarios", "impact"]
+    },
+    "e2e": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "dependsOn": ["lint", "test"],
+      "options": {
+        "commands": [
+          "uv run python -m ontario_forecast.ingest.run --skip-lodes",
+          "pnpm nx run ontario-forecast:report"
+        ],
+        "parallel": false
+      }
+    }
+  }
+}

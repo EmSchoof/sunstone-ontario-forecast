@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "defaultBase": "main",
+  "namedInputs": {
+    "python": ["{projectRoot}/src/**/*", "{projectRoot}/pyproject.toml", "{projectRoot}/uv.lock"],
+    "tests": ["{projectRoot}/tests/**/*"],
+    "analysis": ["{projectRoot}/analysis/**/*"],
+    "manual": ["{projectRoot}/data/manual/**/*"]
+  },
+  "targetDefaults": {
+    "lint": {
+      "cache": true,
+      "inputs": ["python", "tests", "analysis", "{projectRoot}/.pre-commit-config.yaml"]
+    },
+    "test": {
+      "cache": true,
+      "inputs": ["python", "tests", "manual"]
+    }
+  }
+}

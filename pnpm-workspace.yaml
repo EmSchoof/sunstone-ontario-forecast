@@ -1,0 +1,6 @@
+packages:
+  - "tools/*"
+# pnpm blocks dependency install scripts unless approved. Nx needs its script to set up
+# its native binary; nothing else is allowed to run scripts.
+allowBuilds:
+  nx: true

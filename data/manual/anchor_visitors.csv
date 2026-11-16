@@ -1,0 +1,5 @@
+anchor,annual_visitors,overnight_low,overnight_mode,overnight_high,status,source
+Ontario International Airport,7000000,0.10,0.20,0.30,proposal,"Proposal Sec. 3 (7M+ passengers); overnight share = arriving visitors staying in Ontario, TEAM ASSUMPTION; replace with ONT traffic reports"
+Ontario Mills,12000000,0.01,0.03,0.06,proposal,"Proposal Sec. 3 (~12M visits); overnight share TEAM ASSUMPTION (mostly day trips)"
+Toyota Arena,1200000,0.05,0.10,0.20,proposal,"Proposal Sec. 3 (~1.2M guests); overnight share TEAM ASSUMPTION"
+Ontario Sports Empire,1200000,0.15,0.30,0.45,proposal,"Proposal Sec. 3 (City projection ~1.2M); tournaments drive overnight stays, TEAM ASSUMPTION"

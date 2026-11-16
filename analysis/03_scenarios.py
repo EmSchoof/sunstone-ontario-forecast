@@ -95,7 +95,7 @@ for key, t in config.FORECAST_TARGETS.items():
     if ref and ref[0] in f.years:
         reference = ref
         pctl = f.percentile_of(ref[1], ref[0])
-        sub += f"\nThe {ref[2]} ({usd_m(ref[1])}) sits at the {pctl:.0%} percentile " "of simulated outcomes."
+        sub += f"\nThe {ref[2]} ({usd_m(ref[1])}) sits at the {pctl:.0%} percentile of simulated outcomes."
     fig = fan_chart(
         f,
         fy,

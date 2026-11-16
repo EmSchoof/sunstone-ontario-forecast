@@ -152,7 +152,9 @@ def _bls_series(series_ids: list[str], **params) -> list[dict]:
         if resp.get("status") != "REQUEST_SUCCEEDED":
             raise RuntimeError(f"BLS API: {resp.get('message')}")
         for msg in resp.get("message", []):
-            log.warning("BLS API: %s", msg)  # e.g. a series that does not exist
+            # "No Data Available for Series X Year: Y" is routine (gaps by year, esp. OEWS);
+            # anything else (unknown series, daily limit) is a real warning.
+            (log.info if msg.startswith("No Data Available") else log.warning)("BLS API: %s", msg)
         out += resp["Results"]["series"]
     return out
 
