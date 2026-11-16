@@ -27,17 +27,20 @@
 <details>
   <summary>Table of Contents</summary>
   <ol>
-    <li><a href="#at-a-glance">At a glance</a></li>
-    <li><a href="#documentation">Documentation</a></li>
-    <li><a href="#quick-start">Quick start</a></li>
-    <li><a href="#repository-layout">Repository layout</a></li>
+    <li><a href="#the-four-recommendations">The four recommendations</a></li>
+    <li><a href="#1-the-problem">The problem</a></li>
+    <li><a href="#2-how-we-approached-it">How we approached it</a></li>
+    <li><a href="#3-how-the-model-works">How the model works</a></li>
+    <li><a href="#4-what-we-found">What we found</a></li>
+    <li><a href="#quick-start">Quick start</a> (technical)</li>
+    <li><a href="#repository-layout">Repository layout</a> (technical)</li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
-## At a glance
+## The four recommendations
 
 | Code | Recommendation | In one sentence |
 |---|---|---|
@@ -49,30 +52,96 @@
 
 [![How each recommendation builds Ontario's fiscal base](outputs/charts/impact_pathways.png)](docs/conclusions.md)
 
-> **Preliminary:** most program inputs are still team estimates. The ranking of the findings is meaningful
-> now; the exact dollar figures will change as inputs are sourced.
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-- **The plan is well designed:** it builds on existing City investments, keeps Year 1 City cost
-  at about **$348K (cap $500K)**, and expands only when results justify it.
-- **In tax revenue alone it returns about $0.76 per $1 of City money**, so its case rests on residents,
-  workforce and partners sharing costs.
-- **Best combination:** Stay +1 (R2) and Clean, Safe & Green (R3) as the near-term core, with Career Pathways (R1)
-  run lean as the engine for employer attraction (R4). **Employer attraction backed by Career Pathways returns
-  $1.11 per $1**, the only group that pays for itself in the median case.
-- **The number to measure first:** Stay +1 uptake. At about **3.5%** of overnight visitors, Stay +1 pays for itself.
+## 1. The problem
+
+Ontario already has what many cities want: an international airport (7M+ passengers a year), Ontario Mills
+(about 12M visits), Toyota Arena, the new Sports Empire, and one of Southern California's biggest job centers.
+But that activity doesn't stay local:
+
+- **About 1 in 6 working residents works in Ontario (15.5%).** Meanwhile more than 120,000 people commute in from elsewhere.
+- **Visitors come and go.** The major attractions are miles apart, and many trips end the same day.
+- **Businesses worry** about homelessness, safety, rising costs, traffic and permitting.
+
+Every extra hotel night and every purchase made in Ontario adds to the City's budget through hotel tax and sales
+tax. So the question is: **can our recommendations keep more of that activity, and more of those paychecks, in Ontario?**
+
+**Learn more:** [Background](docs/background.md) covers the challenge, the City's assets and each recommendation in full.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Documentation
+## 2. How we approached it
 
-| | Document | What's in it |
-|---|---|---|
-| 1 | **[Background](docs/background.md)** | The challenge, Ontario's problem, and the four recommendations being tested |
-| 2 | **[Decisions](docs/decisions.md)** | *Why*: how the team's research shaped the model, why each data source, choices and rejected alternatives |
-| 3 | **[Methods](docs/methods.md)** | *How*: the data pipeline, model selection, scenarios, the impact formula for each recommendation, ROI and limitations |
-| 4 | **[Conclusions](docs/conclusions.md)** | *Results*: forecasts, short- and long-term impact, return per $1, what drives the answer, and the verdict |
+- **Two separate questions.** First: what happens to Ontario's hotel tax, sales tax and local jobs *if nothing
+  changes*? Then: what does each recommendation *add* on top of that?
+- **Official numbers first.** Figures come from the State Controller, the Census Bureau and the Bureau of Labor
+  Statistics. A number quoted in the proposal is used only when no official source exists, and it's clearly marked.
+- **Cautious on purpose.** The model only counts results that wouldn't have happened anyway, subtracts what the
+  City spends, and leaves out "ripple effects." If anything, it undersells the plan.
+- **Simple, tested methods over flashy ones.** About 20 years of yearly data is too little for AI-style models,
+  which would find patterns that aren't really there.
+
+**Learn more:** [Decisions](docs/decisions.md) explains each choice, the data sources, and the alternatives we rejected.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## 3. How the model works
+
+1. **Gather and check the data.** Public data downloads automatically and is checked for errors before use.
+2. **Forecast "if nothing changes."** The model learns from 20+ years of Ontario's tax history. It's tested on
+   years it hadn't seen, and only kept if it beats a simple "same as last year" guess. It gives a low, likely and high outcome.
+3. **Add each recommendation, step by step.** For example, for Stay +1: visitors who already come → the share
+   who stay overnight → the share who add a night → extra hotel tax and spending. Every step is an estimate with a
+   range and a written source.
+4. **Run 20,000 "what-if" futures** to see the range of outcomes, and how much tax revenue comes back for each
+   dollar the City spends.
+
+**Learn more:** [Methods](docs/methods.md) has the full statistical and data-engineering detail, including the formula
+for each recommendation.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## 4. What we found
+
+> **Preliminary.** Many of the model's estimates are still team placeholders waiting for an official source.
+> Which recommendations come out ahead is already meaningful; the exact dollar amounts will change.
+
+**Bottom line:** the plan is well designed and affordable: about **$348K** of City money in Year 1, under the
+**$500K** cap. In tax revenue alone it doesn't fully pay for itself yet: about **76¢ comes back for every $1** the
+City spends. Its strongest case is more residents in good local jobs, with partners sharing the cost.
+
+| | What the model says | Tax revenue back per $1 (2030–36) | Chance it pays for itself |
+|---|---|---|---|
+| **R1** Career Pathways | Builds the workforce; brings in little tax directly | 16¢ | ~0% |
+| **R2** Stay +1 | Biggest money-maker *if* enough visitors take the offer | 74¢ | 27% |
+| **R3** Clean, Safe & Green | Nearly pays for itself; its main value is safety and keeping businesses | 88¢ | 42% |
+| **R4** Employers (+ R1→R4) | **Pays for itself**, because Career Pathways supplies the workers | **$1.11** | 55% |
+| **All together** | | 76¢ | 20% |
+
+[![Tax revenue returned per $1 of City money](outputs/charts/impact_roi.png)](docs/conclusions.md#3-cost-and-return-on-investment)
+
+**Also worth knowing:**
+- **About 117 more residents working in Ontario by 2036**, and about 145 more people living here.
+- **The airport is the most valuable venue** for Stay +1: it brings the most visitors who could stay another night.
+- **The City's FY27 hotel-tax budget looks optimistic.** Without new programs, it's higher than 77% of the likely outcomes.
+
+**What we recommend:**
+1. **Lead with Stay +1 (R2) and Downtown (R3)** for near-term results, and **run Career Pathways (R1) lean** as
+   the engine that makes employer attraction (R4) work.
+2. **Set a clear test for Stay +1:** expand it only if at least about 3.5% of overnight visitors add a night.
+   That's roughly where it starts paying for itself.
+3. **Have Downtown property owners cover a little more of the ambassador program** (about $15K a year) to break even.
+4. **Replace the team's estimates with real data first**, starting with Stay +1 uptake and Downtown sales.
+
+**Learn more:** [Conclusions](docs/conclusions.md) has every chart and number, how each recommendation's success
+would be measured, and what drives the result.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
+
+*The sections below are for people running or changing the code.*
 
 ## Quick start
 
