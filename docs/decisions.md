@@ -79,6 +79,8 @@ is a labeled fallback only (`is_fallback` in `marts.headline_metrics`), and diff
 | **COVID FYs (2020–23) excluded from fitting** | Fit through them | Two pandemic years would set the slope on their own |
 | **Classical statistics** (statsmodels/scipy) + numpy simulation | Darts, XGBoost, neural networks | Far too few observations; flexible models would fit noise |
 | **Ranges from real forecast errors** (bootstrap), **centered** | Textbook normal intervals; raw errors | Uses how wrong the model actually was on unseen years, while keeping the central path equal to the selected model's forecast |
+| Hotel-tax errors **persist from year to year** in the simulation | Independent draws every year | Past errors are strongly correlated (+0.85); independent draws made the range too narrow |
+| **Room rate derived** from hotel tax, the tax rate and room supply | A typed-in $145 | $145 implied 47% occupancy across the City's 5,670 rooms; the derived rate matches the tax actually collected |
 | City sales-tax rate of **2% on in-person spending** (Bradley-Burns + Measure Q), 1% on business-to-business sales | 1% everywhere | Measure Q (1%, approved 2022) applies to sales made or delivered in Ontario; ignoring it halves visitor, Downtown and resident sales tax |
 | ONT visitors = **half the passenger count** | Use all 7M passengers | Airports report enplaned + deplaned, so each traveler is counted twice |
 | Residents who'd live here anyway add only their **spending gain** | Count the full wage of every placed resident | Their spending was already in Ontario before the program |

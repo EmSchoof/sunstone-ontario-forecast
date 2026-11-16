@@ -82,3 +82,24 @@ def test_centered_errors_keep_the_model_forecast_in_the_middle():
     assert abs(g.mean()) < 0.002
     raw = scenarios.bootstrap_growth(np.zeros(5), biased, 20_000, rng, center=False)
     assert raw.mean() == pytest.approx(biased.mean(), abs=0.002)
+
+
+def test_persistent_errors_widen_the_range_but_not_the_center_or_yearly_spread():
+    errors = np.array([0.08, 0.12, 0.07, 0.04, 0.01, -0.01, -0.02, -0.05, -0.03])
+    iid = scenarios.bootstrap_growth(np.zeros(5), errors, 40_000, np.random.default_rng(1))
+    sticky = scenarios.bootstrap_growth(np.zeros(5), errors, 40_000, np.random.default_rng(1), rho=0.8)
+    assert np.allclose(iid[:, 0], sticky[:, 0])  # year 1 is the same draw
+    assert sticky[:, -1].std() == pytest.approx(iid[:, -1].std(), rel=0.05)  # same spread each year
+    assert abs(sticky.mean()) < 0.003  # still centered on the model forecast
+    assert sticky.sum(axis=1).std() > 1.5 * iid.sum(axis=1).std()  # misses accumulate
+    assert np.corrcoef(sticky[:, 0], sticky[:, 1])[0, 1] == pytest.approx(0.8, abs=0.03)
+
+
+def test_persistence_only_used_when_clearly_positive_and_capped():
+    trending = np.array([0.08, 0.12, 0.07, 0.04, 0.01, -0.01, -0.02, -0.05, -0.03])
+    assert 0.4 <= scenarios.error_persistence(trending) <= 0.9
+    noise = np.array([0.06, -0.05, 0.09, -0.02, 0.04, -0.07, 0.01, -0.06, 0.11])
+    assert scenarios.error_persistence(noise) == 0.0
+    assert scenarios.error_persistence(np.arange(9.0)) == 0.9  # near-perfect trend hits the cap
+    with pytest.raises(ValueError):
+        scenarios.bootstrap_growth(np.zeros(3), trending, 10, np.random.default_rng(0), rho=1.0)

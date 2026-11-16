@@ -85,7 +85,8 @@ sourced value should come from; they are placeholders, not citations.
 | `pathway_wage` | OEWS range | Replaced at run time by BLS OEWS medians (section 1) | each run |
 | `discount_rate` | 2–5% | Team assumption, anchored on OMB Circular A-4 (2% in the 2023 edition, 3% in 2003). Confirm the rate City Finance uses | not re-checked |
 | `tot_rate` | 11.75% | Budget book PDF p. 66, citing Ontario Municipal Code §3-6.03 | 2026-11-16 |
-| Hotel supply (not yet a model input) | 52 hotels/motels, 5,670 rooms | Budget book PDF p. 66. Useful for the Stay +1 room-night sanity check: about 2.07M room-nights of capacity a year | 2026-11-16 |
+| `hotel_rooms` | 5,670 rooms (52 hotels/motels) | Budget book PDF p. 66. About 2.07M room-nights of capacity a year | 2026-11-16 |
+| `adr` (room rate) | derived each run | Hotel tax (State Controller) ÷ `tot_rate` ÷ `hotel_rooms` ÷ 365 ÷ `hotel_occupancy`. Occupancy (60–75%) is a team assumption until STR or visitors-bureau data replaces it | each run |
 
 ## 4. The proposal and what it cites
 

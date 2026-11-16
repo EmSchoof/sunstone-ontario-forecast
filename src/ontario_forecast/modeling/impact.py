@@ -155,6 +155,27 @@ def override(a: Assumption, low: float, mode: float, high: float, status: str, s
     return replace(a, low=low, mode=mode, high=high, status=status, source=source)
 
 
+def derive_adr(A: dict[str, Assumption], tot_revenue: float) -> Assumption:
+    """Average daily room rate implied by official figures and an occupancy range.
+
+    room revenue = hotel tax / tax rate;  revenue per available room-night = room revenue /
+    (rooms x 365);  average rate = that / occupancy.  Higher occupancy means the same revenue
+    was earned over more nights, so a lower rate: the range is inverted.
+    """
+    revpar = tot_revenue / A["tot_rate"].mode / (A["hotel_rooms"].mode * 365)
+    occ = A["hotel_occupancy"]
+    return override(
+        A["adr"],
+        revpar / occ.high,
+        revpar / occ.mode,
+        revpar / occ.low,
+        "assumption",
+        f"Derived: hotel tax ${tot_revenue:,.0f} / {A['tot_rate'].mode:.2%} rate / "
+        f"{A['hotel_rooms'].mode:,.0f} rooms = ${revpar:,.2f} per available room-night, at "
+        f"{occ.low:.0%}-{occ.high:.0%} occupancy (occupancy is the TEAM ASSUMPTION)",
+    )
+
+
 def ramp(years: np.ndarray, start: int, full: int) -> np.ndarray:
     """Program scale by year: 0 before start, rising linearly to 1 at `full`."""
     y = np.asarray(years, float)

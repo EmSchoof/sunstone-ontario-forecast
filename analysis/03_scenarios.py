@@ -43,7 +43,8 @@ pages, summary = [], []
 
 
 def growth_paths(model: GrowthForecaster, ycol: str) -> np.ndarray:
-    return scenarios.model_growth(model, P, ycol, fit_ok, H, N, rng)
+    rho = scenarios.error_persistence(model.backtest_errors)
+    return scenarios.model_growth(model, P, ycol, fit_ok, H, N, rng, rho=rho)
 
 
 # %% [markdown]
@@ -107,7 +108,14 @@ for key, t in config.FORECAST_TARGETS.items():
             "Source: CA State Controller city revenues (sales tax incl. in-lieu, FY2005-16). "
             f"Simulated {N:,} paths from centered out-of-sample errors; excludes pandemic-scale shocks; "
             f"assumes {np.expm1(infl):.1%}/yr inflation; no policy effect assumed."
-            + (f" Error autocorrelation {ac:+.2f}." if np.isfinite(ac) else "")
+            + (f" Error autocorrelation {ac:+.2f}" if np.isfinite(ac) else "")
+            + (
+                " (carried into the simulation)."
+                if scenarios.error_persistence(model.backtest_errors) > 0
+                else "."
+                if np.isfinite(ac)
+                else ""
+            )
         ),
     )
     pages.append((key, fig))

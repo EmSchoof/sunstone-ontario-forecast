@@ -111,23 +111,23 @@ for each recommendation.
 > Which recommendations come out ahead is already meaningful; the exact dollar amounts will change.
 
 **Bottom line:** the plan is affordable: about **$348K** of City money in Year 1, under the **$500K** cap. In
-tax revenue alone it doesn't pay for itself: about **70¢ comes back for every $1** the City spends over the
+tax revenue alone it doesn't pay for itself: about **63¢ comes back for every $1** the City spends over the
 whole program. Its strongest case is more residents in good local jobs, with partners sharing the cost.
 
 | | What the model says | Tax revenue back per $1 (2027–36) | Chance it pays for itself |
 |---|---|---|---|
 | **R1** Career Pathways | Builds the workforce; brings in little tax directly | 13¢ | ~0% |
-| **R2** Stay +1 | Returns about half its cost unless roughly twice as many visitors take the offer | 50¢ | 6% |
+| **R2** Stay +1 | Returns about a third of its cost; breaking even needs far more visitors to take the offer than assumed | 37¢ | 1% |
 | **R3** Clean, Safe & Green | **Pays for itself** in the likely case, but rests on two unsourced Downtown estimates | **$1.36** | 68% |
-| **R4** Employers (+ R1→R4) | About break-even; 38¢ once Career Pathways' cost is counted with it | 95¢ | 47% |
-| **All together** | | 70¢ | 13% |
+| **R4** Employers (+ R1→R4) | About break-even; 38¢ once Career Pathways' cost is counted with it | 96¢ | 48% |
+| **All together** | | 63¢ | 8% |
 
 [![Tax revenue returned per $1 of City money](outputs/charts/impact_roi.png)](docs/conclusions.md#3-cost-and-return-on-investment)
 
 **Also worth knowing:**
-- **About 118 more residents working in Ontario by 2036**, and about 145 more people living here.
+- **About 117 more residents working in Ontario by 2036**, and about 145 more people living here.
 - **The airport is the most valuable venue** for Stay +1: it brings the most visitors who could stay another night.
-- **The City's FY27 hotel-tax budget ($18.5M) looks optimistic.** Without new programs, it's higher than 70%
+- **The City's FY27 hotel-tax budget ($18.5M) looks optimistic.** Without new programs, it's higher than 63%
   of the likely outcomes.
 - **The sales-tax numbers reconcile.** The City's $216.3M includes Measure Q ($64.3M) and Prop 172; the State
   Controller's $139M is the original 1% only. The model's FY27 estimate for that part ($147.4M) is close to the
@@ -136,8 +136,9 @@ whole program. Its strongest case is more residents in good local jobs, with par
 **What we recommend:**
 1. **Lead with Downtown (R3)**, the strongest fiscal case, and **run Career Pathways (R1) lean** with employers
    funding most of it.
-2. **Set a clear test for Stay +1:** expand it only if at least about 4% of overnight visitors add a night, or
-   cut the City's share to about $112K a year. That's roughly where it pays for itself.
+2. **Restructure Stay +1 before funding it:** cut the City's share to about $84K a year, with hotels and venues
+   covering the rest, and run it as a measured pilot. At the budgeted cost it would need more than 5% of
+   overnight visitors to add a night.
 3. **Replace the team's estimates with real data first**, starting with Downtown sales and Stay +1 uptake.
    The Downtown result depends on them.
 

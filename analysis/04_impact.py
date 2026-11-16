@@ -74,6 +74,11 @@ if len(W.get("year", [])):
     )
 print(f"pathway_wage: {A['pathway_wage'].status} ({A['pathway_wage'].source})")
 
+# Room rate from official figures instead of a guess: hotel tax / tax rate = room revenue;
+# divided by the city's room supply and an occupancy range, that gives the average rate.
+A["adr"] = impact.derive_adr(A, float(P["tot_revenue"][-1]))
+print(f"adr: ${A['adr'].low:,.0f} / ${A['adr'].mode:,.0f} / ${A['adr'].high:,.0f}  ({A['adr'].source})")
+
 M = fetch("select metric, value from marts.headline_metrics")
 headline = {}
 if len(M.get("metric", [])):
@@ -112,7 +117,9 @@ def baseline_real(key: str) -> np.ndarray:
     path = config.MODELS_DIR / f"{key}_model.json"
     if not path.exists():
         sys.exit(f"{path.name} missing: run analysis/02_variable_selection.py first")
-    g = scenarios.model_growth(GrowthForecaster.load(path), P, t["growth"], fit_ok, H, N, rng)
+    model = GrowthForecaster.load(path)
+    rho = scenarios.error_persistence(model.backtest_errors)
+    g = scenarios.model_growth(model, P, t["growth"], fit_ok, H, N, rng, rho=rho)
     return scenarios.levels_from_growth(float(P[t["level_real"]][-1]), g)
 
 

@@ -16,8 +16,15 @@ How to read the output:
     value". It is a per-year bound, not one single simulated path. P10-P90 holds 80%
     of outcomes.
 
+Persistent errors: when a model's errors are clearly correlated from one year to the next
+(`error_persistence`), a good or bad year tends to be followed by another, so independent
+draws would understate how far revenue can drift. Draws are then chained,
+    e_t = rho * e_{t-1} + sqrt(1 - rho^2) * e*_t,
+which keeps each year's spread and the zero mean but lets misses accumulate.
+
 Known limits (state them next to the charts):
-    * iid resampling ignores autocorrelation in errors (check `error_autocorr`).
+    * rho is estimated from ~9 errors with COVID years removed, so it is rough; it is
+      capped (see `error_persistence`) and only used when clearly above zero.
     * ~10 errors give a coarse distribution; tails beyond P10/P90 are unreliable.
     * Pandemic-scale shocks are excluded because COVID-year errors are excluded.
     * No policy effect is modeled: this is the status-quo baseline the proposal's
@@ -74,13 +81,22 @@ class Fan:
 
 
 def bootstrap_growth(
-    mu: np.ndarray, errors: np.ndarray, n_sims: int, rng: np.random.Generator, center: bool = True
+    mu: np.ndarray,
+    errors: np.ndarray,
+    n_sims: int,
+    rng: np.random.Generator,
+    center: bool = True,
+    rho: float = 0.0,
 ) -> np.ndarray:
     """(n_sims, horizon) growth draws: mu[h] + resampled out-of-sample error.
 
     center=True removes the mean error first (standard residual bootstrap), so the
     simulated paths spread around the model's forecast instead of around forecast + bias.
+    rho > 0 chains the draws so errors persist from year to year (see module docstring);
+    rho = 0 is the plain independent bootstrap.
     """
+    if not 0.0 <= rho < 1.0:
+        raise ValueError("rho must be in [0, 1)")
     e = np.asarray(errors, float)
     e = e[~np.isnan(e)]
     if e.size < 5:
@@ -88,7 +104,12 @@ def bootstrap_growth(
     if center:
         e = e - e.mean()
     mu = np.asarray(mu, float)
-    return mu[None, :] + rng.choice(e, size=(n_sims, len(mu)), replace=True)
+    draws = rng.choice(e, size=(n_sims, len(mu)), replace=True)
+    if rho > 0:
+        scale = np.sqrt(1.0 - rho**2)
+        for h in range(1, draws.shape[1]):
+            draws[:, h] = rho * draws[:, h - 1] + scale * draws[:, h]
+    return mu[None, :] + draws
 
 
 def ar1_growth(
@@ -145,8 +166,12 @@ def model_growth(
     horizon: int,
     n_sims: int,
     rng: np.random.Generator,
+    rho: float = 0.0,
 ) -> np.ndarray:
     """Simulated real log-growth paths (n_sims, horizon) for a saved GrowthForecaster.
+
+    rho: year-to-year persistence of the errors (`error_persistence`); not used for AR(1)
+    models, whose recursion already carries persistence.
 
     AR(1): recursion from the last observed growth. Lag-1 drivers: year 1 uses the last
     observed driver; later years use the driver's average over the fitting rows (its
@@ -162,7 +187,7 @@ def model_growth(
         x_mean = np.array([np.nanmean(panel[p][fit_rows]) for p in model.predictors])
         mu[0] = b[0] + b[1:] @ x_last
         mu[1:] = b[0] + b[1:] @ x_mean
-    return bootstrap_growth(mu, e, n_sims, rng)
+    return bootstrap_growth(mu, e, n_sims, rng, rho=rho)
 
 
 def fan(samples: np.ndarray, first_year: int, quantiles: tuple[float, ...], n_errors: int) -> Fan:
@@ -180,3 +205,13 @@ def error_autocorr(errors: np.ndarray) -> float:
     e = np.asarray(errors, float)
     e = e[~np.isnan(e)]
     return float(np.corrcoef(e[:-1], e[1:])[0, 1]) if len(e) > 3 else float("nan")
+
+
+def error_persistence(errors: np.ndarray, threshold: float = 0.4, cap: float = 0.9) -> float:
+    """rho to simulate with: the lag-1 autocorrelation if it is clearly positive, else 0.
+
+    Below `threshold` the estimate (from ~9 points) is not distinguishable from zero, so the
+    plain bootstrap is kept. `cap` stops a noisy estimate near 1 from making errors permanent.
+    """
+    r = error_autocorr(errors)
+    return float(min(r, cap)) if np.isfinite(r) and r >= threshold else 0.0

@@ -8,7 +8,7 @@
 > **R4** International & employer attraction (ONT flights, trade zone) ·
 > **R1→R4** Career Pathways workforce helping attract employers. Full descriptions: [Background](background.md#the-recommendations-being-tested).
 
-> **Preliminary.** 33 of 41 impact inputs are team assumptions awaiting sources (see
+> **Preliminary.** 34 of 43 impact inputs are team assumptions awaiting sources (see
 > `outputs/tables/impact_inputs_used.csv` and [Sources](sources.md)). Trust the direction and the ranking of
 > the findings; the dollar figures will move as inputs are sourced. Dollars are real FY2025 dollars. Net
 > figures are after City cost and undiscounted; return-on-investment figures are in present value.
@@ -26,12 +26,13 @@ last year's value. The baseline is flat in real terms (growing with inflation), 
 
 ![Hotel tax: three likely outcomes](../outputs/charts/tot_scenarios.png)
 
-- **Hotel tax, FY2030:** central **$19.6M** (80% of outcomes between $16.9M and $23.0M, nominal).
-- **FY27 budget figure ($18.5M):** **higher than 70% of simulated outcomes** (central estimate $17.8M). It's
+- **Hotel tax, FY2030:** central **$19.3M** (80% of outcomes between $14.6M and $27.0M, nominal).
+- **FY27 budget figure ($18.5M):** **higher than 63% of simulated outcomes** (central estimate $17.6M). It's
   on the optimistic side under the status quo. The $18.5M is confirmed in the City's adopted budget, which
   plans for 8.8% growth over the FY26 year-end estimate of $17.0M.
-- **Caveat:** hotel-tax forecast errors are strongly correlated year to year (**+0.85**). The simulation treats
-  them as independent, so the ranges shown are **too narrow**.
+- **Why the range is wide:** hotel-tax forecast errors are strongly correlated year to year (**+0.85**), so a
+  good or bad year tends to be followed by another. The simulation carries that forward. The correlation is
+  estimated from only 9 years, so treat the width as approximate.
 
 ![Sales tax: three likely outcomes](../outputs/charts/sales_tax_scenarios.png)
 
@@ -46,17 +47,17 @@ last year's value. The baseline is flat in real terms (growing with inflation), 
 
 | Recommendation | Short term FY27–29 (median net) | Long term FY30–36 (median net, P10 to P90) |
 |---|---|---|
-| R1 Career Pathways | −$249K | −$497K (−$571K to −$403K) |
-| R2 Connected Destination (Stay +1) | −$505K | −$775K (−$1.3M to **+$52K**) |
-| R3 Clean, Safe & Green | **+$22K** | **+$392K** (−$375K to **+$1.6M**) |
-| R4 International & employers | −$46K | −$59K (−$344K to **+$391K**) |
-| R1→R4 workforce-led attraction | +$1K | +$85K (+$24K to +$260K) |
-| **All recommendations** | **−$755K** (−$1.0M to −$437K) | **−$669K** (−$1.8M to **+$850K**) |
+| R1 Career Pathways | −$249K | −$497K (−$570K to −$406K) |
+| R2 Connected Destination (Stay +1) | −$572K | −$1.0M (−$1.5M to −$410K) |
+| R3 Clean, Safe & Green | **+$22K** | **+$393K** (−$378K to **+$1.6M**) |
+| R4 International & employers | −$46K | −$59K (−$345K to **+$401K**) |
+| R1→R4 workforce-led attraction | +$1K | +$86K (+$24K to +$260K) |
+| **All recommendations** | **−$829K** (−$1.1M to −$536K) | **−$948K** (−$2.0M to **+$492K**) |
 
 ![Annual net fiscal impact](../outputs/charts/impact_annual_net.png)
 ![Short vs long term](../outputs/charts/impact_short_vs_long.png)
 
-**People (FY2036):** about **+118 residents working in Ontario** (P10–P90: 68–197) and **+145 residents**
+**People (FY2036):** about **+117 residents working in Ontario** (P10–P90: 68–198) and **+145 residents**
 (77–262). The resident figure assumes housing is available for them (see [Methods](methods.md#b7-known-limitations)).
 
 ## 3. Cost and return on investment
@@ -67,15 +68,15 @@ program, FY27–36, in present value**, so the start-up years count (`outputs/ta
 | | Tax revenue per $1 of City money (P10–P90) | Chance it pays for itself | City cost / yr | **Break-even City cost / yr** | Reading |
 |---|---|---|---|---|---|
 | R1 Career Pathways | **$0.13** ($0.07–$0.23) | 0% | $75K | **$9K** | An enabling investment; its value is workforce and residents, not tax |
-| R2 Stay +1 | **$0.50** ($0.25–$0.89) | 6% | $227K | **$112K** | Returns about half its cost at 2% uptake; needs roughly 4% uptake or half the City share to break even |
-| R3 Clean, Safe & Green | **$1.36** ($0.54–$2.67) | 68% | $106K | **$144K** | The only recommendation that pays for itself in the median case, but it rests on two unsourced inputs |
-| R4 + R1→R4 link | **$0.95** ($0.31–$3.03) | 47% | $42K | **$38K** | About break-even, and only because R1's cost isn't counted here |
-| R1 + R4 together | **$0.38** ($0.18–$0.81) | 5% | $109K | **$41K** | The fair test of the workforce-to-employer pair: both costs, all revenue |
-| **All** | **$0.70** ($0.44–$1.06) | 13% | $431K | **$300K** | — |
+| R2 Stay +1 | **$0.37** ($0.19–$0.66) | 1% | $226K | **$84K** | Returns about a third of its cost at 2% uptake. Breaking even needs uptake above 5%, the top of the assumed range, or a City share near a third of the budget |
+| R3 Clean, Safe & Green | **$1.36** ($0.54–$2.66) | 68% | $107K | **$145K** | The only recommendation that pays for itself in the median case, but it rests on two unsourced inputs |
+| R4 + R1→R4 link | **$0.96** ($0.31–$3.08) | 48% | $42K | **$37K** | About break-even, and only because R1's cost isn't counted here |
+| R1 + R4 together | **$0.38** ($0.17–$0.82) | 5% | $108K | **$41K** | The fair test of the workforce-to-employer pair: both costs, all revenue |
+| **All** | **$0.63** ($0.39–$0.96) | 8% | $431K | **$271K** | — |
 
 Annual costs are present-value averages, so they read lower than the proposal's nominal budget lines.
 
-How returns mature, all recommendations: FY27–29 **$0.43** per $1 · FY30–36 **$0.81** per $1.
+How returns mature, all recommendations: FY27–29 **$0.38** per $1 · FY30–36 **$0.74** per $1.
 
 ![Return per dollar of City money](../outputs/charts/impact_roi.png)
 
@@ -90,7 +91,7 @@ How returns mature, all recommendations: FY27–29 **$0.43** per $1 · FY30–36
 ![Investment leverage](../outputs/charts/impact_investment_leverage.png)
 
 Long term (FY30–36), gross: **Downtown** carries R3 (~$1.3M), the largest single contribution. **ONT** adds
-~$0.4M of Stay +1 revenue and ~$0.9M including international employer effects; it's still the most valuable
+~$0.3M of Stay +1 revenue and ~$0.8M including international employer effects; it's still the most valuable
 venue for Stay +1. **Ontario Ranch** captures the property-tax side of R1/R4 residency (~$0.1M). The Convention
 Center (no visitor count yet) and the West Valley Connector (enabling infrastructure) aren't quantified yet.
 
@@ -114,10 +115,10 @@ evaluations of comparable ambassador programs) matters more than anything else.
 | | Success = | Measured by (dashboard KPI) | Model verdict now |
 |---|---|---|---|
 | R1 | More residents in higher-wage local jobs than the LODES status-quo band | Residents working in Ontario; conversion; starting wage | **Strategic, not fiscal.** At ~100 interns/yr it adds ~0.15 pt to 15.5%; a 1-point rise needs ~800 more local resident workers |
-| R2 | Hotel tax above the status-quo band; longer stays | Hotel tax; average stay; cross-district visits | **Doesn't pay for itself at 2% uptake** ($0.50 per $1). Adds under 1% to hotel tax by FY2036. Needs ~4% uptake or a smaller City share |
+| R2 | Hotel tax above the status-quo band; longer stays | Hotel tax; average stay; cross-district visits | **Doesn't pay for itself** ($0.37 per $1, 1% chance). Adds about 0.6% to hotel tax by FY2036. Needs uptake above 5% or a City share near $84K/yr |
 | R3 | District sales up, not just shifted | District taxable sales; foot traffic; perceived safety | **Best fiscal case** ($1.36 per $1, 68% chance of payback), pending sourced Downtown inputs |
-| R4 | Firms attracted or retained because of the program | Partner firms; employer retention | **About break-even with the R1 link** ($0.95); $0.38 once R1's cost is included |
-| R1→R4 | Employers citing the workforce pipeline | Firms citing the pipeline; pathway hires at those firms | Positive but small (~$85K long term) |
+| R4 | Firms attracted or retained because of the program | Partner firms; employer retention | **About break-even with the R1 link** ($0.96); $0.38 once R1's cost is included |
+| R1→R4 | Employers citing the workforce pipeline | Firms citing the pipeline; pathway hires at those firms | Positive but small (~$86K long term) |
 
 ## 7. Data reconciliation
 
@@ -128,21 +129,26 @@ evaluations of comparable ambassador programs) matters more than anything else.
 - **Measure Q** brought in **$60.8M** in FY2024 and **$61.6M** in FY2025, below the roughly $95M estimated before the 2022 vote. The
   State Controller files it under "Other Taxes – Other".
 - **Hotel tax rate: confirmed at 11.75%** (Municipal Code §3-6.03). The model had assumed 11–12%.
+- **Room rate:** actual hotel tax and the City's 5,670 rooms imply about **$69 per available room-night**, or
+  an average rate of about **$101** at 68% occupancy ($91–$114 across 60–75%). The earlier $145 assumption
+  would have meant 47% occupancy. Occupancy is still a team assumption.
 - **Live/work 15.5%:** LODES isn't loaded yet; once it is, the EDA reports which year and job type match.
 
 ## 8. Summary
 
 1. **The plan is affordable and well structured.** It builds on assets Ontario already funds, stays under the
    Year 1 cap, expands only on results, and every KPI maps to a measurable model input.
-2. **In tax revenue alone, it doesn't pay for itself:** about **$0.70 back per $1 of City money** over the whole
-   program (a 13% chance of full payback). Its case rests on residents, workforce and partner cost-sharing.
+2. **In tax revenue alone, it doesn't pay for itself:** about **$0.63 back per $1 of City money** over the whole
+   program (an 8% chance of full payback). Its case rests on residents, workforce and partner cost-sharing.
 3. **The ranking changed after correcting the model.** **R3 (Downtown) is now the strongest fiscal case**,
-   because Downtown spending earns the City 2%, not 1%. **R2 (Stay +1) is weaker than first reported**, because
-   the airport's passenger count had been counted twice. **R4 no longer "pays for itself"** once R1's cost is
+   because Downtown spending earns the City 2%, not 1%. **R2 (Stay +1) is much weaker than first reported**: the
+   airport's passenger count had been counted twice, and the room rate implied by actual hotel tax is about
+   $101, not $145. **R4 no longer "pays for itself"** once R1's cost is
    counted alongside it.
 4. **To make it fiscally self-supporting:**
    - lead with R3, and source its two key inputs before committing beyond the pilot
-   - cap R2's City share near ~$112K/yr, or set a go/no-go at ~4% Stay +1 uptake
+   - restructure R2: cap the City share near ~$84K/yr with hotels and venues funding the rest, and treat it as
+     a measured pilot, since break-even needs uptake above 5%
    - keep R1's City cost to coordination only and have employers fund the rest
 5. **Next step:** source the top five inputs and rerun. The pipeline regenerates every number and chart in
    this document.

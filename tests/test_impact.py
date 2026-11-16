@@ -203,3 +203,14 @@ def test_stay1_base_parties_matches_the_chain_at_mode(inputs):
     expect = sum(an.visitors * an.arrival_share * an.overnight.mode for an in anchors)
     expect *= A["dedup_factor"].mode / A["persons_per_room"].mode
     assert impact.stay1_base_parties(A, anchors) == pytest.approx(expect)
+
+
+def test_room_rate_is_tied_to_official_hotel_tax_and_room_supply(inputs):
+    A, _, _, _ = inputs
+    adr = impact.derive_adr(A, 16_671_971.0)
+    revpar = 16_671_971.0 / A["tot_rate"].mode / (A["hotel_rooms"].mode * 365)
+    assert adr.mode == pytest.approx(revpar / A["hotel_occupancy"].mode)
+    assert adr.low < adr.mode < adr.high  # high occupancy -> low rate
+    # the derived rate reproduces actual hotel tax: nights sold x rate x tax rate
+    nights = A["hotel_rooms"].mode * 365 * A["hotel_occupancy"].mode
+    assert nights * adr.mode * A["tot_rate"].mode == pytest.approx(16_671_971.0)

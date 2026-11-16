@@ -13,7 +13,9 @@ visitor_growth,R2,Annual real growth of anchor-venue visits (status quo),0.0,0.0
 dedup_factor,R2,Share of anchor visits that are unique trips (visitors attend several anchors),0.5,0.7,0.9,share,assumption,TEAM ASSUMPTION - Stay +1 data collection (Phase 1) measures cross-visitation
 stay1_uptake,R2,Share of overnight visitor parties that add one night through Stay +1,0.005,0.02,0.05,share,assumption,TEAM ASSUMPTION - package uptake; measured in Phase 1
 persons_per_room,R2,Visitors per room-night (also party size),2.0,2.5,3.0,people,assumption,TEAM ASSUMPTION - sports/event families skew higher
-adr,R2,Average daily room rate (real FY2025 dollars),120.0,145.0,175.0,USD,assumption,TEAM ASSUMPTION - source from STR or Greater Ontario CVB
+adr,R2,Average daily room rate (real FY2025 dollars); replaced at run time by the rate implied by hotel tax and rooms and occupancy,91.4138274140865,100.82407435377188,114.26728426760813,USD,assumption,"Derived: hotel tax $16,671,971 / 11.75% rate / 5,670 rooms = $68.56 per available room-night, at 60%-75% occupancy (occupancy is the TEAM ASSUMPTION)"
+hotel_rooms,R2,Hotel and motel rooms in the City (52 properties),5670.0,5670.0,5670.0,rooms,official,City of Ontario FY 2026-27 Adopted Annual Operating Budget PDF p. 66
+hotel_occupancy,R2,Average share of hotel rooms sold per night (sets the room rate implied by hotel tax),0.6,0.68,0.75,share,assumption,TEAM ASSUMPTION - source from STR or Greater Ontario CVB
 tot_rate,R2,Ontario Transient Occupancy Tax rate,0.1175,0.1175,0.1175,share,official,City of Ontario FY 2026-27 Adopted Annual Operating Budget PDF p. 66 (Ontario Municipal Code 3-6.03: 11.75% of rent)
 visitor_daily_taxable_spend,R2,Non-lodging taxable spend per visitor per added day (real $),40.0,70.0,110.0,USD/person-day,assumption,TEAM ASSUMPTION - source from Visit California / Dean Runyan county visitor spending
 r2_additionality,R2,Share of added nights that would NOT have happened without Stay +1,0.4,0.6,0.8,share,assumption,TEAM ASSUMPTION - removes visitors who would have extended anyway

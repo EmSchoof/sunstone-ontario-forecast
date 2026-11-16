@@ -138,6 +138,11 @@ $$g^{(s)}_{T+h} = \mu_h + e^{(s)}, \qquad e^{(s)} \sim \text{resample(out-of-sam
 $$R^{(s)}_{T+h} = R_T \cdot \exp\Big(\sum_{k \le h} g^{(s)}_{T+k}\Big)$$
 
 - **Simulation:** 20,000 simulated futures with a fixed seed. P10/P50/P90 are taken per year.
+- **Persistent errors:** if a model's errors are clearly correlated from one year to the next (lag-1
+  correlation of 0.4 or more, capped at 0.9), the draws are chained:
+  $e_t = \rho\, e_{t-1} + \sqrt{1-\rho^2}\; e^*_t$. Each year keeps the same spread, but a run of good or bad
+  years can build up, so the range widens with the horizon. This applies to hotel tax; sales-tax errors show no
+  such pattern and are drawn independently.
 - **Centered errors:** the average error is removed before resampling, so the middle of the range is the
   selected model's own forecast. Without this, a "same as last year" model would grow each year by its
   average past error, which is the trend model it was chosen over.
@@ -190,6 +195,9 @@ $V_k$ = inbound visitor trips (for ONT, half the passenger count: airports count
 *p* = people per room, *u* = Stay +1 uptake, $\alpha_2$ = share of extra nights that wouldn't have happened anyway.
 
 - **Hotel tax:** nights × average room rate × TOT rate.
+- **Room rate:** derived, not guessed. Hotel tax ÷ 11.75% gives citywide room revenue; dividing by the City's
+  5,670 rooms × 365 nights gives revenue per available room-night; dividing by occupancy (60–75%, a team
+  assumption) gives the average rate. This guarantees the rate is consistent with the hotel tax actually collected.
 - **Sales tax:** nights × *p* × daily visitor spending × $\tau$.
 - **Leverage by investment:** revenue is reported per anchor (`impact_stay1_by_anchor.csv`).
 - **Sanity check:** the overnight parties this chain implies are compared with the room-nights implied by
@@ -242,9 +250,9 @@ Output: `impact_roi.csv` and the `impact_roi` chart.
 
 ### B7. Known limitations
 
-- 33 of 41 impact inputs are team assumptions, and the dollar figures depend on them.
-- Resampling forecast errors independently ignores year-to-year correlation in errors. About 10 out-of-sample
-  errors make the ranges coarse.
+- 34 of 43 impact inputs are team assumptions, and the dollar figures depend on them.
+- About 9 out-of-sample errors make the ranges coarse, and the year-to-year correlation carried into the
+  hotel-tax simulation is itself estimated from those few points.
 - Picking the best of about 9 models on the same years makes the winner's error slightly optimistic.
 - Not modeled: multiplier effects, spending by non-resident workers, the program's effect on venue attendance
   itself, and dollar values for safety and quality of life. These omissions make the model conservative.
