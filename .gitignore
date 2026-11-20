@@ -16,8 +16,8 @@ htmlcov/
 
 # --- Node / Nx (commit package.json, pnpm-lock.yaml, nx.json, project.json) ---
 node_modules/
-.nx/cache/
-.nx/workspace-data/
+**/.nx/cache/
+**/.nx/workspace-data/
 
 # --- IDE / OS ----------------------------------------------------------
 .idea/
@@ -27,8 +27,9 @@ node_modules/
 # --- Secrets (API keys) -------------------------------------------------
 .env
 .env.*
-.dlt/secrets.toml
-.dlt/*.secrets.toml
+# **/ so keys are ignored wherever dlt runs (it reads .dlt/ in ontario_forecast_model/)
+**/.dlt/secrets.toml
+**/.dlt/*.secrets.toml
 
 # --- dlt state ----------------------------------------------------------
 .dlt_pipelines/
@@ -45,11 +46,10 @@ data/warehouse/
 outputs/eda/
 
 # Tracked on purpose:
-#   data/reference/     hand-entered, cited source data
-#   data/assumptions/   impact-model inputs (each with a source and status)
+#   data/*.csv          all input data: cited reference figures + impact-model inputs (docs/02_methods.md A6)
 #   outputs/charts/     deliverable charts (PNG, SVG, PDF)
 #   outputs/tables/     every charted number as CSV
 #   outputs/models/     fitted model coefficients (small, reviewable)
 #   outputs/docs/       shareable PDFs of docs/*.md
-# Every source is registered in docs/sources.md; outputs/tables/source_snapshot.csv records
+# Every source is registered in docs/04_sources.md; outputs/tables/source_snapshot.csv records
 # what the (untracked) raw downloads contained when the outputs were built.

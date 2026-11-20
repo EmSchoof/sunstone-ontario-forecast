@@ -16,7 +16,7 @@
     <br />
     <em>Sunstone Economic Development Challenge @ USC Price</em>
     <br /><br />
-    <a href="docs/conclusions.md"><strong>Read the conclusions »</strong></a>
+    <a href="docs/03_conclusions.md"><strong>Read the conclusions »</strong></a>
     ·
     <a href="outputs/docs/conclusions.pdf">Download them as a PDF</a>
     ·
@@ -51,7 +51,7 @@
 | **R3** | Clean, Safe & Green Districts | Make Downtown feel safe and lively in the evening so people stay and spend |
 | *R4* | *International & employer attraction* | *Not in the current proposal; kept in the model as a possible later phase* |
 
-[![What each recommendation must achieve to pay for itself](outputs/charts/impact_break_even.png)](docs/conclusions.md#2-what-each-recommendation-must-achieve-to-pay-for-itself)
+[![What each recommendation must achieve to pay for itself](outputs/charts/impact_break_even.png)](docs/03_conclusions.md#2-what-each-recommendation-must-achieve-to-pay-for-itself)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -68,7 +68,7 @@ But that activity doesn't stay local:
 Every extra hotel night and every purchase made in Ontario adds to the City's budget through hotel tax and sales
 tax. So the question is: **can our recommendations keep more of that activity, and more of those paychecks, in Ontario?**
 
-**Learn more:** [Background](docs/background.md) covers the challenge, the City's assets and each recommendation in full.
+**Learn more:** [Background](docs/00_background.md) covers the challenge, the City's assets and each recommendation in full.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -83,8 +83,8 @@ tax. So the question is: **can our recommendations keep more of that activity, a
 - **Simple, tested methods over flashy ones.** About 20 years of yearly data is too little for AI-style models,
   which would find patterns that aren't really there.
 
-**Learn more:** [Decisions](docs/decisions.md) explains each choice and the alternatives we rejected.
-[Sources](docs/sources.md) lists every data and content source and where it lives in the repo.
+**Learn more:** [Decisions](docs/01_decisions.md) explains each choice and the alternatives we rejected.
+[Sources](docs/04_sources.md) lists every data and content source and where it lives in the repo.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -99,7 +99,7 @@ tax. So the question is: **can our recommendations keep more of that activity, a
 4. **Run 20,000 "what-if" futures** to see the range of outcomes, and how much tax revenue comes back for each
    dollar the City spends.
 
-**Learn more:** [Methods](docs/methods.md) has the full statistical and data-engineering detail, including the formula
+**Learn more:** [Methods](docs/02_methods.md) has the full statistical and data-engineering detail, including the formula
 for each recommendation.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -108,7 +108,7 @@ for each recommendation.
 
 > **What's reported here.** Only results built from sourced data: the status-quo forecasts and the break-even
 > targets. No projected return is reported for any recommendation yet, because each still depends on inputs that
-> are team estimates; the [Conclusions](docs/conclusions.md#4-what-the-model-cant-estimate-yet-and-what-would-let-it)
+> are team estimates; the [Conclusions](docs/03_conclusions.md#4-what-the-model-cant-estimate-yet-and-what-would-let-it)
 > list them and who holds the data.
 
 **Bottom line:** each recommendation has a clear test the City can measure, but Year 1 only fits the $500K cap if
@@ -137,7 +137,7 @@ partners pay a stated share.
 3. **Start the circulator after the City's study reports,** and treat Stay +1 as a measured pilot.
 4. **Frame Career Pathways as a workforce investment,** judged on placements and wages.
 
-**Learn more:** [Conclusions](docs/conclusions.md) ([PDF](outputs/docs/conclusions.pdf)) has every chart and
+**Learn more:** [Conclusions](docs/03_conclusions.md) ([PDF](outputs/docs/conclusions.pdf)) has every chart and
 number, how each recommendation's success would be measured, and what drives the result.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -148,54 +148,61 @@ number, how each recommendation's success would be measured, and what drives the
 
 ## Quick start
 
-**Prerequisites:** `brew install uv node pnpm`. Optional free API keys go in `.dlt/secrets.toml`
-(`census_api_key`, `bls_api_key`); see [Methods](docs/methods.md#a2-ingestion-srcontario_forecastingest).
+Everything that runs lives in `ontario_forecast_model/`; run commands from there.
+
+**Prerequisites:** `brew install uv node pnpm`. Optional free API keys go in
+`ontario_forecast_model/.dlt/secrets.toml` (`census_api_key`, `bls_api_key`); see
+[Methods](docs/02_methods.md#a2-ingestion-srcfiscal_impact_modelingest).
 
 ```bash
-uv sync --all-extras && pnpm install && uv run pre-commit install
+cd ontario_forecast_model && uv sync --all-extras && pnpm install && uv run pre-commit install
 ```
 
-| Goal | Command |
+| Goal | Command (from `ontario_forecast_model/`) |
 |---|---|
-| Lint + tests (cached) | `pnpm nx run-many -t lint test` |
+| Lint + tests | `pnpm nx run-many -t lint test` |
 | Rebuild every chart from data already loaded | `pnpm nx run ontario-forecast:report` |
 | End to end: checks → fresh data → every chart | `pnpm nx run ontario-forecast:e2e` |
 | Load commuting data (LODES, once) | `pnpm nx run ontario-forecast:ingest-lodes` |
 | Add a new analysis step | `pnpm nx g @sunstone/pipeline-plugin:stage <name> --dependsOn=select` |
 | See the pipeline graph | `pnpm nx graph` |
 
-**PyCharm:** use `.venv/bin/python` as the interpreter and mark `src` as Sources Root.
+**PyCharm:** open `ontario_forecast_model/` as the project, use its `.venv/bin/python` as the interpreter and
+mark `src` as Sources Root.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Repository layout
 
+The top level is for readers; everything that runs is in one folder.
+
 ```
 sunstone-ontario-forecast/
-├── README.md
-├── docs/                         background · decisions · methods · conclusions · sources
-├── src/ontario_forecast/
-│   ├── config.py · db.py         settings (single source of truth) + DuckDB → numpy
-│   ├── ingest/                   dlt sources, LODES aggregation
-│   ├── transform/                SQL staging → marts, data-quality checks
-│   ├── modeling/                 stats · features · evaluation · model · scenarios · impact
-│   └── reporting/                charts · export
-├── analysis/                     pipeline steps: 01_eda → 02 selection → 03 scenarios → 04 impact
-├── tests/                        pytest
-├── data/
-│   ├── reference/                hand-entered source data (budget, airport): loaded by dlt
-│   └── assumptions/              impact-model inputs, each with a source and status
-├── outputs/
+├── README.md                     start here
+├── docs/                         00 background · 01 decisions · 02 methods · 03 conclusions · 04 sources
+├── outputs/                      what the model produces
 │   ├── charts/                   deliverable PNG · SVG · PDF
 │   ├── tables/                   charted numbers + analysis-ready marts as CSV
 │   ├── models/                   fitted model coefficients (JSON)
 │   ├── docs/                     shareable PDFs of the docs (conclusions.pdf)
 │   └── eda/                      exploratory figures (not tracked)
-├── tools/pipeline-plugin/        Nx generator for new analysis steps
-└── pyproject.toml · uv.lock · package.json · pnpm-*.yaml · nx.json · project.json
+├── data/                         what goes in
+│   ├── *.csv                     all input data: reference figures (loaded by dlt) + impact-model inputs
+│   └── warehouse/                DuckDB built by the pipeline (not tracked)
+└── ontario_forecast_model/       the model: code, pipeline steps and tooling
+    ├── src/fiscal_impact_model/
+    │   ├── config.py · db.py     settings (single source of truth) + DuckDB → numpy
+    │   ├── ingest/               dlt sources, LODES aggregation
+    │   ├── transform/            SQL staging → marts, data-quality checks
+    │   ├── modeling/             stats · features · evaluation · model · scenarios · impact
+    │   ├── reporting/            charts · export · pdf
+    │   └── tests/                pytest
+    ├── analysis/                 pipeline steps: 01_eda → 02 selection → 03 scenarios → 04 impact
+    ├── tools/pipeline-plugin/    Nx generator for new analysis steps
+    └── pyproject.toml · uv.lock · package.json · pnpm-*.yaml · nx.json · project.json
 ```
 
-Tools and why each was chosen: [Decisions §5](docs/decisions.md#5-engineering-decisions).
+Tools and why each was chosen: [Decisions §5](docs/01_decisions.md#5-engineering-decisions).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -206,8 +213,8 @@ Tools and why each was chosen: [Decisions §5](docs/decisions.md#5-engineering-d
 - [x] Status-quo forecasts and the recommendation impact model, including ROI
 - [x] Nx orchestration + stage generator
 - [ ] Source the highest-impact inputs (Downtown uplift and share, Stay +1 uptake, R2 and R4 cost)
-- [ ] Close the open items in the [source register](docs/sources.md#open-items) (proposal document, airport traffic)
-- [x] Add the City's adopted FY2026–27 budget to `data/reference/`
+- [ ] Close the open items in the [source register](docs/04_sources.md#open-items) (proposal document, airport traffic)
+- [x] Add the City's adopted FY2026–27 budget to `data/`
 - [ ] Load LODES and ACS for the live/work charts
 - [x] Reconcile the proposal's $216.3M sales-tax figure with State Controller actuals (~$139M): Measure Q + Prop 172
 

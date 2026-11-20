@@ -9,7 +9,7 @@ r1_conversion,R1,Share of interns converted to a full-time job in Ontario,0.3,0.
 r1_resident_share,R1,Share of converted hires who live in Ontario,0.4,0.6,0.8,share,assumption,TEAM ASSUMPTION - program recruits Ontario residents first
 r1_additionality,R1,Share of hires that would NOT have happened without the program,0.3,0.5,0.7,share,assumption,TEAM ASSUMPTION - removes deadweight (hires that happen anyway)
 worker_attrition,shared,Annual share of program-placed local workers who leave the job or city,0.1,0.15,0.25,share/yr,assumption,TEAM ASSUMPTION - source from BLS JOLTS separations rate
-visitor_growth,R2,Annual real growth of anchor-venue visits (status quo),0.0,0.02,0.04,share/yr,assumption,TEAM ASSUMPTION - replace with ONT traffic trend once data/reference/ont_airport_passengers.csv is filled
+visitor_growth,R2,Annual real growth of anchor-venue visits (status quo),0.0,0.02,0.04,share/yr,assumption,TEAM ASSUMPTION - replace with ONT traffic trend once data/ont_airport_passengers.csv is filled
 dedup_factor,R2,Share of anchor visits that are unique trips (visitors attend several anchors),0.5,0.7,0.9,share,assumption,TEAM ASSUMPTION - Stay +1 data collection (Phase 1) measures cross-visitation
 stay1_uptake,R2,Share of overnight visitor parties that add one night through Stay +1,0.005,0.02,0.05,share,assumption,TEAM ASSUMPTION - package uptake; measured in Phase 1
 persons_per_room,R2,Visitors per room-night (also party size),2.0,2.5,3.0,people,assumption,TEAM ASSUMPTION - sports/event families skew higher

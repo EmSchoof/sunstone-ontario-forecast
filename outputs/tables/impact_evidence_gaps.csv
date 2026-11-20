@@ -9,7 +9,7 @@ R1 Career Pathways,retained_resident_share,Placed workers who are new residents,
 R1 Career Pathways,city_property_tax_per_household,City property tax per household,assumption,TEAM ASSUMPTION - VERIFY from City budget property tax / housing units (Ontario Ranch new homes skew higher)
 R1 Career Pathways,nonworker_spend_per_resident,Spending per other household member,assumption,TEAM ASSUMPTION - source from BLS Consumer Expenditure Survey
 R1 Career Pathways,discount_rate,Real discount rate,assumption,TEAM ASSUMPTION - OMB Circular A-4 uses 2% (2023) and 3% (2003) real; confirm the rate City Finance uses
-R2 Connected Destination,visitor_growth,Annual growth in venue visits,assumption,TEAM ASSUMPTION - replace with ONT traffic trend once data/reference/ont_airport_passengers.csv is filled
+R2 Connected Destination,visitor_growth,Annual growth in venue visits,assumption,TEAM ASSUMPTION - replace with ONT traffic trend once data/ont_airport_passengers.csv is filled
 R2 Connected Destination,dedup_factor,Venue visits that are unique trips,assumption,TEAM ASSUMPTION - Stay +1 data collection (Phase 1) measures cross-visitation
 R2 Connected Destination,stay1_uptake,Stay +1 uptake (share of overnight parties),assumption,TEAM ASSUMPTION - package uptake; measured in Phase 1
 R2 Connected Destination,persons_per_room,Visitors per room-night,assumption,TEAM ASSUMPTION - sports/event families skew higher

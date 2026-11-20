@@ -1,9 +1,0 @@
-"""Tests for analysis stage <%= fileBase %> (generated). Move logic into src/ and test it here."""
-
-from pathlib import Path
-
-STAGE = Path(__file__).resolve().parents[1] / "analysis" / "<%= fileBase %>.py"
-
-
-def test_stage_script_exists():
-    assert STAGE.exists()

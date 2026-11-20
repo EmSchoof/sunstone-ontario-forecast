@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "defaultBase": "main",
+  "namedInputs": {
+    "python": ["{projectRoot}/src/**/*", "{projectRoot}/pyproject.toml", "{projectRoot}/uv.lock"],
+    "tests": ["{projectRoot}/src/fiscal_impact_model/tests/**/*"],
+    "analysis": ["{projectRoot}/analysis/**/*"]
+  },
+  "targetDefaults": {
+    "lint": {
+      "cache": true,
+      "inputs": ["python", "tests", "analysis"]
+    },
+    "test": {
+      "cache": false
+    }
+  }
+}
