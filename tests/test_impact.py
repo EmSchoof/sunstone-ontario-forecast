@@ -30,7 +30,7 @@ def run(fixed, phases, anchors, **overrides):
 def test_input_files_are_complete_and_valid(inputs):
     A, _, phases, anchors = inputs
     assert set(phases) == {"R1", "R2", "R3", "R4"}
-    assert {a.status for a in A.values()} <= {"official", "proposal", "assumption"}
+    assert {a.status for a in A.values()} <= {"official", "published", "proposal", "assumption"}
     assert all(a.source for a in A.values())  # every number has a source line
     assert all(len(a.label) <= 45 for a in A.values())  # short enough for one chart line
     assert len(anchors) >= 4
@@ -116,14 +116,15 @@ def test_benefit_cost_and_breakeven(inputs):
     rows = {r["group"]: r for r in impact.benefit_cost(res, 2030, 2036)}
     assert set(rows) == set(impact.ROI_GROUPS)
     assert not any(r["present_value"] for r in rows.values())
-    r2 = rows["R2 Connected Destination (Stay +1)"]
+    r2 = rows["R2 Connected Destination"]
     gross = impact.window_sum(res.gross("R2"), YEARS, 2030, 2036)[0]
     cost = impact.window_sum(res.cost["R2"], YEARS, 2030, 2036)[0]
     assert r2["bcr_p50"] == pytest.approx(gross / cost)
     assert r2["breakeven_annual_cost_p50"] == pytest.approx(gross / 7)  # active all 7 years
-    assert r2["prob_pays_for_itself"] in (0.0, 1.0)  # one deterministic simulation
+    assert r2["share_sims_break_even"] in (0.0, 1.0)  # one deterministic simulation
     yr1 = impact.first_year_city_cost(res, 2027)
-    assert yr1[1] == pytest.approx(fixed["cost_R1"].mode + fixed["cost_R2"].mode)  # R3/R4 start later
+    started = [r for r, (start, _, _) in phases.items() if start <= 2027]
+    assert yr1[1] == pytest.approx(sum(impact.annual_city_cost(fixed, r) for r in started))
 
 
 def test_tornado_sorted_by_swing(inputs):
@@ -183,7 +184,7 @@ def test_whole_program_return_includes_startup_years(inputs):
     res = run(fixed, phases, anchors)
     late = {r["group"]: r for r in impact.benefit_cost(res, 2030, 2036)}
     whole = {r["group"]: r for r in impact.benefit_cost(res, 2027, 2036)}
-    g = "R2 Connected Destination (Stay +1)"
+    g = "R2 Connected Destination"
     assert whole[g]["bcr_p50"] < late[g]["bcr_p50"]
 
 
@@ -214,3 +215,78 @@ def test_room_rate_is_tied_to_official_hotel_tax_and_room_supply(inputs):
     # the derived rate reproduces actual hotel tax: nights sold x rate x tax rate
     nights = A["hotel_rooms"].mode * 365 * A["hotel_occupancy"].mode
     assert nights * adr.mode * A["tot_rate"].mode == pytest.approx(16_671_971.0)
+
+
+def test_headline_covers_only_the_recommendations_in_the_proposal(inputs):
+    _, fixed, phases, anchors = inputs
+    A = {**fixed}
+    base_st = np.full((1, len(YEARS)), 140e6)
+    res = impact.simulate(
+        A, phases, anchors, YEARS, 1, np.random.default_rng(0), base_st, included=("R1", "R2", "R3")
+    )
+    assert np.allclose(res.gross(), sum(res.gross(r) for r in ("R1", "R2", "R3")))
+    assert res.gross("R4").sum() > 0  # still simulated, reported on its own
+    assert np.allclose(res.workers(), sum(res.local_workers[r] for r in ("R1", "R2", "R3")))
+    rows = {r["code"]: r for r in impact.benefit_cost(res, 2027, 2036)}
+    assert "(not in proposal)" in rows["R4"]["group"]
+    cost = sum(impact.window_sum(res.cost[r], YEARS, 2027, 2036)[0] for r in ("R1", "R2", "R3"))
+    assert rows["ALL"]["bcr_p50"] == pytest.approx(
+        impact.window_sum(res.gross(), YEARS, 2027, 2036)[0] / cost
+    )
+    lev = impact.investment_leverage(
+        res,
+        [{"investment": "x", "recommendations": "", "dashboard_kpi": "", "modeled_as": "rec:R4;rec:R2"}],
+        2030,
+        2036,
+    )
+    assert lev[0]["note"] == "R4 not in proposal"
+    assert lev[0]["p50"] == pytest.approx(impact.window_sum(res.gross("R2"), YEARS, 2030, 2036)[0])
+
+
+def test_city_cost_is_the_sum_of_a_recommendations_cost_lines(inputs):
+    A, fixed, phases, anchors = inputs
+    parts = [k for k in A if k.startswith("cost_R2_")]
+    assert len(parts) == 2  # marketing + circulator share
+    res = run(fixed, phases, anchors)
+    i = int(np.flatnonzero(YEARS == 2030)[0])
+    assert res.cost["R2"][0, i] == pytest.approx(sum(fixed[k].mode for k in parts))
+    assert impact.annual_city_cost(fixed, "R2") == pytest.approx(sum(fixed[k].mode for k in parts))
+
+
+def test_break_even_targets_use_only_sourced_inputs(inputs):
+    A, _, _, _ = inputs
+    rows = impact.break_even_targets(A, 16_671_971.0, 138_813_304.0)
+    tax, room, sales = rows
+    lo2, hi2 = impact.cost_range(A, "R2")
+    lo3, hi3 = impact.cost_range(A, "R3")
+    # bounds come straight from the proposal's ranges: no midpoint enters
+    assert (lo2, hi2) == (
+        sum(A[k].low for k in A if k.startswith("cost_R2")),
+        sum(A[k].high for k in A if k.startswith("cost_R2")),
+    )
+    assert (tax["value_low"], tax["value_high"]) == (lo2, hi2)
+    assert room["value_low"] == pytest.approx(lo2 / A["tot_rate"].mode)
+    assert room["share_low"] == pytest.approx(tax["share_low"])  # same target, different units
+    rate = A["local_sales_tax_rate"].mode + A["measure_q_rate"].mode
+    assert (sales["value_low"], sales["value_high"]) == pytest.approx((lo3 / rate, hi3 / rate))
+    assert sales["per_100k_city"] == pytest.approx(100_000 / rate)
+    assert sales["baseline"] == pytest.approx(138_813_304.0 / 0.01)
+
+
+def test_break_even_refuses_unsourced_inputs(inputs):
+    A, _, _, _ = inputs
+    bad = {**A, "tot_rate": replace(A["tot_rate"], status="assumption")}
+    with pytest.raises(ValueError, match="sourced inputs only"):
+        impact.break_even_targets(bad, 16_671_971.0, 138_813_304.0)
+
+
+def test_evidence_gaps_list_every_unsourced_input_and_clear_when_sourced(inputs):
+    A, _, _, anchors = inputs
+    gaps = impact.evidence_gaps(A, anchors, ("R3",))
+    keys = {g["input"] for g in gaps}
+    assert {"downtown_share_of_sales", "district_sales_uplift"} <= keys
+    assert all(A[k].status not in impact.KNOWN for k in keys)
+    sourced = {k: replace(a, status="official") if k in keys else a for k, a in A.items()}
+    assert impact.evidence_gaps(sourced, anchors, ("R3",)) == []
+    r2 = {g["input"] for g in impact.evidence_gaps(A, anchors, ("R2",))}
+    assert any(k.startswith("overnight_") for k in r2)  # venue overnight shares count too

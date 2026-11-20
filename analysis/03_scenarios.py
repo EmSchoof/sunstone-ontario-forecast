@@ -85,10 +85,16 @@ for key, t in config.FORECAST_TARGETS.items():
     lo, mid, hi = f.final()
     ac = scenarios.error_autocorr(model.backtest_errors)
     model_label = ", ".join(model.predictors) or ("no change" if not any(model.coef) else "trend")
+    # A "no change" model is flat in real terms; the chart is nominal, so the line rises with inflation.
+    model_text = (
+        "flat in real terms, rising with inflation"
+        if model_label == "no change"
+        else f"{model_label}, plus inflation"
+    )
 
     sub = (
         f"FY{f.years[-1]}: central {usd(mid)}, {band} of outcomes between {usd(lo)} and "
-        f"{usd(hi)}. Model: {model_label} ({len(model.backtest_errors)} out-of-sample errors)."
+        f"{usd(hi)}. Model: {model_text} ({len(model.backtest_errors)} out-of-sample errors)."
     )
     reference = None
     if ref and ref[0] in f.years:
@@ -105,7 +111,7 @@ for key, t in config.FORECAST_TARGETS.items():
         x_label=fy_label,
         reference=reference,
         source=(
-            "Source: CA State Controller city revenues (sales tax incl. in-lieu, FY2005-16). "
+            f"Source: {t['source']} "
             f"Simulated {N:,} paths from centered out-of-sample errors; excludes pandemic-scale shocks; "
             f"assumes {np.expm1(infl):.1%}/yr inflation; no policy effect assumed."
             + (f" Error autocorrelation {ac:+.2f}" if np.isfinite(ac) else "")

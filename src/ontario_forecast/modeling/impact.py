@@ -49,7 +49,7 @@ RECS = ("R1", "R2", "R3", "R4", "SYN")
 CHANNELS = ("tot", "sales_tax", "property_tax")
 REC_NAMES = {
     "R1": "R1 Career Pathways",
-    "R2": "R2 Connected Destination (Stay +1)",
+    "R2": "R2 Connected Destination",
     "R3": "R3 Clean, Safe & Green",
     "R4": "R4 International & employers",
     "SYN": "R1→R4 workforce-led attraction",
@@ -68,7 +68,7 @@ class Assumption:
     mode: float
     high: float
     unit: str
-    status: str  # official | proposal | assumption
+    status: str  # official | published (peer-reviewed or industry benchmark) | proposal | assumption
     source: str
     label: str = ""  # short name for charts; falls back to the description
 
@@ -204,6 +204,9 @@ class ImpactResult:
     new_residents: dict[str, np.ndarray]  # rec -> (n, T) added Ontario residents (household members)
     by_anchor: dict[str, np.ndarray] = field(default_factory=dict)  # R2 revenue by anchor
     discount_rate: np.ndarray | None = None  # (n, 1) real annual rate, drawn per simulation
+    # Recommendations in the proposal: totals (gross/net/workers with no rec given) cover only
+    # these. Others are still simulated and reported on their own, outside the headline.
+    included: tuple[str, ...] = RECS
 
     def pv_factor(self, base_year: int) -> np.ndarray:
         """(n, T) present-value factors: 1 in `base_year`, (1 + d)^-k for k years later."""
@@ -212,19 +215,19 @@ class ImpactResult:
         return (1.0 + d) ** -k
 
     def gross(self, rec: str | None = None, channel: str | None = None) -> np.ndarray:
-        recs = RECS if rec is None else (rec,)
+        recs = self.included if rec is None else (rec,)
         chans = CHANNELS if channel is None else (channel,)
         return sum(self.revenue[(r, c)] for r in recs for c in chans)
 
     def net(self, rec: str | None = None) -> np.ndarray:
-        recs = RECS if rec is None else (rec,)
+        recs = self.included if rec is None else (rec,)
         return self.gross(rec) - sum(self.cost[r] for r in recs)
 
     def workers(self) -> np.ndarray:
-        return sum(self.local_workers.values())
+        return sum(self.local_workers[r] for r in self.included)
 
     def residents(self) -> np.ndarray:
-        return sum(self.new_residents.values())
+        return sum(self.new_residents[r] for r in self.included)
 
 
 def simulate(
@@ -235,8 +238,13 @@ def simulate(
     n: int,
     rng: np.random.Generator,
     baseline_sales_tax: np.ndarray | None = None,
+    included: tuple[str, ...] = RECS,
 ) -> ImpactResult:
-    """Monte Carlo of program increments. baseline_sales_tax: (n, T) or (1, T) real $."""
+    """Monte Carlo of program increments. baseline_sales_tax: (n, T) or (1, T) real $.
+
+    City cost of a recommendation = the sum of its cost lines: `cost_<rec>` and any
+    `cost_<rec>_<part>` (e.g. R2's marketing and circulator shares).
+    """
     years = np.asarray(years)
     T = len(years)
     v = {k: a.draw(n, rng)[:, None] for k, a in A.items()}  # (n, 1) each
@@ -319,12 +327,143 @@ def simulate(
     return ImpactResult(
         years=years,
         revenue=revenue,
-        cost={rec: (v[f"cost_{rec}"] * active[rec] if rec in active else zeros) for rec in RECS},
+        cost={rec: _cost(v, rec) * active[rec] if rec in active else zeros for rec in RECS},
         local_workers=workers,
         new_residents={k: r_[0] for k, r_ in res.items()},
         by_anchor=by_anchor,
         discount_rate=v["discount_rate"] if "discount_rate" in v else None,
+        included=tuple(included),
     )
+
+
+def _cost_keys(keys, rec: str) -> list[str]:
+    return [k for k in keys if k == f"cost_{rec}" or k.startswith(f"cost_{rec}_")]
+
+
+def _cost(v: dict[str, np.ndarray], rec: str) -> np.ndarray:
+    keys = _cost_keys(v, rec)
+    return sum(v[k] for k in keys) if keys else np.zeros((1, 1))
+
+
+def annual_city_cost(A: dict[str, Assumption], rec: str) -> float:
+    """City cost per year once a recommendation runs, all inputs at their most likely value."""
+    return float(sum(A[k].mode for k in _cost_keys(A, rec)))
+
+
+KNOWN = ("official", "published", "proposal")  # statuses with a source behind them
+
+# Inputs each recommendation's simulated result depends on. A result is reported only when
+# every one of these has a source (see `evidence_gaps`); otherwise it would be a guess.
+INPUTS_BY_REC = {
+    "R1": (
+        "r1_interns_full", "r1_conversion", "r1_resident_share", "r1_additionality",
+        "worker_attrition", "pathway_wage", "taxable_spend_share", "local_capture",
+        "stayer_spending_gain", "retained_resident_share", "persons_per_household",
+        "city_property_tax_per_household", "nonworker_spend_per_resident",
+        "local_sales_tax_rate", "measure_q_rate", "discount_rate",
+    ),
+    "R2": (
+        "visitor_growth", "dedup_factor", "stay1_uptake", "persons_per_room", "hotel_occupancy",
+        "tot_rate", "visitor_daily_taxable_spend", "r2_additionality",
+        "local_sales_tax_rate", "measure_q_rate", "discount_rate",
+    ),
+    "R3": (
+        "downtown_share_of_sales", "district_sales_uplift", "r3_additionality",
+        "local_sales_tax_rate", "measure_q_rate", "discount_rate",
+    ),
+    "R4": (
+        "r4_firms_per_year", "r4_jobs_per_firm", "r4_resident_share", "r4_additionality",
+        "r4_taxable_sales_per_job", "r1_to_r4_synergy", "worker_attrition", "pathway_wage",
+        "taxable_spend_share", "local_capture", "stayer_spending_gain", "retained_resident_share",
+        "local_sales_tax_rate", "measure_q_rate", "discount_rate",
+    ),
+}  # fmt: skip
+
+
+def evidence_gaps(A: dict[str, Assumption], anchors: list[Anchor], recs: tuple[str, ...]) -> list[dict]:
+    """Every unsourced input standing between a recommendation and a reportable estimate."""
+    out = []
+    for rec in recs:
+        keys = [*INPUTS_BY_REC[rec], *_cost_keys(A, rec)]
+        items = [(k, A[k]) for k in keys if k in A]
+        if rec == "R2":
+            items += [
+                (an.overnight.key, replace(an.overnight, label=f"{an.name} overnight share"))
+                for an in anchors
+            ]
+        for k, a in items:
+            if a.status not in KNOWN:
+                out.append(
+                    {
+                        "recommendation": REC_NAMES[rec],
+                        "input": k,
+                        "label": a.label,
+                        "status": a.status,
+                        "where_to_source": a.source,
+                    }
+                )
+    return out
+
+
+def cost_range(A: dict[str, Assumption], rec: str) -> tuple[float, float]:
+    """(low, high) program cost per year from the stated ranges, no midpoint."""
+    keys = _cost_keys(A, rec)
+    return float(sum(A[k].low for k in keys)), float(sum(A[k].high for k in keys))
+
+
+def break_even_targets(A: dict[str, Assumption], tot_revenue: float, sales_tax_bb: float) -> list[dict]:
+    """What R2 and R3 must add each year for their own tax revenue to cover their cost.
+
+    Uses only official tax rates, actual tax revenue and the proposal's stated cost ranges, so
+    no unsourced input enters. Full program cost is used because the draft does not split it
+    between the City and partners; `per_100k_city` scales the target to any City share.
+    Steady-state, undiscounted. R2 counts hotel tax only (its visitor sales tax would need an
+    unsourced spend-per-visitor figure), so its target is conservative.
+    """
+    used = ("local_sales_tax_rate", "measure_q_rate", "tot_rate", *_cost_keys(A, "R2"), *_cost_keys(A, "R3"))
+    unsourced = [k for k in used if A[k].status not in KNOWN]
+    if unsourced:
+        raise ValueError(f"break-even targets must use sourced inputs only: {unsourced}")
+    bb, tot = A["local_sales_tax_rate"].mode, A["tot_rate"].mode
+    rate = bb + A["measure_q_rate"].mode
+    taxable_sales = sales_tax_bb / bb
+
+    def row(rec, target, lo, hi, per, baseline, compared, inputs):
+        c_lo, c_hi = cost_range(A, rec)
+        return {
+            "recommendation": REC_NAMES[rec],
+            "program_cost_low": c_lo,
+            "program_cost_high": c_hi,
+            "break_even": target,
+            "value_low": lo,
+            "value_high": hi,
+            "per_100k_city": per,
+            "compared_with": compared,
+            "baseline": baseline,
+            "share_low": lo / baseline,
+            "share_high": hi / baseline,
+            "inputs": inputs,
+        }
+
+    r2_lo, r2_hi = cost_range(A, "R2")
+    r3_lo, r3_hi = cost_range(A, "R3")
+    return [
+        row("R2", "added hotel tax per year", r2_lo, r2_hi, 100_000, tot_revenue,
+            "citywide hotel tax (latest fiscal year)",
+            "Proposal cost range; hotel tax (State Controller)"),
+        row("R2", "added hotel room revenue per year", r2_lo / tot, r2_hi / tot, 100_000 / tot,
+            tot_revenue / tot, "citywide hotel room revenue (hotel tax / 11.75%)",
+            "Proposal cost range; 11.75% hotel tax rate (Municipal Code 3-6.03)"),
+        row("R3", "net new in-person taxable sales per year (after displacement)", r3_lo / rate,
+            r3_hi / rate, 100_000 / rate, taxable_sales, "citywide taxable sales (Bradley-Burns base)",
+            "Proposal cost range; 1% Bradley-Burns + 1% Measure Q (allocation to confirm with Finance)"),
+    ]  # fmt: skip
+
+
+def program_cost_range(A: dict[str, Assumption], recs) -> tuple[float, float]:
+    """(low, high) combined program cost per year for the given recommendations."""
+    lows, highs = zip(*(cost_range(A, r) for r in recs), strict=True)
+    return float(sum(lows)), float(sum(highs))
 
 
 def stay1_base_parties(A: dict[str, Assumption], anchors: list[Anchor]) -> float:
@@ -360,15 +499,22 @@ def break_even_year(net_cum_p50: np.ndarray, years: np.ndarray) -> int | None:
     return int(years[hit[0]]) if len(hit) else None
 
 
-ROI_GROUPS = {
-    "R1 Career Pathways": ("R1",),
-    "R2 Connected Destination (Stay +1)": ("R2",),
-    "R3 Clean, Safe & Green": ("R3",),
-    "R4 Employers (+ R1→R4 link)": ("R4", "SYN"),
+def roi_groups(included: tuple[str, ...] = RECS) -> list[tuple[str, str, tuple[str, ...]]]:
+    """(label, short code, recs) for each return-on-investment group.
+
+    R4 is grouped with the R1->R4 synergy, which has no cost of its own. When R4 is not in
+    the proposal its groups are still reported, labeled as such, and left out of "All".
+    """
+    out = [(REC_NAMES[r], r, (r,)) for r in ("R1", "R2", "R3")]
+    tag = "" if "R4" in included else " (not in proposal)"
+    out.append((f"R4 Employers (+ R1→R4 link){tag}", "R4", ("R4", "SYN")))
     # The link's revenue exists only because R1 is funded, so judge the pair with both costs.
-    "R1 + R4 together (shared cost)": ("R1", "R4", "SYN"),
-    "All recommendations": RECS,
-}
+    out.append((f"R1 + R4 together (shared cost){tag}", "R1+R4", ("R1", "R4", "SYN")))
+    out.append(("All recommendations", "ALL", tuple(included)))
+    return out
+
+
+ROI_GROUPS = {label: recs for label, _, recs in roi_groups()}
 
 
 def benefit_cost(
@@ -395,7 +541,7 @@ def benefit_cost(
     m = (years >= first) & (years <= last)
     pv = 1.0 if discount_from is None else result.pv_factor(discount_from)
     out = []
-    for label, recs in ROI_GROUPS.items():
+    for label, code, recs in roi_groups(result.included):
         gross = sum(window_sum(result.gross(r) * pv, years, first, last) for r in recs)
         cost_t = (sum(result.cost[r] for r in recs) * pv)[:, m]
         cost = cost_t.sum(axis=1)
@@ -404,6 +550,7 @@ def benefit_cost(
         bcr = np.where(ok, gross / np.where(ok, cost, 1.0), np.nan)
         row = {
             "group": label,
+            "code": code,
             "first_fy": first,
             "last_fy": last,
             "present_value": discount_from is not None,
@@ -418,7 +565,8 @@ def benefit_cost(
         )
         row["budgeted_annual_cost_p50"] = float(np.median(cost)) / active_years
         row["breakeven_annual_cost_p50"] = float(np.median(gross)) / active_years
-        row["prob_pays_for_itself"] = float(np.mean(gross >= cost)) if ok.any() else np.nan
+        # Share of modeled scenarios, not a real-world probability (input ranges are mostly team estimates)
+        row["share_sims_break_even"] = float(np.mean(gross >= cost)) if ok.any() else np.nan
         out.append(row)
     return out
 
@@ -426,7 +574,7 @@ def benefit_cost(
 def first_year_city_cost(result: ImpactResult, fy: int, q=(0.10, 0.50, 0.90)) -> tuple[float, ...]:
     """City cost in a single fiscal year (checks the proposal's $500K Year 1 cap)."""
     i = int(np.flatnonzero(result.years == fy)[0])
-    return quantiles(sum(result.cost[r][:, i] for r in RECS), q)
+    return quantiles(sum(result.cost[r][:, i] for r in result.included), q)
 
 
 def investment_leverage(result: ImpactResult, investments: list[dict], first: int, last: int) -> list[dict]:
@@ -445,6 +593,8 @@ def investment_leverage(result: ImpactResult, investments: list[dict], first: in
             part = None
             if kind == "anchor" and name in result.by_anchor:
                 part = result.by_anchor[name]
+            elif kind == "rec" and name not in result.included:
+                notes.append(f"{name} not in proposal")
             elif kind == "rec":
                 part = result.gross(name)
             elif kind == "channel":

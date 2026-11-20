@@ -61,7 +61,8 @@ committed**; the figures taken from it are.
 
 ## 3. Model inputs (`data/assumptions/`)
 
-Every impact-model input, with a `status` (`official`, `proposal` or `assumption`) and a `source` on each
+Every impact-model input, with a `status` (`official`, `published` for peer-reviewed or industry benchmarks,
+`proposal` or `assumption`) and a `source` on each
 row. The files are the register; `outputs/tables/impact_inputs_used.csv` is the copy the last run used.
 
 | File | What it holds | Tracked in git |
@@ -86,6 +87,26 @@ sourced value should come from; they are placeholders, not citations.
 | `discount_rate` | 2–5% | Team assumption, anchored on OMB Circular A-4 (2% in the 2023 edition, 3% in 2003). Confirm the rate City Finance uses | not re-checked |
 | `tot_rate` | 11.75% | Budget book PDF p. 66, citing Ontario Municipal Code §3-6.03 | 2026-11-16 |
 | `hotel_rooms` | 5,670 rooms (52 hotels/motels) | Budget book PDF p. 66. About 2.07M room-nights of capacity a year | 2026-11-16 |
+| `persons_per_household` | 3.37 (range 3.0–3.6) | U.S. Census Bureau [QuickFacts, Ontario city](https://census.gov/quickfacts/fact/table/ontariocitycalifornia/PST040223), ACS 2019–2023 | 2026-11-20 |
+| Airport visitors (`anchor_visitors.csv`) | 7,084,796 passengers, CY2024 | Ontario International Airport Authority ([press release](https://prnewswire.com/news-releases/ontario-international-airport-passenger-count-soared-past-7-million-in-2024-302359212.html)); FAA [CY2024 enplanements](https://www.faa.gov/airports/planning_capacity/passenger_allcargo_stats/passenger/arp-cy2024-commercial-service-enplanements.pdf): 3,494,554, confirming about half are departures | 2026-11-20 |
+| `r1_conversion` (status `published`) | 30–63%, likely 46% | NACE Internship & Co-op Survey: [2025 report](https://naceweb.org/talent-acquisition/internships/intern-offer-and-conversion-rates-fall-acceptances-rise) (46% hybrid, 58.5% in-person, 2023-24 interns) and [2026 report](https://naceweb.org/talent-acquisition/internships/intern-conversion-rate-hits-highest-mark-in-five-years) (63.1%, 2024-25). National employer sample, so local and smaller employers are likely lower | 2026-11-20 |
+
+**Program costs** (status `proposal`). The draft states each program's total cost but not how it splits between the
+City and partners, so the model uses the stated **full program cost** and doesn't assume a split:
+
+| Input | Range used | Source |
+|---|---|---|
+| `cost_R1` | $75K–$150K | Draft budget table: staffing and project management |
+| `cost_R2_marketing` | $100K–$250K | Draft budget table: technology, data, marketing and outreach. For context, Economic Development's General Fund advertising budget is $900K in FY27 (budget book PDF p. 183) |
+| `cost_R2_circulator` | $190K–$225K | Draft: 1,248 vehicle-hours at Omnitrans' $154 per vehicle revenue hour. The City's $120K Internal Circulator Planning Study, due December 2026 (PDF pp. 408, 487), should confirm cost and funding |
+| `cost_R3` | $350K–$550K | Draft: small supervised Downtown pilot. DOIA already funds a maintenance ambassador program from its property assessment ([City page](https://ontarioca.gov/node/22583)); the City pays DOIA assessments on its own parcels (PDF p. 100) |
+
+Reported results use only the low and high ends of these ranges. A midpoint is stored because the simulation needs
+one, but no simulated result is reported while any input behind it is unsourced (see section 6).
+
+**Safety baseline:** Ontario Police Department reports 380 encampments cleaned up and 105 cases of assistance
+accepted by unhoused individuals (budget book PDF p. 319), about 28%, a usable baseline for the R3
+service-acceptance measure.
 | `adr` (room rate) | derived each run | Hotel tax (State Controller) ÷ `tot_rate` ÷ `hotel_rooms` ÷ 365 ÷ `hotel_occupancy`. Occupancy (60–75%) is a team assumption until STR or visitors-bureau data replaces it | each run |
 
 ## 4. The proposal and what it cites
@@ -109,7 +130,7 @@ or the proposal fallback was used (`is_fallback`).
 | Average visitor stay (~2.6 days) | §3 | not recorded here | Quoted as a KPI only; not a model input |
 | Business concerns (homelessness ~38%, safety ~36%, costs ~31%) | §3 | City of Ontario Business Outreach Survey | Quoted in Background only |
 | FY2026–27 General Fund: ~$216.3M sales tax, ~$18.5M hotel tax | §1 | City of Ontario FY2026–27 budget | **Confirmed** against the budget book (`city_budget_revenue.csv`): $216,255,543 and $18,500,000 |
-| Transit pilot cost (~$154 per vehicle-hour) | §6 | Omnitrans FY2026 fixed-route plan | Folded into `cost_R2` |
+| Transit pilot cost (~$154 per vehicle-hour) | §6 | Omnitrans FY2026 fixed-route plan | Total for `cost_R2_circulator` |
 | City cost per recommendation; $500K Year 1 cap | §6 | Proposal budget | `impact_assumptions.csv`, status `proposal` |
 | Phases (0–6, 6–18, 18–36 months, 3–10 years) | §5 | Proposal | `impact_phases.csv` |
 
@@ -132,6 +153,18 @@ citation. Fill these in from the proposal's own reference list.
 Written content in `docs/` and the README is the team's own. The README layout follows
 [Best-README-Template](https://github.com/othneildrew/Best-README-Template). Software dependencies and
 their exact versions are in `pyproject.toml`, `uv.lock`, `package.json` and `pnpm-lock.yaml`.
+
+## 6. What is reported, and what isn't
+
+The model reports a result only when every input behind it has a source (`official`, `published` or `proposal`).
+
+- **Reported:** the status-quo forecasts (fitted to State Controller data and tested on years the model hadn't
+  seen) and the **break-even targets** in `outputs/tables/impact_break_even_targets.csv`, which use only official
+  tax rates, actual tax revenue and the proposal's stated costs.
+- **Not reported:** projected returns per dollar, net fiscal impact, residents added and similar simulated
+  results. Each depends on inputs that are still team estimates. `outputs/tables/impact_evidence_gaps.csv` lists
+  every one, by recommendation, with where to source it. Once a recommendation's list is empty, the model reports
+  its projected return automatically.
 
 ## Open items
 

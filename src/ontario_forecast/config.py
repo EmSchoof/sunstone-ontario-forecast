@@ -75,14 +75,19 @@ FORECAST_TARGETS = {
         "growth": "dlog_tot_real",
         "level_real": "tot_revenue_real",
         "level": "tot_revenue",
-        "label": "Transient Occupancy Tax (hotel tax)",
+        "label": "hotel tax",
+        "source": "CA State Controller city revenues (Transient Occupancy / Transient Lodging Tax).",
         "budget_metric": "tot_fy27_budget",
     },
     "sales_tax": {
         "growth": "dlog_sales_tax_real",
         "level_real": "sales_tax_total_real",
         "level": "sales_tax_total",
-        "label": "Sales & use tax",
+        "label": "sales tax, excluding Measure Q",
+        "source": (
+            "CA State Controller city revenues (Bradley-Burns sales tax incl. in-lieu payments, FY2005-16); "
+            "excludes Measure Q and Prop 172."
+        ),
         # Bradley-Burns part of the budget only: the forecast series excludes Measure Q / Prop 172
         "budget_metric": "sales_tax_bradley_burns_fy27_budget",
     },
@@ -148,6 +153,9 @@ IMPACT_WINDOWS = {"Short term (FY27-29)": (2027, 2029), "Long term (FY30-36)": (
 # in present value. The short/long windows above only show how returns mature.
 IMPACT_ROI_WINDOW = ("Whole program (FY27-36)", (2027, 2036))
 IMPACT_SIMS = 20_000
+# Recommendations in the current proposal draft (headline and "All recommendations").
+# R4 and the R1->R4 link are still simulated and reported separately as a possible later phase.
+IMPACT_RECS = ("R1", "R2", "R3")
 
 # Baseline model selection (analysis/02): a model replaces "same as last year" only if it
 # cuts the out-of-sample error by at least this share, with AND without the COVID years.

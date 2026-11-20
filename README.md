@@ -42,17 +42,16 @@
   </ol>
 </details>
 
-## The four recommendations
+## The recommendations
 
 | Code | Recommendation | In one sentence |
 |---|---|---|
 | **R1** | Career Pathways & Employer Consortium | Connect students to paid internships with Ontario employers so more residents live *and* work here |
-| **R2** | Connected Destination (Stay +1) | Turn visitors who already come for the airport, games and shopping into overnight guests |
+| **R2** | Connected Destination Economy | Visitor marketing, Stay +1 packages and an evening circulator, so visitors who already come for the airport, games and shopping stay longer |
 | **R3** | Clean, Safe & Green Districts | Make Downtown feel safe and lively in the evening so people stay and spend |
-| **R4** | International & employer attraction | Use ONT's Taiwan/Mexico flights and the trade zone to attract and keep employers |
-| **R1→R4** | The link between them | A ready local workforce (R1) makes employers easier to attract (R4) |
+| *R4* | *International & employer attraction* | *Not in the current proposal; kept in the model as a possible later phase* |
 
-[![How each recommendation builds Ontario's fiscal base](outputs/charts/impact_pathways.png)](docs/conclusions.md)
+[![What each recommendation must achieve to pay for itself](outputs/charts/impact_break_even.png)](docs/conclusions.md#2-what-each-recommendation-must-achieve-to-pay-for-itself)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -107,40 +106,36 @@ for each recommendation.
 
 ## 4. What we found
 
-> **Preliminary.** Many of the model's estimates are still team placeholders waiting for an official source.
-> Which recommendations come out ahead is already meaningful; the exact dollar amounts will change.
+> **What's reported here.** Only results built from sourced data: the status-quo forecasts and the break-even
+> targets. No projected return is reported for any recommendation yet, because each still depends on inputs that
+> are team estimates; the [Conclusions](docs/conclusions.md#4-what-the-model-cant-estimate-yet-and-what-would-let-it)
+> list them and who holds the data.
 
-**Bottom line:** the plan is affordable: about **$348K** of City money in Year 1, under the **$500K** cap. In
-tax revenue alone it doesn't pay for itself: about **63¢ comes back for every $1** the City spends over the
-whole program. Its strongest case is more residents in good local jobs, with partners sharing the cost.
+**Bottom line:** each recommendation has a clear test the City can measure, but Year 1 only fits the $500K cap if
+partners pay a stated share.
 
-| | What the model says | Tax revenue back per $1 (2027–36) | Chance it pays for itself |
+| | Program cost per year (proposal) | Pays for itself in City tax when it adds… | Per $100K of City money |
 |---|---|---|---|
-| **R1** Career Pathways | Builds the workforce; brings in little tax directly | 13¢ | ~0% |
-| **R2** Stay +1 | Returns about a third of its cost; breaking even needs far more visitors to take the offer than assumed | 37¢ | 1% |
-| **R3** Clean, Safe & Green | **Pays for itself** in the likely case, but rests on two unsourced Downtown estimates | **$1.36** | 68% |
-| **R4** Employers (+ R1→R4) | About break-even; 38¢ once Career Pathways' cost is counted with it | 96¢ | 48% |
-| **All together** | | 63¢ | 8% |
-
-[![Tax revenue returned per $1 of City money](outputs/charts/impact_roi.png)](docs/conclusions.md#3-cost-and-return-on-investment)
+| **R1** Career Pathways | $75K–$150K | Not a tax-revenue program: judge it on placements, wages and retention | — |
+| **R2** Connected Destination | $290K–$475K | $290K–$475K more hotel tax a year (1.7%–2.8% more than FY2025) | $100K of hotel tax |
+| **R3** Clean, Safe & Green | $350K–$550K | $17.5M–$27.5M of net new Downtown taxable sales a year | $5M of new sales |
 
 **Also worth knowing:**
-- **About 117 more residents working in Ontario by 2036**, and about 145 more people living here.
-- **The airport is the most valuable venue** for Stay +1: it brings the most visitors who could stay another night.
-- **The City's FY27 hotel-tax budget ($18.5M) looks optimistic.** Without new programs, it's higher than 63%
-  of the likely outcomes.
+- **Year 1 program cost is $715K–$1.175M** at the draft's own figures, so partners would need to cover at least
+  $215K to stay under the cap. The draft's budget table and program descriptions also don't match yet.
+- **The City is already studying a circulator.** A $120K Internal Circulator Planning Study is due December 2026;
+  starting the circulator after it reports takes $190K–$225K out of Year 1.
+- **The City's FY27 hotel-tax budget ($18.5M) looks optimistic.** Without new programs, it's higher than 63% of the
+  likely outcomes.
 - **The sales-tax numbers reconcile.** The City's $216.3M includes Measure Q ($64.3M) and Prop 172; the State
-  Controller's $139M is the original 1% only. The model's FY27 estimate for that part ($147.4M) is close to the
-  City's budget ($148.8M).
+  Controller's $139M is the original 1% only. The forecast for that part ($147.4M in FY27) is close to the City's
+  budget ($148.8M).
 
 **What we recommend:**
-1. **Lead with Downtown (R3)**, the strongest fiscal case, and **run Career Pathways (R1) lean** with employers
-   funding most of it.
-2. **Restructure Stay +1 before funding it:** cut the City's share to about $84K a year, with hotels and venues
-   covering the rest, and run it as a measured pilot. At the budgeted cost it would need more than 5% of
-   overnight visitors to add a night.
-3. **Replace the team's estimates with real data first**, starting with Downtown sales and Stay +1 uptake.
-   The Downtown result depends on them.
+1. **State the City's share of each program** and get partner commitments, so Year 1 fits the cap.
+2. **Get Downtown's taxable sales** from the City's sales-tax consultant, to show whether R3's target is realistic.
+3. **Start the circulator after the City's study reports,** and treat Stay +1 as a measured pilot.
+4. **Frame Career Pathways as a workforce investment,** judged on placements and wages.
 
 **Learn more:** [Conclusions](docs/conclusions.md) ([PDF](outputs/docs/conclusions.pdf)) has every chart and
 number, how each recommendation's success would be measured, and what drives the result.

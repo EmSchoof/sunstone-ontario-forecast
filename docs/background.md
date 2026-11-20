@@ -28,8 +28,11 @@ Ontario does not lack economic activity. It has:
 
 Yet that activity isn't staying local:
 
-- **Residents and jobs are disconnected.** Only ~15.5% of working residents (12,377 of 79,826) work in
-  Ontario, while ~123,552 workers commute in.
+- **Few residents work locally.** Only ~15.5% of working residents (12,377 of 79,826) work in Ontario, while
+  ~123,552 workers commute in. The figure shows the scale of the mismatch, not its cause: the kinds of jobs
+  here, wages, housing costs, where other household members work and commuting preferences can all play a
+  part. Scale matters too: a one-point rise in the share needs about 800 more residents working locally (1% of
+  79,826).
 - **Visitors pass through.** Major destinations are miles apart, and the average stay is ~2.6 days.
 - **The business climate has frictions.** In the City's Business Outreach Survey, firms cited
   homelessness (~38%), safety (~36%), rising costs (~31%), and traffic and permitting (~21% each).

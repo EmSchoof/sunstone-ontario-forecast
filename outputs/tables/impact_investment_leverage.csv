@@ -1,9 +1,0 @@
-investment,recommendations,dashboard_kpi,note,p10,p50,p90
-Ontario International Airport (ONT),R2;R4;SYN,Hotel tax; average visitor stay; international partner firms,,418370.5699446959,760650.7230060382,1358831.0630235686
-Ontario Sports Empire,R2,Hotel nights; cross-district visitor rate,,86694.61519099474,174808.61366786505,319397.58636293176
-Toyota Arena / Capital City,R2;R3,Evening foot traffic; circulator ridership,,32025.386021541864,67191.07082564355,127592.95636243609
-Ontario Mills,R2,Taxable sales; cross-district visitor rate,,85910.07994807062,188598.7954833812,369484.5562352622
-Ontario Convention Center,R2,Hotel nights; average visitor stay,add annual visitors to anchor_visitors.csv,,,
-Downtown Ontario (18-hour district),R3;R2,Taxable sales in pilot district; perceived safety,,505048.02350687835,1267328.461355249,2478298.540435797
-Ontario Ranch (new housing),R1;R4;SYN,Ontario residents working in Ontario; new resident households,,58705.570969615634,112392.08070727235,206296.78439665926
-West Valley Connector (BRT),R2;R1,Shuttle/BRT ridership; residents working in Ontario,enabling infrastructure,,,

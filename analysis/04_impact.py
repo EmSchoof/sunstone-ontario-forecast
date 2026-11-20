@@ -92,6 +92,8 @@ FOOT = (
     "multiplier effects, program effects on the anchors themselves (conservative)."
 )
 
+pages = []
+
 # Sanity check on the TOT inputs: implied room-nights vs. actual hotel tax
 implied_nights = P["tot_revenue_real"][-1] / (A["tot_rate"].mode * A["adr"].mode)
 base_parties = impact.stay1_base_parties(A, anchors)
@@ -105,6 +107,145 @@ print(
     "At a 2-night average stay, a share above 50% means the anchor inputs claim every hotel "
     "room in the city: lower the visitor counts, overnight shares or dedup factor."
 )
+
+# %% [markdown]
+# ## 2. What is known: break-even targets, and what blocks an estimate
+# Results are reported only when built from sourced inputs. Break-even targets use official tax
+# rates, actual tax revenue and the proposal's stated costs only. A projected return for a
+# recommendation is reported only once every input behind it has a source; until then the
+# script stops here rather than publish numbers built on guesses.
+
+# %%
+write_csv(
+    [
+        {
+            "key": k,
+            "recommendation": a.recommendation,
+            "description": a.description,
+            "low": a.low,
+            "mode": a.mode,
+            "high": a.high,
+            "unit": a.unit,
+            "status": a.status,
+            "source": a.source,
+        }
+        for k, a in A.items()
+    ]
+    + [
+        {
+            "key": an.overnight.key,
+            "recommendation": "R2",
+            "description": f"{an.name} overnight share",
+            "low": an.overnight.low,
+            "mode": an.overnight.mode,
+            "high": an.overnight.high,
+            "unit": "share",
+            "status": an.overnight.status,
+            "source": an.source,
+        }
+        for an in anchors
+    ],
+    config.TABLES_DIR / "impact_inputs_used.csv",
+)
+
+gaps = impact.evidence_gaps(A, anchors, config.IMPACT_RECS)
+write_csv(gaps, config.TABLES_DIR / "impact_evidence_gaps.csv")
+blocked = {r: [g["label"] for g in gaps if g["recommendation"] == NAMES[r]] for r in config.IMPACT_RECS}
+
+tot_fy, st_fy = float(P["tot_revenue"][-1]), float(P["sales_tax_total"][-1])
+targets = impact.break_even_targets(A, tot_fy, st_fy)
+write_csv(targets, config.TABLES_DIR / "impact_break_even_targets.csv")
+# "\\$" keeps matplotlib from reading a pair of dollar signs as math; prints strip it.
+kd = lambda v: f"\\${v / 1e3:,.0f}K" if v < 1e6 else f"\\${v / 1e6:,.1f}M"  # noqa: E731
+rng_ = lambda lo, hi: f"{kd(lo)}–{kd(hi)}"  # noqa: E731
+yr1_lo, yr1_hi = impact.program_cost_range(
+    A, [r for r in config.IMPACT_RECS if phases[r][0] == min(s_ for s_, _, _ in phases.values())]
+)
+yr1_text = f"Year 1 program cost (City + partners, proposal ranges): {rng_(yr1_lo, yr1_hi)}"
+print(f"{yr1_text} vs the $500K City cap".replace("\\$", "$"))
+for t in targets:
+    print(
+        f"  {t['recommendation'][:30]}: {rng_(t['value_low'], t['value_high'])} {t['break_even']} "
+        f"({t['share_low']:.2%}–{t['share_high']:.2%} of {t['compared_with']})".replace("\\$", "$")
+    )
+
+by_rec = {t["recommendation"]: [] for t in targets}
+for t in targets:
+    by_rec[t["recommendation"]].append(t)
+c1 = impact.cost_range(A, "R1")
+mk = (A["cost_R2_marketing"].low, A["cost_R2_marketing"].high)
+ci = (A["cost_R2_circulator"].low, A["cost_R2_circulator"].high)
+c2 = impact.cost_range(A, "R2")
+c3 = impact.cost_range(A, "R3")
+tax, room = by_rec[NAMES["R2"]]
+(sales,) = by_rec[NAMES["R3"]]
+pages.append(
+    (
+        "impact_break_even",
+        pathway_chart(
+            [
+                {
+                    "rec": "R1",
+                    "name": NAMES["R1"],
+                    "chain": f"{rng_(*c1)} a year: staffing and coordination",
+                    "kpi": "Not a tax-revenue program: judge it on placements, wages and retention",
+                    "short": "—",
+                    "long": "—",
+                },
+                {
+                    "rec": "R2",
+                    "name": NAMES["R2"],
+                    "chain": (
+                        f"{rng_(*c2)} a year: marketing and packages {rng_(*mk)} "
+                        f"+ evening circulator {rng_(*ci)}"
+                    ),
+                    "kpi": (
+                        f"{rng_(tax['value_low'], tax['value_high'])} more hotel tax a year "
+                        f"({rng_(room['value_low'], room['value_high'])} more room revenue)"
+                    ),
+                    "short": f"{kd(tax['per_100k_city'])} hotel tax",
+                    "long": f"{tax['share_low']:.1%}–{tax['share_high']:.1%} of hotel tax",
+                },
+                {
+                    "rec": "R3",
+                    "name": NAMES["R3"],
+                    "chain": f"{rng_(*c3)} a year: ambassador pilot",
+                    "kpi": f"{rng_(sales['value_low'], sales['value_high'])} of net new Downtown sales/yr",
+                    "short": f"{kd(sales['per_100k_city'])} new sales",
+                    "long": "Needs Downtown's sales base (City's sales-tax consultant)",
+                },
+            ],
+            (
+                "Recommendation",
+                "Program cost per year\n(proposal, City + partners)",
+                "Pays for itself in City\ntax when it adds…",
+                "Per \\$100K of\nCity money",
+                "Share of today's\ncitywide base",
+            ),
+            title="What each recommendation must achieve to pay for itself",
+            subtitle=(
+                "Built only from official tax rates, actual tax revenue and the proposal's stated costs. "
+                "The draft doesn't split costs between the City and partners yet; the per-\\$100K column "
+                "scales to any City share."
+            ),
+            source=(
+                f"CA State Controller FY{base_fy} (hotel tax {kd(tot_fy)}; Bradley-Burns sales tax "
+                f"{kd(st_fy)}); City FY2026-27 budget book (11.75% hotel tax; 1% Bradley-Burns + 1% "
+                f"Measure Q, allocation to confirm). Year 1 program cost {rng_(yr1_lo, yr1_hi)} vs the "
+                "\\$500K City cap. Projected returns not shown: they need inputs not yet sourced "
+                "(impact_evidence_gaps.csv)."
+            ),
+        ),
+    )
+)
+
+if any(blocked.values()):
+    for r, labels in blocked.items():
+        print(
+            f"{NAMES[r]}: no projected return reported; {len(labels)} unsourced input(s): {', '.join(labels)}"
+        )
+    export_figures(pages, config.CHARTS_DIR, suffix="", pdf_name="impact.pdf")
+    sys.exit(0)
 
 # %% [markdown]
 # ## 2. Status-quo baselines and the simulated increments
@@ -124,7 +265,11 @@ def baseline_real(key: str) -> np.ndarray:
 
 
 base_tot, base_st = baseline_real("tot"), baseline_real("sales_tax")
-res = impact.simulate(A, phases, anchors, years, N, rng, baseline_sales_tax=base_st)
+res = impact.simulate(
+    A, phases, anchors, years, N, rng, baseline_sales_tax=base_st, included=config.IMPACT_RECS
+)
+SHOWN = {r: NAMES[r] for r in res.included}  # what the charts show
+ALL_NAME = f"All recommendations ({', '.join(res.included)})"
 
 # %% [markdown]
 # ## 3. Short- vs long-term results per recommendation
@@ -136,7 +281,7 @@ for wname, (a, b) in WINDOWS.items():
         r = None if rec == "ALL" else rec
         p10, p50, p90 = impact.quantiles(impact.window_sum(res.net(r), years, a, b), Q)
         window_rows.append({"rec": rec, "window": wname, "p10": p10, "p50": p50, "p90": p90})
-        recs_here = [r] if r else impact.RECS
+        recs_here = [r] if r else res.included
         measures = {"net_fiscal": res.net(r), "city_cost": sum(res.cost[x] for x in recs_here)}
         measures.update({f"gross_{c}": res.gross(r, c) for c in impact.CHANNELS})
         for m, x in measures.items():
@@ -144,7 +289,7 @@ for wname, (a, b) in WINDOWS.items():
             summary.append(
                 {
                     "window": wname,
-                    "recommendation": NAMES.get(rec, "All recommendations"),
+                    "recommendation": NAMES.get(rec, ALL_NAME),
                     "measure": m,
                     "p10": round(lo),
                     "p50": round(mid),
@@ -176,7 +321,6 @@ for m, x in (("added_residents_working_in_ontario", res.workers()), ("added_resi
         }
     )
 
-pages = []
 
 # %% [markdown]
 # ## 4. Charts
@@ -217,7 +361,7 @@ CHAIN = {
 KPI = {
     "R1": f"Residents working in Ontario{lw_text}; internship-to-job conversion; starting wage",
     "R2": "Average visitor stay (2.6 days); hotel tax; cross-district visits",
-    "R3": "Evening foot traffic; perceived safety; district taxable sales",
+    "R3": "Perceived safety; repeat problem locations; evening foot traffic; district taxable sales",
     "R4": "International partner firms; employer retention; private investment",
     "SYN": "Firms citing the workforce pipeline; pathway hires at attracted firms",
 }
@@ -235,7 +379,7 @@ pages.append(
                     "short": cell(r, wn[0]),
                     "long": cell(r, wn[1]),
                 }
-                for r in impact.RECS
+                for r in res.included
             ],
             (
                 "Recommendation",
@@ -260,8 +404,8 @@ pages.append(
         "impact_annual_net",
         recommendation_lines_chart(
             years,
-            {r: np.median(res.net(r), axis=0) for r in impact.RECS},
-            NAMES,
+            {r: np.median(res.net(r), axis=0) for r in res.included},
+            SHOWN,
             res.net(),
             title="Annual net fiscal impact by recommendation",
             subtitle=(
@@ -283,7 +427,7 @@ pages.append(
         window_bars_chart(
             window_rows,
             wn,
-            {**NAMES, "ALL": "All recommendations"},
+            {**SHOWN, "ALL": ALL_NAME},
             title="Short-term vs long-term net fiscal impact",
             subtitle="Median cumulative net (bar) and P10-P90 range (line), real dollars, after City cost.",
             source=FOOT,
@@ -422,29 +566,32 @@ for wname, (a, b) in roi_windows.items():
     roi += [{"window": wname, **r} for r in impact.benefit_cost(res, a, b, Q, discount_from=launch)]
 yr1 = impact.first_year_city_cost(res, launch, Q)
 print(f"Year 1 City cost: {usd(yr1[1])} (P10-P90 {usd(yr1[0])}-{usd(yr1[2])}) vs the $500K cap")
-for r in roi[: len(impact.ROI_GROUPS)]:
+groups = impact.roi_groups(res.included)
+for r in roi[: len(groups)]:
     print(
         f"  {r['window']}  {r['group']:36s} ${r['bcr_p50']:.2f} per $1 "
         f"(P10-P90 ${r['bcr_p10']:.2f}-${r['bcr_p90']:.2f}); pays for itself in "
-        f"{r['prob_pays_for_itself']:.0%} of simulations"
+        f"{r['share_sims_break_even']:.0%} of simulations"
     )
-code = {g: c for g, c in zip(impact.ROI_GROUPS, ("R1", "R2", "R3", "R4", "R1+R4", "ALL"), strict=True)}
+# Chart only the groups in the proposal; R4 rows stay in impact_roi.csv.
+charted = {c: label for label, c, recs in groups if set(recs) <= set(res.included)}
 pages.append(
     (
         "impact_roi",
         window_bars_chart(
             [
                 {
-                    "rec": code[r["group"]],
+                    "rec": r["code"],
                     "window": r["window"],
                     "p10": r["bcr_p10"],
                     "p50": r["bcr_p50"],
                     "p90": r["bcr_p90"],
                 }
                 for r in roi
+                if r["code"] in charted
             ],
             list(roi_windows),
-            {code[g]: g for g in impact.ROI_GROUPS},
+            charted,
             title="Tax revenue returned per $1 of City money",
             subtitle=(
                 "Median (bar) and P10-P90 (line), present value. Right of the $1 line, a "
@@ -477,37 +624,6 @@ write_csv(
         )
     ],
     config.TABLES_DIR / "impact_stay1_by_anchor.csv",
-)
-write_csv(
-    [
-        {
-            "key": k,
-            "recommendation": a.recommendation,
-            "description": a.description,
-            "low": a.low,
-            "mode": a.mode,
-            "high": a.high,
-            "unit": a.unit,
-            "status": a.status,
-            "source": a.source,
-        }
-        for k, a in A.items()
-    ]
-    + [
-        {
-            "key": an.overnight.key,
-            "recommendation": "R2",
-            "description": f"{an.name} overnight share",
-            "low": an.overnight.low,
-            "mode": an.overnight.mode,
-            "high": an.overnight.high,
-            "unit": "share",
-            "status": an.overnight.status,
-            "source": an.source,
-        }
-        for an in anchors
-    ],
-    config.TABLES_DIR / "impact_inputs_used.csv",
 )
 write_csv(
     [

@@ -165,7 +165,21 @@ Notation: $r_t$ = phase ramp, $S(x)_t = S_{t-1}(1-a) + x_t$ = a cumulative total
 **City sales-tax rate $\tau$.** Spending made in person in Ontario (visitors, Downtown, residents) earns the
 City **2%**: the 1% Bradley-Burns share plus the 1% Measure Q transactions and use tax. Business-to-business
 sales of attracted firms earn **1%** (Bradley-Burns only), because Measure Q follows the delivery address,
-which is usually outside the city.
+which is usually outside the city. **This allocation needs confirming with City Finance or its sales-tax
+consultant:** local sales and use tax can depend on where a sale is sourced, delivery, use-tax rules and how a
+transaction is structured.
+
+**What gets reported.** A recommendation's simulated result (return per dollar, net impact, residents added) is
+reported only when every input behind it has a source (`official`, `published` or `proposal`).
+`impact.evidence_gaps` lists what's missing; while anything is, `04_impact.py` stops after writing the break-even
+targets and the gap list. The formulas below are kept so the estimates can be produced once the inputs exist.
+
+**Break-even targets** (`impact.break_even_targets`) use only official tax rates, actual tax revenue and the
+proposal's stated cost ranges (low and high, never a midpoint):
+- **R2:** added hotel tax needed = program cost, so added room revenue = cost ÷ 11.75%.
+- **R3:** net new in-person taxable sales needed = program cost ÷ 2% (1% Bradley-Burns + 1% Measure Q).
+- Both scale linearly with the City's share: per $100K of City money, R2 needs $100K of hotel tax and R3 needs $5M
+  of net new sales.
 
 #### R1 Career Pathways
 
@@ -195,11 +209,11 @@ $V_k$ = inbound visitor trips (for ONT, half the passenger count: airports count
 *p* = people per room, *u* = Stay +1 uptake, $\alpha_2$ = share of extra nights that wouldn't have happened anyway.
 
 - **Hotel tax:** nights × average room rate × TOT rate.
-- **Room rate:** derived, not guessed. Hotel tax ÷ 11.75% gives citywide room revenue; dividing by the City's
+- **Room rate:** an implied rate, derived rather than guessed (not an observed rate). Hotel tax ÷ 11.75% gives citywide room revenue; dividing by the City's
   5,670 rooms × 365 nights gives revenue per available room-night; dividing by occupancy (60–75%, a team
   assumption) gives the average rate. This guarantees the rate is consistent with the hotel tax actually collected.
 - **Sales tax:** nights × *p* × daily visitor spending × $\tau$.
-- **Leverage by investment:** revenue is reported per anchor (`impact_stay1_by_anchor.csv`).
+- **Leverage by investment:** revenue per anchor (`impact_stay1_by_anchor.csv`), once the inputs are sourced.
 - **Sanity check:** the overnight parties this chain implies are compared with the room-nights implied by
   actual hotel tax (`04_impact.py` prints both). The anchors can't fill more rooms than the city sold.
 - **Success metric:** hotel tax with vs without Stay +1, and average stay.
@@ -243,10 +257,13 @@ For each recommendation (R4 grouped with the R1→R4 synergy, which has no cost 
   group with both costs.
 - **Break-even annual City cost:** gross ÷ years the program has cost. This is the most the City could
   contribute each year and still be repaid by the program's own tax revenue.
-- **Probability it pays for itself:** share of simulations where gross ≥ cost.
+- **Simulations that break even:** share of simulations where gross revenue ≥ cost. The simulations are
+  built from triangular input ranges that are mostly team estimates, so this describes the model, not an
+  estimated real-world probability.
 - **Year 1 City cost:** checked against the proposal's $500K cap.
 
-Output: `impact_roi.csv` and the `impact_roi` chart.
+Output: `impact_roi.csv` and the `impact_roi` chart, produced only once the inputs above are sourced. Until then
+the outputs are `impact_break_even_targets.csv`, `impact_evidence_gaps.csv` and the `impact_break_even` chart.
 
 ### B7. Known limitations
 

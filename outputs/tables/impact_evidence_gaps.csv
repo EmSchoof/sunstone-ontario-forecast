@@ -1,0 +1,27 @@
+recommendation,input,label,status,where_to_source
+R1 Career Pathways,r1_resident_share,Pathway hires who live in Ontario,assumption,TEAM ASSUMPTION - program recruits Ontario residents first
+R1 Career Pathways,r1_additionality,Pathway hires that are truly extra,assumption,TEAM ASSUMPTION - removes deadweight (hires that happen anyway)
+R1 Career Pathways,worker_attrition,Placed workers who leave each year,assumption,TEAM ASSUMPTION - source from BLS JOLTS separations rate
+R1 Career Pathways,taxable_spend_share,Income spent on taxable goods,assumption,TEAM ASSUMPTION - source from BLS Consumer Expenditure Survey (West region)
+R1 Career Pathways,local_capture,Resident spending kept in Ontario,assumption,TEAM ASSUMPTION - source from CDTFA/retail leakage study
+R1 Career Pathways,stayer_spending_gain,New local spending by staying residents,assumption,TEAM ASSUMPTION - counterfactual: these residents already spent in Ontario; source from wage gain at placement
+R1 Career Pathways,retained_resident_share,Placed workers who are new residents,assumption,TEAM ASSUMPTION - track via participant address at hire and at 1/3/5 years
+R1 Career Pathways,city_property_tax_per_household,City property tax per household,assumption,TEAM ASSUMPTION - VERIFY from City budget property tax / housing units (Ontario Ranch new homes skew higher)
+R1 Career Pathways,nonworker_spend_per_resident,Spending per other household member,assumption,TEAM ASSUMPTION - source from BLS Consumer Expenditure Survey
+R1 Career Pathways,discount_rate,Real discount rate,assumption,TEAM ASSUMPTION - OMB Circular A-4 uses 2% (2023) and 3% (2003) real; confirm the rate City Finance uses
+R2 Connected Destination,visitor_growth,Annual growth in venue visits,assumption,TEAM ASSUMPTION - replace with ONT traffic trend once data/reference/ont_airport_passengers.csv is filled
+R2 Connected Destination,dedup_factor,Venue visits that are unique trips,assumption,TEAM ASSUMPTION - Stay +1 data collection (Phase 1) measures cross-visitation
+R2 Connected Destination,stay1_uptake,Stay +1 uptake (share of overnight parties),assumption,TEAM ASSUMPTION - package uptake; measured in Phase 1
+R2 Connected Destination,persons_per_room,Visitors per room-night,assumption,TEAM ASSUMPTION - sports/event families skew higher
+R2 Connected Destination,hotel_occupancy,Hotel occupancy,assumption,TEAM ASSUMPTION - source from STR or Greater Ontario CVB
+R2 Connected Destination,visitor_daily_taxable_spend,Visitor spending per extra day,assumption,TEAM ASSUMPTION - source from Visit California / Dean Runyan county visitor spending
+R2 Connected Destination,r2_additionality,Stay +1 nights that are truly extra,assumption,TEAM ASSUMPTION - removes visitors who would have extended anyway
+R2 Connected Destination,discount_rate,Real discount rate,assumption,TEAM ASSUMPTION - OMB Circular A-4 uses 2% (2023) and 3% (2003) real; confirm the rate City Finance uses
+R2 Connected Destination,overnight_Ontario International Airport,Ontario International Airport overnight share,assumption,"Ontario International Airport Authority: 7,084,796 total passengers in CY2024 (FAA: 3,494,554 enplanements, confirming about half are departures). Overnight share = arriving visitors staying in Ontario, TEAM ASSUMPTION. arrival_share 0.5: passengers count each traveler on arrival and departure"
+R2 Connected Destination,overnight_Ontario Mills,Ontario Mills overnight share,assumption,Proposal Sec. 3 (~12M visits); overnight share TEAM ASSUMPTION (mostly day trips)
+R2 Connected Destination,overnight_Toyota Arena,Toyota Arena overnight share,assumption,Proposal Sec. 3 (~1.2M guests); overnight share TEAM ASSUMPTION
+R2 Connected Destination,overnight_Ontario Sports Empire,Ontario Sports Empire overnight share,assumption,"Proposal Sec. 3 (City projection ~1.2M); tournaments drive overnight stays, TEAM ASSUMPTION"
+"R3 Clean, Safe & Green",downtown_share_of_sales,Downtown share of citywide sales,assumption,TEAM ASSUMPTION - source from CDTFA/HdL district sales data
+"R3 Clean, Safe & Green",district_sales_uplift,Downtown sales uplift from R3,assumption,TEAM ASSUMPTION - source from BID ambassador program evaluations
+"R3 Clean, Safe & Green",r3_additionality,Downtown uplift not shifted from elsewhere,assumption,TEAM ASSUMPTION - some spending shifts from other Ontario districts
+"R3 Clean, Safe & Green",discount_rate,Real discount rate,assumption,TEAM ASSUMPTION - OMB Circular A-4 uses 2% (2023) and 3% (2003) real; confirm the rate City Finance uses
