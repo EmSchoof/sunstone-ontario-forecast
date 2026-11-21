@@ -44,8 +44,8 @@ PARAMS = {
     ),
     # Proposal figures: FALLBACKS / comparison columns only (see marts.headline_metrics).
     "proposal_benchmarks": (
-        "metric varchar, period integer, value double",
-        [[m, p, v] for m, (p, v) in config.PROPOSAL_BENCHMARKS.items()],
+        "metric varchar, period integer, value double, source varchar",
+        [[m, p, v, src] for m, (p, v, src) in config.PROPOSAL_BENCHMARKS.items()],
     ),
     "proposal_wages": (
         "soc varchar, median_annual_wage double",

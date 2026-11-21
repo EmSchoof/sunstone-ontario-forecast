@@ -16,33 +16,37 @@ team members Danny Valencia, Haley Chavez, Emily Schoof and Nathaniel Gallardo (
 
 Ontario does not lack economic activity. It has:
 
-| Asset | Scale (as cited in the proposal) |
-|---|---|
-| Ontario International Airport (ONT) | 7M+ passengers; ~$4.8B regional output and ~24,300 jobs (2024) |
-| Ontario Mills | ~12M visits a year |
-| Toyota Arena / Capital City | ~1.2M guests a year |
-| Ontario Sports Empire | ~1.2M projected visitors a year (City projection) |
+| Asset | Scale | Source |
+|---|---|---|
+| Ontario International Airport (ONT) | 6.4M passengers in 2023; 7,084,864 in 2024 | City of Ontario, *Hospitality and tourism* (2023); ONT airport authority (2024) |
+| Ontario Mills | 28M annual visitors | City of Ontario, *Hospitality and tourism* |
+| Toyota Arena / Capital City | About 730K annual visitors and 200 events | City of Ontario, *Hospitality and tourism* |
+| Ontario Sports Empire | 1.2M visitors estimated for the Sports Empire and retail phase | City FY2026–27 budget book, p. 453 |
+| Ontario Convention Center | 354,810 visitors in FY2022–23 | City of Ontario, *Hospitality and tourism* |
 | Logistics / industrial base | One of Southern California's largest; FTZ 50; HUB@ONT tenants |
 | Housing growth | Ontario Ranch |
 | Transit | West Valley Connector (BRT) |
 
 Yet that activity isn't staying local:
 
-- **Few residents work locally.** Only ~15.5% of working residents (12,377 of 79,826) work in Ontario, while
-  ~123,552 workers commute in. The figure shows the scale of the mismatch, not its cause: the kinds of jobs
-  here, wages, housing costs, where other household members work and commuting preferences can all play a
-  part. Scale matters too: a one-point rise in the share needs about 800 more residents working locally (1% of
-  79,826).
-- **Visitors pass through.** Major destinations are miles apart, and the average stay is ~2.6 days.
+- **Few residents work locally.** In 2019, 11,107 of Ontario's 75,283 employed residents (14.8%) worked in the
+  city, and residents held 8.8% of its ~126,883 jobs (City of Ontario 2023 Local Hazard Mitigation Plan, p. 20,
+  citing Census OnTheMap). These figures show the scale of the mismatch, not its cause: the kinds of jobs here,
+  wages, housing costs, where other household members work and commuting preferences can all play a part. A
+  one-point rise in the share needs about 750 more residents working locally (1% of 75,283). Census LODES will
+  update the figures beyond 2019 once loaded.
+- **Visitors pass through.** Major destinations are miles apart. (The proposal also quotes a ~2.6-day average
+  stay and ~$4.8B in airport-related output with ~24,300 jobs in 2024; neither appears in the sources it cites, so
+  they are not used here until their original source is recorded.)
 - **The business climate has frictions.** In the City's Business Outreach Survey, firms cited
-  homelessness (~38%), safety (~36%), rising costs (~31%), and traffic and permitting (~21% each).
+  homelessness (~38%), safety (~36%), rising costs (~31%), and traffic and permitting (~21% each). The survey
+  isn't published online; these figures are as reported in the proposal.
 - **The City has a direct fiscal stake.** The FY2026–27 General Fund includes ~$216.3M in sales tax and
   ~$18.5M in Transient Occupancy Tax (hotel tax), so more hotel nights and local spending become General
   Fund revenue.
 
-> Figures in this table and list are quoted from the proposal. Where an official source exists, the
-> pipeline replaces them (see [Decisions](01_decisions.md#official-sources-first)). Two of them already
-> differ from official data and are flagged for correction (see [Conclusions](03_conclusions.md#data-reconciliation)).
+> Venue figures come from the sources the proposal cites, checked on 2026-11-20 (see [Sources](04_sources.md#4-the-proposal-and-what-it-cites)).
+> The live/work figures come from the source the proposal cites (its reference 4), also checked on 2026-11-20.
 
 ## Guiding question
 

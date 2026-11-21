@@ -54,7 +54,7 @@ is a labeled fallback only (`is_fallback` in `marts.headline_metrics`), and diff
 | Regional jobs by sector, unemployment, inflation | **BLS API** (CES, LAUS, CPI) | The primary source. FRED republishes the same series and timed out, so we went to the origin |
 | County industry pay | **BLS QCEW** | A near-census of employer payrolls; supports the career-ladder argument |
 | Occupation wages | **BLS OEWS** | Official medians for the exact pathway occupations the proposal cites |
-| Live/work flows | **Census LODES 8** | The data behind OnTheMap (the 15.5% figure), available yearly since 2002 |
+| Live/work flows | **Census LODES 8** | The data behind OnTheMap (the 14.8% figure for 2019), available yearly since 2002 |
 | Commuting, education, income | **Census ACS 5-year** | Survey cross-check with margins of error |
 | City budget, airport traffic, venue visitors, program inputs | **Team-entered CSVs** with a source column | No download API exists; each value carries a citation and a status |
 
@@ -79,7 +79,7 @@ is a labeled fallback only (`is_fallback` in `marts.headline_metrics`), and diff
 | **Classical statistics** (statsmodels/scipy) + numpy simulation | Darts, XGBoost, neural networks | Far too few observations; flexible models would fit noise |
 | **Ranges from real forecast errors** (bootstrap), **centered** | Textbook normal intervals; raw errors | Uses how wrong the model actually was on unseen years, while keeping the central path equal to the selected model's forecast |
 | Report **only results built from sourced inputs**; lead with **break-even targets** | Simulated returns from team-estimated ranges | A return per dollar built on guessed uptake and uplift isn't credible to a finance reviewer. Break-even targets use only official rates, actual revenue and the proposal's costs, and each is something the City can measure |
-| Use the proposal's **full program cost**, with no assumed City/partner split | Assume a City share (e.g. half) | The draft doesn't state the split; a targets-per-$100K column scales to whatever share is agreed |
+| Use the proposal's **full program cost**, with no assumed City/partner split | Assume a City share (e.g. half) | The proposal doesn't state the split; a targets-per-$100K column scales to whatever share is agreed |
 | Hotel-tax errors **persist from year to year** in the simulation | Independent draws every year | Past errors are strongly correlated (+0.85); independent draws made the range too narrow |
 | **Room rate derived** from hotel tax, the tax rate and room supply | A typed-in $145 | $145 implied 47% occupancy across the City's 5,670 rooms; the derived rate matches the tax actually collected |
 | City sales-tax rate of **2% on in-person spending** (Bradley-Burns + Measure Q), 1% on business-to-business sales | 1% everywhere | Measure Q (1%, approved 2022) applies to sales made or delivered in Ontario; ignoring it halves visitor, Downtown and resident sales tax |

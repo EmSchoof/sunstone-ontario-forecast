@@ -161,8 +161,11 @@ rng_ = lambda lo, hi: f"{kd(lo)}–{kd(hi)}"  # noqa: E731
 yr1_lo, yr1_hi = impact.program_cost_range(
     A, [r for r in config.IMPACT_RECS if phases[r][0] == min(s_ for s_, _, _ in phases.values())]
 )
-yr1_text = f"Year 1 program cost (City + partners, proposal ranges): {rng_(yr1_lo, yr1_hi)}"
-print(f"{yr1_text} vs the $500K City cap".replace("\\$", "$"))
+# Combined cost to the nearest $1K, as the proposal quotes it ($715K-$1.175M), not rounded to $1.2M.
+kd3 = lambda v: f"\\${v / 1e3:,.0f}K" if v < 1e6 else f"\\${v / 1e6:,.3f}M"  # noqa: E731
+combined = f"{kd3(yr1_lo)}–{kd3(yr1_hi)}"
+yr1_text = f"Combined program cost of the three recommendations (City + partners): {combined} a year"
+print(f"{yr1_text} vs the $500K Year 1 City cap".replace("\\$", "$"))
 for t in targets:
     print(
         f"  {t['recommendation'][:30]}: {rng_(t['value_low'], t['value_high'])} {t['break_even']} "
@@ -225,14 +228,14 @@ pages.append(
             title="What each recommendation must achieve to pay for itself",
             subtitle=(
                 "Built only from official tax rates, actual tax revenue and the proposal's stated costs. "
-                "The draft doesn't split costs between the City and partners yet; the per-\\$100K column "
+                "The proposal doesn't split costs between the City and partners; the per-\\$100K column "
                 "scales to any City share."
             ),
             source=(
                 f"CA State Controller FY{base_fy} (hotel tax {kd(tot_fy)}; Bradley-Burns sales tax "
                 f"{kd(st_fy)}); City FY2026-27 budget book (11.75% hotel tax; 1% Bradley-Burns + 1% "
-                f"Measure Q, allocation to confirm). Year 1 program cost {rng_(yr1_lo, yr1_hi)} vs the "
-                "\\$500K City cap. Projected returns not shown: they need inputs not yet sourced "
+                f"Measure Q, allocation to confirm). Combined program cost {combined} a year vs the "
+                "\\$500K Year 1 City cap. Projected returns not shown: they need inputs not yet sourced "
                 "(impact_evidence_gaps.csv)."
             ),
             height=4.8,  # three short rows: no need for a full-page table

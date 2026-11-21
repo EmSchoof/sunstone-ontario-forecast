@@ -159,7 +159,7 @@ official(metric, period, "value", source) as (   -- quoted: keyword in DuckDB >=
 select coalesce(o.metric, p.metric)                                         as metric,
        coalesce(o.value, p.value)                                           as value,
        coalesce(o.period, p.period)                                         as period,
-       coalesce(o.source, 'Proposal text (fallback: no official source loaded)') as source,
+       coalesce(o.source, p.source || ' (fallback: official source not loaded)') as source,
        o.value is null                                                      as is_fallback,
        p.value                                                              as proposal_value,
        case when o.value is not null and p.value is not null

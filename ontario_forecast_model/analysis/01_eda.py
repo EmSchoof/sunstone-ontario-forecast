@@ -197,10 +197,13 @@ if len(L.get("cy", [])):
     ax.legend()
     savefig("05_lodes_live_work_share")
 
-    # Which LODES year did the proposal quote? (diagnostic only; the official value wins)
-    lw = config.PROPOSAL_BENCHMARKS["live_and_work_in_ontario"][1]
-    hits = [int(y) for i, y in enumerate(L["cy"]) if abs(L["live_and_work"][i] - lw) / lw < 0.02]
-    print(f"Proposal's live&work count ({lw:,}) matches LODES year(s): {hits or 'none within 2%'}")
+    # Which LODES years match the proposal's live-and-work counts? (diagnostic only; LODES wins)
+    for label, lw in (
+        ("cited 2019 figure", config.PROPOSAL_BENCHMARKS["live_and_work_in_ontario"][1]),
+        ("executive summary's ~15.5%", config.PROPOSAL_SUMMARY_LIVE_AND_WORK),
+    ):
+        hits = [int(y) for i, y in enumerate(L["cy"]) if abs(L["live_and_work"][i] - lw) / lw < 0.02]
+        print(f"Proposal's {label} ({lw:,} live and work) matches LODES year(s): {hits or 'none within 2%'}")
 else:
     print("LODES not loaded yet (run ingest without --skip-lodes).")
 

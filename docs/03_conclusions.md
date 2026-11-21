@@ -62,32 +62,32 @@ How these are built:
   spend-per-visitor figure that isn't sourced yet. The R2 target is therefore conservative.
 - **Annual, steady-state and undiscounted.** These are yearly targets for a program running at full scale.
 
-## 3. Year 1 cost against the $500K cap
+## 3. Combined cost against the $500K Year 1 cap
 
-The draft launches all three programs in months 3–12, so their Year 1 costs add up:
+The proposal caps City spending in Year 1 at $500K and has partners cover the rest. Its program descriptions add
+up as follows:
 
 | | Low | High |
 |---|---|---|
-| Program cost, all three recommendations (from the program descriptions) | $715K | $1,175K |
-| The draft's own budget table (staffing + implementation + marketing) | $450K | $900K |
-| **City cap** | **$500K** | **$500K** |
+| Combined program cost, all three recommendations (from the program descriptions) | $715K | $1,175K |
+| The proposal's budget table (staffing + implementation + marketing) | $450K | $900K |
+| **Year 1 City cap** | **$500K** | **$500K** |
 
-- **The cap holds only if partners pay a stated share.** At the low end partners would need to cover at least
-  $215K of Year 1 cost; at the high end, $675K. The draft says costs are shared but doesn't yet say how much
-  each partner pays.
-- **The two cost figures in the draft don't match.** The ambassador pilot ($350K–$550K) and the circulator
-  ($190K–$225K) together come to $540K–$775K, more than the budget table's "program implementation" line
-  ($275K–$500K). The table and the program descriptions need reconciling.
-- **The evening transit pilot has a natural start date.** The City has already budgeted a $120K Internal Circulator
-  Planning Study, due December 2026 (budget book pp. 408, 487). Starting R2's two-bus pilot after it reports would
-  take $190K–$225K out of Year 1 and let the study set the route, cost and funding.
-- **A suggested order** that fits the cap better than launching everything in months 3–12:
-  1. **Start first, using existing staff and budgets:** R1's employer and school convening and first paid
-     internship cohort, and R2's outreach (coordinated event calendars, restaurant and hotel packages, the ONT
-     QR-code visitor guide).
-  2. **R3's Downtown ambassador pilot** once the baseline safety survey is complete and DOIA and property owners
-     have committed their share; green improvements follow only if the pilot shows results.
-  3. **R2's two-bus evening pilot** after the City's circulator study is completed in December 2026.
+- **Partners carry the difference.** At the combined program cost, partners would cover at least $215K (low end)
+  to $675K (high end) a year for City spending to stay within the cap, consistent with the proposal's cost-sharing
+  plan with DOIA, property owners, employers, hotels, venues and transit partners.
+- **The two cost views differ.** The ambassador pilot ($350K–$550K) and the evening transit pilot ($190K–$225K)
+  together come to $540K–$775K, above the budget table's "program implementation" line ($275K–$500K). The model
+  uses the program descriptions' figures, the higher of the two, so its targets are conservative.
+- **Each recommendation is assessed on its own,** with its own budget and success measures, so success in one
+  cannot mask weakness in another (as the proposal sets out).
+- **The proposal's launch order:**
+  1. **First, using existing staff and budgets:** Career Pathways (employer and school convening, the first paid
+     internship cohort) and the visitor outreach, alongside the baseline safety survey.
+  2. **The Downtown ambassador pilot,** once the baseline safety survey is complete and DOIA and property owners
+     have committed their share.
+  3. **The evening transit pilot,** after the City's Internal Circulator Planning Study is completed in December
+     2026 (budget book pp. 408, 487), so the study can set its route, cost and funding.
 
 ## 4. What the model can't estimate yet, and what would let it
 
@@ -110,15 +110,18 @@ rates (NACE national survey).
 programs raise sales. R3's fiscal case therefore can't yet be stated as an expected return, only as the
 break-even target above.
 
-## 5. How each recommendation's success should be measured
+## 5. How each recommendation's success is measured
 
-| | Success = | Measured by | Fiscal test |
+The measures below are the proposal's own (its Table 1.1 and Table 1.2), with the baseline the model can already
+supply where one exists, and each recommendation's break-even test.
+
+| | Proposal's measures | Baseline already available | Fiscal test |
 |---|---|---|---|
-| **R1** | Residents placed in higher-wage local jobs who stay | Paid placements; local hire rates; internship-to-job conversion; starting wages; six-month retention; participation across Ontario | None: a workforce and equity investment. Moving the live/work share one point takes about 800 more residents working locally (1% of the 79,826 employed residents in the proposal's figures) |
-| **R2** | Longer average visitor stays and visits to more than one district | QR-code engagement and package redemptions; boardings per service hour and cost per boarding; visits to multiple destinations; hotel tax against the status-quo range | Hotel tax up $100K for every $100K of City money |
-| **R3** | People feel safer and stay later, and Downtown sales rise rather than shift | Ambassador coverage hours and service requests resolved, the five measures below, and district taxable sales | Net new Downtown sales of $5M for every $100K of City money |
+| **R1** | Ontario jobs held by Ontario residents; internship-to-employment rate; six-month employment retention; business retention and expansion; starting wages | Residents held **8.8%** of Ontario's jobs in 2019, and 14.8% of employed residents worked in the city (2023 Local Hazard Mitigation Plan, p. 20, citing Census OnTheMap) | None: a workforce and equity investment. Moving the live/work share one point takes about 750 more residents working locally (1% of 75,283 employed residents in 2019) |
+| **R2** | Evening transit ridership (boardings per service hour, cost per boarding); QR-guide engagement and offer redemptions; visitor-reported visits to multiple destinations; changes in visitor stay | FY2026 Omnitrans fixed-route cost: $153.70 per revenue hour (Service Plan FY2026, Exhibit 10) | Hotel tax up $100K for every $100K of City money |
+| **R3** | Downtown visitor activity (pedestrian traffic, QR-guide engagement, ambassador interactions); ambassador coverage hours and service requests resolved; the baseline safety survey | Police report 105 acceptances of assistance from 380 encampment clean-ups, about 28% (budget book p. 319) | Net new Downtown sales of $5M for every $100K of City money |
 
-### Measuring safety, not just sales
+### Further safety measures the pilot could add
 
 For an entertainment district, how safe people *feel* decides whether they stay later and spend, so the pilot
 should track both actual conditions and perception:
@@ -133,7 +136,7 @@ should track both actual conditions and perception:
 
 Ambassador activity counts and outreach response time are worth reporting as contract performance, but they
 measure effort rather than results. Two design points make the measures credible:
-- **Take the baseline before launch** (the draft's 0–3 month phase).
+- **Take the baseline before launch** (the proposal's 0–3 month phase).
 - **Compare with a similar district that doesn't get the program**, so citywide trends aren't credited to R3.
   Detecting a 10-point change in perceived safety needs roughly 400 survey responses per wave (at a 50% baseline,
   80% power).
@@ -156,66 +159,70 @@ measure effort rather than results. Two design points make the measures credible
   allocated can depend on where a sale is sourced, delivery, use-tax rules and how a transaction is structured.
   The logic is reasonable, but confirm it with City Finance or its sales-tax consultant before relying on
   precise fiscal figures.
-- **Live/work 15.5%:** LODES isn't loaded yet; once it is, the EDA reports which year and job type match.
+- **Live/work 14.8% (2019): confirmed.** The City's 2023 Local Hazard Mitigation Plan (p. 20, citing Census
+  OnTheMap), which the proposal cites, gives 75,283 employed residents, 11,107 (14.8%) of them working in Ontario,
+  holding 8.8% of the city's ~126,883 jobs. The model uses these 2019 figures; the proposal's summary also quotes
+  about 15.5%. LODES will update the figures to the latest year once loaded.
   The figure shows how few working residents also work in Ontario; on its own it doesn't explain why (see
   [Background](00_background.md#the-problem)).
 
-## 7. How to strengthen the plan
-
-### Recommendation 2: A Connected Destination Economy
-- **Unbundle the cost.** Its $290K–$475K covers outreach and packages plus the evening transit pilot. Only the hotel tax from
-  added stays counts toward its target, so start with the outreach and packages and add the transit pilot once
-  the City's circulator study reports.
-- **Share the cost with those who benefit.** Hotels keep the room revenue from every added night; the City keeps
-  11.75% of it. For every $100K hotels and venues contribute, the hotel-tax target falls by $100K.
-- **Make Phase 1 a measurement.** Record redemptions, nights added and whether the guest would have stayed anyway.
-  That turns R2's unsourced inputs into data.
-
-### Recommendation 3: Clean, Safe & Green Entertainment Districts
-- **Get Downtown's taxable sales** from the City's sales-tax consultant. It shows whether $17.5M–$27.5M of net new
-  sales a year is a small or a large share of Downtown's base.
-- **State the City's share.** DOIA's Community Benefit District is funded by Downtown property and business owners,
-  lists security and case-worker services among its planned improvements, and already collects assessments from the
-  City on its own parcels (budget book p. 100). Building on that is the most direct route to a cost share.
-- **Present it as the recommendation with a measurable test**, not as the one that pays for itself.
+## 7. What to watch during implementation
 
 ### Recommendation 1: Ontario Career Pathways & Employer Consortium
-- **Frame it as strategic, not fiscal.** Its value is workforce mobility, talent retention, employer relationships
-  and higher wages. Say so explicitly, so the absence of a tax return isn't read as failure.
-- **Match the promise to the scale.** At the draft's scale it can credibly promise placements and wage gains; a
-  shift in the citywide live/work share would take hundreds of additional local workers.
-- **Get preliminary employer and college interest** before submission, to support the intern numbers.
+- **Judge it on its workforce results.** Its value is placements, wages, retention and employer relationships, as
+  the proposal's measures reflect; it isn't designed to raise tax revenue directly.
+- **Scale and the citywide share.** Each one-point rise in the live/work share needs about 750 more residents
+  working locally, so the cohort-level measures (placements, conversions, retention) are the ones that will move first.
 
-## 8. Priorities before submission
+### Recommendation 2: A Connected Destination Economy
+- **Outreach first, transit after the study.** Following the proposal's order, the outreach and packages start
+  with existing budgets, and the transit pilot follows the City's circulator study.
+- **Partner contributions lower the target.** Hotels keep the room revenue from every added night; the City keeps
+  11.75% of it. For every $100K hotels and venues contribute, the City's hotel-tax target falls by $100K.
+- **Phase 1 as measurement.** Recording redemptions, nights added and whether the guest would have stayed anyway
+  turns R2's unsourced inputs into data.
+
+### Recommendation 3: Clean, Safe & Green Entertainment Districts
+- **The City's share.** The proposal funds it from the existing Homeless Services allocation (about $4.5 million
+  in the FY2026–27 General Fund; $4,450,688 in the budget book, p. 141), alongside DOIA and property owners.
+  DOIA's Community Benefit District is funded by Downtown property and business owners and lists security and
+  case-worker services among its planned improvements. The break-even test applies to whatever share the City pays:
+  $5M of net new Downtown sales per $100K.
+- **Downtown's taxable sales** from the City's sales-tax consultant would show how large that target is relative to
+  Downtown's base.
+
+## 8. Data to collect in Phase 1 (0–3 months)
+
+The proposal's first phase establishes program budgets, baseline data and funding commitments. These are the data
+that would let the model move from break-even targets to estimated returns:
 
 | # | What to get | Who has it | What it settles |
 |---|---|---|---|
-| 1 | Downtown pilot district's taxable sales | City Finance / the City's sales-tax consultant | Whether R3's break-even target is realistic |
-| 2 | The City's share of each program's cost, and partner commitments | The proposal team, DOIA, hotels, venues | Whether Year 1 fits the $500K cap |
-| 3 | Reconciled budget table and program costs | The proposal team | The $540K–$775K vs $275K–$500K mismatch |
-| 4 | How local sales tax is allocated (the 1% + 1% treatment) | City Finance / the City's sales-tax consultant | Whether the R3 target can be relied on precisely |
-| 5 | Circulator cost and funding | The City's Internal Circulator Planning Study (December 2026); Omnitrans; SBCTA | R2's cost and timing |
-| 6 | Hotel occupancy and average room rate | The visitors bureau (GOCAL), STR or CoStar | Converts R2's target into a number of nights |
-| 7 | LODES check of the 15.5% live/work figure | This pipeline (`ingest-lodes`) | R1's baseline |
-| 8 | Preliminary employer and college interest in Career Pathways | Prospective consortium members | Whether R1's scale is realistic |
+| 1 | Downtown pilot district's taxable sales | City Finance / the City's sales-tax consultant | How large R3's break-even target is relative to Downtown's base |
+| 2 | Partner cost commitments for each program | DOIA, property owners, employers, hotels, venues, transit partners | The City's share, and so each program's City-funded target |
+| 3 | How local sales tax is allocated (the 1% + 1% treatment) | City Finance / the City's sales-tax consultant | Whether the R3 target can be relied on precisely |
+| 4 | Circulator route, cost and funding | The City's Internal Circulator Planning Study (December 2026); Omnitrans; SBCTA | R2's transit cost and timing |
+| 5 | Hotel occupancy and average room rate | The visitors bureau (GOCAL), STR or CoStar | Converts R2's target into a number of nights |
+| 6 | Baseline safety survey and Downtown foot traffic | The pilot's baseline survey; counters or ambassador logs | R3's starting point |
+| 7 | LODES load to update the live/work figures beyond 2019 | This pipeline (`ingest-lodes`) | R1's baseline |
+| 8 | Employer and college commitments to the first cohort | Consortium members | R1's first-year scale |
 
-**Repository gaps to close as well** (tracked in [Sources](04_sources.md#open-items)): fill the airport-passenger
-file, and record the original citations for the proposal's figures.
+**Repository items** are tracked in [Sources](04_sources.md#open-items).
 
 ## 9. Summary
 
 1. **If nothing changes,** hotel and sales tax stay roughly flat in real terms. The City's FY27 hotel-tax budget
    ($18.5M) is above 63% of the status-quo outcomes; its Bradley-Burns sales-tax budget ($148.8M) matches the
    forecast closely ($147.4M).
-2. **Year 1 cost exceeds the $500K cap unless partners pay a stated share.** The three programs cost $715K–$1.175M
-   in Year 1 at the draft's own figures.
+2. **Combined, the three recommendations cost $715K–$1.175M a year** against the $500K Year 1 City cap, so
+   partners carry the difference and each recommendation is assessed on its own budget and measures.
 3. **Each recommendation has a clear, measurable test.** R2 pays for itself if it adds $100K of hotel tax for every
    $100K of City money. R3 pays for itself if it adds $5M of net new Downtown sales for every $100K. R1 should be
    judged on placements and wages, not tax.
 4. **The recommendations do different jobs.** R3 has the most direct link to City revenue, R2 is a visitor-economy
    experiment that depends on partners sharing its cost, and R1 is a workforce and equity investment. Presenting
    them that way is more credible than claiming any of them will pay for itself.
-5. **No projected return is reported yet,** because the inputs it needs are team estimates. The priority list in §8
+5. **No projected return is reported yet,** because the inputs it needs are team estimates. The Phase 1 data in §8
    turns them into data; once a recommendation's inputs are sourced, the model reports its return.
 
 [← Methods](02_methods.md) · [README](../README.md)

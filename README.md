@@ -56,11 +56,13 @@
 
 ## 1. The problem
 
-Ontario already has what many cities want: an international airport (7M+ passengers a year), Ontario Mills
-(about 12M visits), Toyota Arena, the new Sports Empire, and one of Southern California's biggest job centers.
+Ontario already has what many cities want: an international airport (7.1M passengers in 2024), Ontario Mills
+(28M annual visitors), Toyota Arena (about 730K a year), the new Sports Empire, and one of Southern California's
+biggest job centers.
 But that activity doesn't stay local:
 
-- **About 1 in 6 working residents works in Ontario (15.5%).** Meanwhile more than 120,000 people commute in from elsewhere.
+- **About 1 in 7 working residents works in Ontario** (14.8% in 2019, per the City's 2023 hazard mitigation plan,
+  citing Census OnTheMap). Meanwhile about 116,000 people commute in from elsewhere.
 - **Visitors come and go.** The major attractions are miles apart, and many trips end the same day.
 - **Businesses worry** about homelessness, safety, rising costs, traffic and permitting.
 
@@ -110,8 +112,8 @@ for each recommendation.
 > are team estimates; the [Conclusions](docs/03_conclusions.md#4-what-the-model-cant-estimate-yet-and-what-would-let-it)
 > list them and who holds the data.
 
-**Bottom line:** each recommendation has a clear test the City can measure, but Year 1 only fits the $500K cap if
-partners pay a stated share.
+**Bottom line:** each recommendation has a clear test the City can measure, and the proposal's partner
+cost-sharing is what keeps Year 1 City spending within the $500K cap.
 
 | | Program cost per year (proposal) | Pays for itself in City tax when it adds… | Per $100K of City money |
 |---|---|---|---|
@@ -120,22 +122,23 @@ partners pay a stated share.
 | **R3** Clean, Safe & Green Entertainment Districts | $350K–$550K | $17.5M–$27.5M of net new Downtown taxable sales a year | $5M of new sales |
 
 **Also worth knowing:**
-- **Year 1 program cost is $715K–$1.175M** at the draft's own figures, so partners would need to cover at least
-  $215K to stay under the cap. The draft's budget table and program descriptions also don't match yet.
+- **Combined, the three recommendations cost $715K–$1.175M a year** against the $500K Year 1 City cap, so
+  partners carry the difference and each recommendation is assessed on its own budget and measures.
 - **The City is already studying a circulator.** A $120K Internal Circulator Planning Study is due December 2026;
-  starting the circulator after it reports takes $190K–$225K out of Year 1.
+  the proposal launches the evening transit pilot after it reports.
 - **The City's FY27 hotel-tax budget ($18.5M) looks optimistic.** Without new programs, it's higher than 63% of the
   likely outcomes.
 - **The sales-tax numbers reconcile.** The City's $216.3M includes Measure Q ($64.3M) and Prop 172; the State
   Controller's $139M is the original 1% only. The forecast for that part ($147.4M in FY27) is close to the City's
   budget ($148.8M).
 
-**What we recommend:**
-1. **State the City's share of each program** and get partner commitments, so Year 1 fits the cap.
-2. **Get Downtown's taxable sales** from the City's sales-tax consultant, to show whether R3's target is realistic.
-3. **Start R2's evening transit pilot after the City's circulator study reports,** and treat the hotel packages as
-   a measured pilot.
-4. **Frame Career Pathways as a workforce investment,** judged on placements and wages.
+**What the model adds to the proposal:**
+1. **A break-even test for each recommendation** (the proposal's Figure 1.2), built only from official data and
+   the proposal's own costs.
+2. **The status-quo hotel-tax forecast** (the proposal's Figure 1.1) that R2's results will be measured against.
+3. **Baselines for the proposal's measures** where data already exists, such as the 8.8% of Ontario jobs held by
+   residents in 2019.
+4. **A Phase 1 data list** that would let the model estimate returns once the pilots start reporting.
 
 **Learn more:** [Conclusions](docs/03_conclusions.md) ([PDF](outputs/docs/conclusions.pdf)) has every chart and
 number, how each recommendation's success would be measured, and what drives the result.

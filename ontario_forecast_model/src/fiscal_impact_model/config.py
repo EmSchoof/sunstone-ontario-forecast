@@ -179,12 +179,18 @@ COVID_SHOCK_FYS = (2020, 2021, 2022)
 # source (State Controller, Census, BLS, City adopted budget in data/) uses that
 # value first; see marts.headline_metrics (is_fallback flags proposal-only values).
 # metric -> (period, value); period None = not stated in the proposal.
+# metric -> (period, value, source). The live/work figures are the ones the proposal cites
+# (its reference 4), checked against the plan on 2026-11-20; inflow = 126,883 jobs - 11,107.
+LHMP_COMMUTE = "City of Ontario 2023 Local Hazard Mitigation Plan, p. 20 (Census OnTheMap, 2019)"
 PROPOSAL_BENCHMARKS = {
-    "share_residents_work_local": (None, 0.155),
-    "share_jobs_held_by_residents": (None, 0.091),
-    "live_and_work_in_ontario": (None, 12_377),
-    "employed_residents": (None, 79_826),
-    "inflow_commuters": (None, 123_552),
-    "tot_fy27_budget": (2027, 18_500_000),
-    "sales_tax_fy27_budget": (2027, 216_300_000),
+    "share_residents_work_local": (2019, 0.148, LHMP_COMMUTE),
+    "share_jobs_held_by_residents": (2019, 0.088, LHMP_COMMUTE),
+    "live_and_work_in_ontario": (2019, 11_107, LHMP_COMMUTE),
+    "employed_residents": (2019, 75_283, LHMP_COMMUTE),
+    "inflow_commuters": (2019, 115_776, LHMP_COMMUTE + "; 126,883 jobs minus 11,107 held by residents"),
+    "tot_fy27_budget": (2027, 18_500_000, "Proposal budget figure"),
+    "sales_tax_fy27_budget": (2027, 216_300_000, "Proposal budget figure"),
 }
+# The proposal's executive summary also quotes about 15.5% (12,377 of 79,826) with no source recorded.
+# Not a model input: 01_eda.py only checks which LODES year it matches once LODES is loaded.
+PROPOSAL_SUMMARY_LIVE_AND_WORK = 12_377

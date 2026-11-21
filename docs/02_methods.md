@@ -154,7 +154,7 @@ them.
 5. **Stationarity tests:** ADF and KPSS from statsmodels, used as supporting evidence because they're weak at n≈20.
 6. **COVID weight:** how much of the total variation the pandemic years account for.
 7. **Peer cities:** real hotel tax per capita, indexed.
-8. **Live/work share:** the trend, and which LODES year matches the proposal's 15.5%.
+8. **Live/work share:** the trend, and which LODES year matches the proposal's 14.8% (2019).
 9. **County pay by sector.**
 10. **OEWS wages vs the proposal, and the ACS cross-check.**
 

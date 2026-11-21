@@ -1,13 +1,13 @@
 metric,value,period,source,is_fallback,proposal_value,pct_diff_vs_proposal
-employed_residents,79826.0,,Proposal text (fallback: no official source loaded),true,79826.0,
-inflow_commuters,123552.0,,Proposal text (fallback: no official source loaded),true,123552.0,
-live_and_work_in_ontario,12377.0,,Proposal text (fallback: no official source loaded),true,12377.0,
+employed_residents,75283.0,2019,"City of Ontario 2023 Local Hazard Mitigation Plan, p. 20 (Census OnTheMap, 2019) (fallback: official source not loaded)",true,75283.0,
+inflow_commuters,115776.0,2019,"City of Ontario 2023 Local Hazard Mitigation Plan, p. 20 (Census OnTheMap, 2019); 126,883 jobs minus 11,107 held by residents (fallback: official source not loaded)",true,115776.0,
+live_and_work_in_ontario,11107.0,2019,"City of Ontario 2023 Local Hazard Mitigation Plan, p. 20 (Census OnTheMap, 2019) (fallback: official source not loaded)",true,11107.0,
 measure_q_fy27_budget,64250000.0,2027,"City of Ontario FY 2026-27 Adopted Annual Operating Budget, General Fund revenue detail, PDF p. 69 (FY 2026-27 adopted budget)",false,,
 sales_tax_actual,138813304.0,2025,CA State Controller (Bradley-Burns + in-lieu),false,,
 sales_tax_bradley_burns_fy27_budget,148791668.0,2027,"City of Ontario FY 2026-27 Adopted Annual Operating Budget, General Fund revenue detail, PDF p. 69 (FY 2026-27 adopted budget)",false,,
 sales_tax_fy27_budget,216255543.0,2027,"City of Ontario FY 2026-27 Adopted Annual Operating Budget, General Fund revenue detail, PDF p. 69",false,216300000.0,-0.00020553398058253958
 sales_tax_incl_measure_q_actual,200407966.0,2025,CA State Controller (Bradley-Burns + Measure Q; excludes Prop 172),false,,
-share_jobs_held_by_residents,0.091,,Proposal text (fallback: no official source loaded),true,0.091,
-share_residents_work_local,0.155,,Proposal text (fallback: no official source loaded),true,0.155,
+share_jobs_held_by_residents,0.088,2019,"City of Ontario 2023 Local Hazard Mitigation Plan, p. 20 (Census OnTheMap, 2019) (fallback: official source not loaded)",true,0.088,
+share_residents_work_local,0.148,2019,"City of Ontario 2023 Local Hazard Mitigation Plan, p. 20 (Census OnTheMap, 2019) (fallback: official source not loaded)",true,0.148,
 tot_fy27_budget,18500000.0,2027,"City of Ontario FY 2026-27 Adopted Annual Operating Budget, General Fund revenue detail, PDF p. 69",false,18500000.0,0.0
 tot_revenue_actual,16671971.0,2025,CA State Controller,false,,
