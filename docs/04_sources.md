@@ -98,7 +98,7 @@ City and partners, so the model uses the stated **full program cost** and doesn'
 |---|---|---|
 | `cost_R1` | $75K–$150K | Draft budget table: staffing and project management |
 | `cost_R2_marketing` | $100K–$250K | Draft budget table: technology, data, marketing and outreach. For context, Economic Development's General Fund advertising budget is $900K in FY27 (budget book PDF p. 183) |
-| `cost_R2_circulator` | $190K–$225K | Draft: 1,248 vehicle-hours at Omnitrans' $154 per vehicle revenue hour. The City's $120K Internal Circulator Planning Study, due December 2026 (PDF pp. 408, 487), should confirm cost and funding |
+| `cost_R2_circulator` | $190K–$225K | Draft: 1,248 vehicle-hours at about $154 per revenue hour. **Verified 2026-11-20:** Omnitrans *Service Plan FY2026* (May 7, 2025), Exhibit 10, PDF p. 13 projects FY2026 fixed-route operating costs of $95,293K over 620K revenue hours = $153.70 per revenue hour (calculated; the plan doesn't print a per-hour figure). The City's $120K Internal Circulator Planning Study, due December 2026 (PDF pp. 408, 487), should confirm cost and funding |
 | `cost_R3` | $350K–$550K | Draft: small supervised Downtown pilot. DOIA already funds a maintenance ambassador program from its property assessment ([City page](https://ontarioca.gov/node/22583)); the City pays DOIA assessments on its own parcels (PDF p. 100) |
 
 Reported results use only the low and high ends of these ranges. A midpoint is stored because the simulation needs
@@ -130,7 +130,7 @@ or the proposal fallback was used (`is_fallback`).
 | Average visitor stay (~2.6 days) | §3 | not recorded here | Quoted as a KPI only; not a model input |
 | Business concerns (homelessness ~38%, safety ~36%, costs ~31%) | §3 | City of Ontario Business Outreach Survey | Quoted in Background only |
 | FY2026–27 General Fund: ~$216.3M sales tax, ~$18.5M hotel tax | §1 | City of Ontario FY2026–27 budget | **Confirmed** against the budget book (`city_budget_revenue.csv`): $216,255,543 and $18,500,000 |
-| Transit pilot cost (~$154 per vehicle-hour) | §6 | Omnitrans FY2026 fixed-route plan | Total for `cost_R2_circulator` |
+| Transit pilot cost (~$154 per vehicle-hour) | §6 | Omnitrans FY2026 fixed-route plan | **Verified:** $95,293K ÷ 620K revenue hours = $153.70 (Service Plan FY2026, Exhibit 10, PDF p. 13). Total for `cost_R2_circulator` |
 | City cost per recommendation; $500K Year 1 cap | §6 | Proposal budget | `impact_assumptions.csv`, status `proposal` |
 | Phases (0–6, 6–18, 18–36 months, 3–10 years) | §5 | Proposal | `impact_phases.csv` |
 
