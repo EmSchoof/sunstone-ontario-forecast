@@ -11,8 +11,10 @@
 <div align="center">
   <h2 align="center">Connecting Ontario: Fiscal Forecast &amp; Break-even Model</h2>
   <p align="center">
-    Forecasts the City of Ontario's hotel and sales tax if nothing changes, and sets a break-even test for each
-    of our recommendations: what it would have to earn to pay for itself.
+    Shows what each of our recommendations would have to earn the City of Ontario to pay for itself, and what it
+    would earn under smaller, middle and larger what-if scenarios. The model can project each recommendation's
+    return, but the data that projection needs doesn't exist yet; the pilots are how the City would collect it.
+    Until then, its one forecast is the City's hotel and sales tax if nothing changes.
     <br />
     <em>Sunstone Economic Development Challenge @ USC Price</em>
     <br /><br />
@@ -34,18 +36,20 @@
     <li><a href="#2-how-we-approached-it">How we approached it</a></li>
     <li><a href="#3-how-the-model-works">How the model works</a></li>
     <li><a href="#4-what-we-found">What we found</a></li>
+    <li><a href="#contact">Contact</a></li>
     <li><a href="#quick-start">Quick start</a> (technical)</li>
     <li><a href="#repository-layout">Repository layout</a> (technical)</li>
     <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
 > **What this model does, and doesn't.** It **forecasts** Ontario's hotel and sales tax *if nothing changes*.
-> It does **not** forecast what the recommendations will earn: for each one it states what it would have to earn
-> to pay for itself, and shows what-if scenarios for the one unknown that decides it. A projected return will be
-> reported once the pilots supply the data it needs.
+> It does **not yet** forecast what the recommendations will earn. That isn't a limit of the model: the impact
+> simulation is built, but the data it needs (such as hotel-package uptake, Downtown sales after the ambassador
+> pilot, and how many pathway hires live in Ontario) doesn't exist yet. Until it does, the model states what each
+> recommendation would have to earn to pay for itself, and shows what-if scenarios for the one unknown that decides
+> it. The projected return switches on once the pilots supply that data.
 
 | Part | What it gives | Is it a forecast? | Reported? |
 |---|---|---|---|
@@ -170,6 +174,13 @@ number, how each recommendation's success would be measured, and what drives the
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## Contact
+
+**[University of Southern California, Sol Price School of Public Policy](https://priceschool.usc.edu/about/)**\
+**Context:** [Sunstone Economic Development Challenge](https://sites.usc.edu/sunstone-price-challenge/)\
+**Group Members:** Danny Valencia (MPA) · Haley Chavez (MPA) · Emily Schoof (MPP) · Nathaniel Gallardo (MPA)\
+**Assignment:** City of Ontario Economic Development Agency
+
 ---
 
 *The sections below are for people running or changing the code.*
@@ -246,13 +257,6 @@ Tools and why each was chosen: [Decisions §5](docs/01_decisions.md#5-engineerin
 - [x] Add the City's adopted FY2026–27 budget to `data/`
 - [ ] Load LODES and ACS for the live/work charts
 - [x] Reconcile the proposal's $216.3M sales-tax figure with State Controller actuals (~$139M): Measure Q + Prop 172
-
-## Contact
-
-**[University of Southern California, Sol Price School of Public Policy](https://priceschool.usc.edu/about/)**\
-**Context:** [Sunstone Economic Development Challenge](https://sites.usc.edu/sunstone-price-challenge/)\
-**Group Members:** Danny Valencia (MPA) · Haley Chavez (MPA) · Emily Schoof (MPP) · Nathaniel Gallardo (MPA)\
-**Assignment:** City of Ontario Economic Development Agency
 
 ## License
 
