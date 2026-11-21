@@ -42,8 +42,6 @@ last year's value. The baseline is flat in real terms (growing with inflation), 
 
 ## 2. What each recommendation must achieve to pay for itself
 
-![Break-even targets](../outputs/charts/impact_break_even.png)
-
 These targets need no estimate of how well a program will work. They say what it would have to produce, in City
 tax revenue, to cover its own cost. The proposal states each program's full cost but not how it splits between the
 City and partners, so the targets use the full cost, and the last column scales them to any City share.
@@ -157,7 +155,7 @@ measure effort rather than results. Two design points make the measures credible
 
 ## 7. How to strengthen the plan
 
-**R2 Connected Destination**
+### R2 Connected Destination
 - **Unbundle the cost.** Its $290K–$475K covers marketing and packages plus the circulator. Only the hotel tax from
   added stays counts toward its target, so pilot the packages first and add the circulator once the City's
   circulator study reports.
@@ -166,7 +164,7 @@ measure effort rather than results. Two design points make the measures credible
 - **Make Phase 1 a measurement.** Record redemptions, nights added and whether the guest would have stayed anyway.
   That turns R2's unsourced inputs into data.
 
-**R3 Clean, Safe & Green**
+### R3 Clean, Safe & Green
 - **Get Downtown's taxable sales** from the City's sales-tax consultant. It shows whether $17.5M–$27.5M of net new
   sales a year is a small or a large share of Downtown's base.
 - **State the City's share.** DOIA already funds a maintenance ambassador program from its property assessment,
@@ -174,7 +172,7 @@ measure effort rather than results. Two design points make the measures credible
   direct route to a cost share.
 - **Present it as the recommendation with a measurable test**, not as the one that pays for itself.
 
-**R1 Career Pathways**
+### R1 Career Pathways
 - **Frame it as strategic, not fiscal.** Its value is workforce mobility, talent retention, employer relationships
   and higher wages. Say so explicitly, so the absence of a tax return isn't read as failure.
 - **Match the promise to the scale.** At the draft's scale it can credibly promise placements and wage gains; a

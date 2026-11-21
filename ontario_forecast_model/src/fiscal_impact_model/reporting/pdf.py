@@ -27,7 +27,6 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     Image,
-    KeepTogether,
     ListFlowable,
     ListItem,
     Paragraph,
@@ -74,7 +73,7 @@ def _styles() -> dict[str, ParagraphStyle]:
             fontName=bold,
             fontSize=13.5,
             leading=17,
-            spaceBefore=26,
+            spaceBefore=20,
             spaceAfter=8,
             keepWithNext=1,
         ),
@@ -137,24 +136,45 @@ BODY_H = PAGE_H - 2 * MARGIN
 def _image(path: Path, caption: str, st) -> list:
     """Chart sized to sit WITH its section text instead of filling a page.
 
-    Wide charts are capped at ~40% of the page height (two fit on a page with text), so
+    Wide charts are capped at ~33% of the page height (two fit on a page with text), so
     a chart rarely jumps to the next page and leaves a gap. Tall charts (e.g. the
     sensitivity chart with many labels) get up to 62% so their labels stay readable.
     """
     w, h = ImageReader(str(path)).getSize()
-    max_h = BODY_H * (0.62 if h / w > 0.8 else 0.40)
+    max_h = BODY_H * (0.62 if h / w > 0.8 else 0.33)
     scale = min(BODY_W / w, max_h / h)
     img = Image(str(path), width=w * scale, height=h * scale)
     img.hAlign = "CENTER"
-    return [Spacer(1, 4), KeepTogether([img, Paragraph(escape(caption), st["caption"])]), Spacer(1, 12)]
+    # Chain spacer -> chart -> caption with keepWithNext. reportlab won't group a heading with a
+    # KeepTogether block, so a chain is what lets a heading move with its chart to the next page.
+    top = Spacer(1, 4)
+    top.keepWithNext = img.keepWithNext = 1
+    return [top, img, Paragraph(escape(caption), st["caption"]), Spacer(1, 12)]
 
 
 def _table(rows: list[list[str]], st) -> Table:
     ncol = len(rows[0])
-    # column widths proportional to content length, within sensible bounds
-    lens = [max(min(len(r[c]) if c < len(r) else 0, 60), 6) for c in range(ncol) for r in rows]
-    per_col = [max(lens[c * len(rows) : (c + 1) * len(rows)]) for c in range(ncol)]
+
+    # Column widths proportional to the visible text length (markdown markers don't count),
+    # capped at 60 characters, with a floor wide enough that a short label like "R1" never wraps.
+    def visible(c: str) -> int:
+        return len(re.sub(r"[*`]|\[([^\]]*)\]\([^)]*\)", r"\1", c))
+
+    lens = [[min(visible(r[c]) if c < len(r) else 0, 60) for r in rows] for c in range(ncol)]
+    per_col = [max(col) for col in lens]
     widths = [BODY_W * x / sum(per_col) for x in per_col]
+    # Floor per column: room for its longest word (~6pt per bold character at 8.2pt, plus padding),
+    # so words like "Destination" never break mid-word, and never under 7% of the page width.
+    longest = [
+        max((len(w) for r in rows if c < len(r) for w in re.sub(r"[*`]", "", r[c]).split()), default=0)
+        for c in range(ncol)
+    ]
+    floors = [max(BODY_W * 0.07, 6.0 * n + 10) for n in longest]
+    short = [w < f for w, f in zip(widths, floors, strict=True)]
+    if any(short) and not all(short):
+        spare = BODY_W - sum(f for f, s in zip(floors, short, strict=True) if s)
+        rest = sum(w for w, s in zip(widths, short, strict=True) if not s)
+        widths = [f if s else w * spare / rest for w, f, s in zip(widths, floors, short, strict=True)]
     padded = [r + [""] * (ncol - len(r)) for r in rows]
     data = [
         [Paragraph(inline(cell), st["cell_head" if i == 0 else "cell"]) for cell in r]
@@ -258,7 +278,9 @@ def markdown_to_flowables(md: str, base_dir: Path) -> tuple[str, list]:
                 if not all(re.fullmatch(r":?-{2,}:?", c) for c in cells if c):
                     rows.append(cells)
                 i += 1
-            out += [Spacer(1, 2), _table(rows, st), Spacer(1, 14)]
+            lead = Spacer(1, 2)
+            lead.keepWithNext = 1  # lets a heading above stay with its table
+            out += [lead, _table(rows, st), Spacer(1, 14)]
         elif _IMG.match(line):
             while i < len(lines) and _IMG.match(lines[i].strip()):
                 alt, src = _IMG.match(lines[i].strip()).groups()

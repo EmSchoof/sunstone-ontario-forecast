@@ -378,17 +378,19 @@ def window_bars_chart(
     return fig
 
 
-def pathway_chart(rows: list[dict], headers: tuple[str, ...], *, title: str, subtitle: str, source: str):
+def pathway_chart(
+    rows: list[dict], headers: tuple[str, ...], *, title: str, subtitle: str, source: str, height: float = 7.2
+):
     """One-page logic model: recommendation | how it works | KPI | short-term | long-term.
 
     rows: {rec, name, chain, kpi, short, long}. Color bar = recommendation identity
     (same slots as every other impact chart); all text in ink.
     """
-    fig = plt.figure(figsize=(12, 7.2))
+    fig = plt.figure(figsize=(12, height))
     free_top, free_bottom = _frame(fig, title, subtitle, source, adjust=False)
-    header_h = 34 / (72 * 7.2)  # two-line column headers sit above the table
+    header_h = 34 / (72 * height)  # two-line column headers sit above the table
     ax = fig.add_axes(
-        [0.04, free_bottom - 20 / (72 * 7.2), 0.93, free_top - header_h - free_bottom + 20 / (72 * 7.2)]
+        [0.04, free_bottom - 20 / (72 * height), 0.93, free_top - header_h - free_bottom + 20 / (72 * height)]
     )
     ax.axis("off")
     xs, widths = (0.0, 0.19, 0.54, 0.75, 0.875), (24, 50, 28, 16, 16)

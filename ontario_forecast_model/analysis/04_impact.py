@@ -235,6 +235,7 @@ pages.append(
                 "\\$500K City cap. Projected returns not shown: they need inputs not yet sourced "
                 "(impact_evidence_gaps.csv)."
             ),
+            height=4.8,  # three short rows: no need for a full-page table
         ),
     )
 )
