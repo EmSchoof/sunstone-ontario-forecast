@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]  # SPDX license expression (PEP 639)
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,6 +7,7 @@ name = "sunstone-ontario-forecast"
 version = "0.1.0"
 description = "Data pipeline and forecasting for the Connecting Ontario Sunstone proposal"
 requires-python = ">=3.10"
+license = "MIT"  # full text: ../LICENSE (docs and outputs: ../LICENSE-docs.md)
 # Runtime (pipeline + deployable model). The model itself imports only numpy + json.
 dependencies = [
     "dlt[duckdb]>=1.4",

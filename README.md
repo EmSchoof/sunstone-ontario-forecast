@@ -223,7 +223,14 @@ Tools and why each was chosen: [Decisions §5](docs/01_decisions.md#5-engineerin
 Danny Valencia · Haley Chavez · Emily Schoof · Nathaniel Gallardo
 (USC Price, Sunstone Economic Development Challenge), for the City of Ontario Economic Development Agency.
 
-No license has been chosen yet, so all rights are reserved. Choose one before making the repository public.
+## License
+
+- **Code** (`ontario_forecast_model/`): [MIT](LICENSE), © 2026 Emily Schoof.
+- **Written analysis and results** (`docs/`, `outputs/`, and the team-entered inputs in `data/`):
+  [CC BY 4.0](LICENSE-docs.md), © 2026 Team Ontario (Danny Valencia, Haley Chavez, Emily Schoof, Nathaniel
+  Gallardo). Reuse is welcome with credit.
+- **Third-party data** (State Controller, BLS, Census, City of Ontario budget and others) stays under its sources'
+  own terms; see [Sources](docs/04_sources.md).
 
 ## Acknowledgments
 

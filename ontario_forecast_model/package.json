@@ -2,6 +2,7 @@
   "name": "sunstone-ontario-forecast",
   "private": true,
   "description": "Nx orchestration for the Python pipeline (uv runs the Python; Nx runs the graph)",
+  "license": "MIT",
   "scripts": {
     "lint": "nx run ontario-forecast:lint",
     "test": "nx run ontario-forecast:test",
