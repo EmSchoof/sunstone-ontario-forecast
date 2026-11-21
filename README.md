@@ -249,8 +249,10 @@ Tools and why each was chosen: [Decisions §5](docs/01_decisions.md#5-engineerin
 
 ## Contact
 
-Danny Valencia · Haley Chavez · Emily Schoof · Nathaniel Gallardo
-(USC Price, Sunstone Economic Development Challenge), for the City of Ontario Economic Development Agency.
+**[University of Southern California, Sol Price School of Public Policy](https://priceschool.usc.edu/about/)**\
+**Context:** [Sunstone Economic Development Challenge](https://sites.usc.edu/sunstone-price-challenge/)\
+**Group Members:** Danny Valencia (MPA) · Haley Chavez (MPA) · Emily Schoof (MPP) · Nathaniel Gallardo (MPA)\
+**Assignment:** City of Ontario Economic Development Agency
 
 ## License
 
