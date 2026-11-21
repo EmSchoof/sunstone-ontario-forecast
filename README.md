@@ -11,10 +11,7 @@
 <div align="center">
   <h2 align="center">Connecting Ontario: Fiscal Forecast &amp; Break-even Model</h2>
   <p align="center">
-    Shows what each of our recommendations would have to earn the City of Ontario to pay for itself, and what it
-    would earn under smaller, middle and larger what-if scenarios. The model can project each recommendation's
-    return, but the data that projection needs doesn't exist yet; the pilots are how the City would collect it.
-    Until then, its one forecast is the City's hotel and sales tax if nothing changes.
+    Break-even targets, what-if scenarios and a status-quo tax forecast for the City of Ontario.
     <br />
     <em>Sunstone Economic Development Challenge @ USC Price</em>
     <br /><br />
@@ -45,11 +42,8 @@
 </details>
 
 > **What this model does, and doesn't.** It **forecasts** Ontario's hotel and sales tax *if nothing changes*.
-> It does **not yet** forecast what the recommendations will earn. That isn't a limit of the model: the impact
-> simulation is built, but the data it needs (such as hotel-package uptake, Downtown sales after the ambassador
-> pilot, and how many pathway hires live in Ontario) doesn't exist yet. Until it does, the model states what each
-> recommendation would have to earn to pay for itself, and shows what-if scenarios for the one unknown that decides
-> it. The projected return switches on once the pilots supply that data.
+> It does **not yet** forecast what the recommendations will earn: that part is built, but the data it needs
+> doesn't exist until the pilots collect it.
 
 | Part | What it gives | Is it a forecast? | Reported? |
 |---|---|---|---|
