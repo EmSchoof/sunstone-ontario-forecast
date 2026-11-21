@@ -27,15 +27,19 @@ The proposal's recommendations came from diagnostic research documented in the p
 
 ## 2. Approach
 
-**Two layers, kept separate on purpose:**
+**Four parts, kept separate on purpose:**
 
-1. **Status-quo baseline:** what hotel tax, sales tax and the live/work share do *if nothing changes*. It's
-   estimated only from historical data and validated on years the model didn't see.
-2. **Recommendation impact:** what each recommendation *adds* to that baseline. It's built as an explicit chain of
-   cause and effect (logic model), and every step is an input with a source.
+| Part | What it gives | Is it a forecast? | Reported? |
+|---|---|---|---|
+| **1. Status-quo forecast** | Ontario's hotel tax and sales tax for FY2026–30 *if nothing changes*, with a likely range | **Yes.** Fitted to 20+ years of State Controller data and tested on years the model hadn't seen | Yes |
+| **2. Break-even targets** | What each recommendation would have to add in City tax revenue to cover its own cost | **No.** Arithmetic from official tax rates, actual revenue and the proposal's stated costs | Yes |
+| **3. What-if scenarios** | For each recommendation, the result if ONE unknown takes a smaller, middle or larger value, e.g. "if hotel tax rises 2%, the City gains $333K" | **No.** Scenarios, not predictions: the levels are chosen, and everything else is official data or the proposal's costs | Yes |
+| **4. Impact simulation** | A projected return for each recommendation | It would be | **Not yet.** Built, but switched off until every input behind it has a source; today none qualify |
 
-Keeping them apart stops program assumptions from contaminating the statistical forecast. It also lets a
-reviewer disagree with one impact input without discarding the baseline.
+Keeping them apart stops program assumptions from contaminating the statistical forecast. The impact simulation is
+an explicit chain of cause and effect (logic model) in which every step is an input with a source; it reports a
+result only when all of those sources exist. Until then the break-even targets stand in for it, because they need
+no assumption about how well a program will work.
 
 **Short term vs long term:** FY27–29 covers proposal Phases 1–3 (the first 36 months). FY30–36 covers Phase 4
 (3–10 years).
@@ -79,6 +83,8 @@ is a labeled fallback only (`is_fallback` in `marts.headline_metrics`), and diff
 | **Classical statistics** (statsmodels/scipy) + numpy simulation | Darts, XGBoost, neural networks | Far too few observations; flexible models would fit noise |
 | **Ranges from real forecast errors** (bootstrap), **centered** | Textbook normal intervals; raw errors | Uses how wrong the model actually was on unseen years, while keeping the central path equal to the selected model's forecast |
 | Report **only results built from sourced inputs**; lead with **break-even targets** | Simulated returns from team-estimated ranges | A return per dollar built on guessed uptake and uplift isn't credible to a finance reviewer. Break-even targets use only official rates, actual revenue and the proposal's costs, and each is something the City can measure |
+| **What-if scenarios with one stated unknown per row** | A full simulation run on team estimates | A chained simulation's answer is driven by its guesses; one visible unknown per row shows how much the result depends on it without pretending to know it |
+| Scenario levels named **smaller / middle / larger** | Reuse low / medium / high | In the status-quo forecast, low/likely/high are statistical; scenario levels are chosen, so they get different names to avoid confusing the two |
 | Use the proposal's **full program cost**, with no assumed City/partner split | Assume a City share (e.g. half) | The proposal doesn't state the split; a targets-per-$100K column scales to whatever share is agreed |
 | Hotel-tax errors **persist from year to year** in the simulation | Independent draws every year | Past errors are strongly correlated (+0.85); independent draws made the range too narrow |
 | **Room rate derived** from hotel tax, the tax rate and room supply | A typed-in $145 | $145 implied 47% occupancy across the City's 5,670 rooms; the derived rate matches the tax actually collected |

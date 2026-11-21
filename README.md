@@ -9,10 +9,10 @@
 
 <br />
 <div align="center">
-  <h2 align="center">Connecting Ontario: Forecast &amp; Impact Model</h2>
+  <h2 align="center">Connecting Ontario: Fiscal Forecast &amp; Break-even Model</h2>
   <p align="center">
-    How our recommendations build on what the City of Ontario, CA already has (the airport, Sports Empire,
-    Toyota Arena, Downtown, Ontario Ranch) to grow local jobs, visitor stays and the City's tax base.
+    Forecasts the City of Ontario's hotel and sales tax if nothing changes, and sets a break-even test for each
+    of our recommendations: what it would have to earn to pay for itself.
     <br />
     <em>Sunstone Economic Development Challenge @ USC Price</em>
     <br /><br />
@@ -41,6 +41,18 @@
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
+
+> **What this model does, and doesn't.** It **forecasts** Ontario's hotel and sales tax *if nothing changes*.
+> It does **not** forecast what the recommendations will earn: for each one it states what it would have to earn
+> to pay for itself, and shows what-if scenarios for the one unknown that decides it. A projected return will be
+> reported once the pilots supply the data it needs.
+
+| Part | What it gives | Is it a forecast? | Reported? |
+|---|---|---|---|
+| **1. Status-quo forecast** | Ontario's hotel tax and sales tax for FY2026–30 *if nothing changes*, with a likely range | **Yes.** Fitted to 20+ years of State Controller data and tested on years the model hadn't seen | Yes |
+| **2. Break-even targets** | What each recommendation would have to add in City tax revenue to cover its own cost | **No.** Arithmetic from official tax rates, actual revenue and the proposal's stated costs | Yes |
+| **3. What-if scenarios** | For each recommendation, the result if ONE unknown takes a smaller, middle or larger value, e.g. "if hotel tax rises 2%, the City gains $333K" | **No.** Scenarios, not predictions: the levels are chosen, and everything else is official data or the proposal's costs | Yes |
+| **4. Impact simulation** | A projected return for each recommendation | It would be | **Not yet.** Built, but switched off until every input behind it has a source; today none qualify |
 
 ## The recommendations
 
@@ -76,11 +88,11 @@ tax. So the question is: **can our recommendations keep more of that activity, a
 ## 2. How we approached it
 
 - **Two separate questions.** First: what happens to Ontario's hotel tax, sales tax and local jobs *if nothing
-  changes*? Then: what does each recommendation *add* on top of that?
+  changes*? Then: what would each recommendation have to *add* to pay for itself?
 - **Official numbers first.** Figures come from the State Controller, the Census Bureau and the Bureau of Labor
   Statistics. A number quoted in the proposal is used only when no official source exists, and it's clearly marked.
-- **Cautious on purpose.** The model only counts results that wouldn't have happened anyway, subtracts what the
-  City spends, and leaves out "ripple effects." If anything, it undersells the plan.
+- **Only what's known.** A result is reported only when every number behind it has a source. Where the data
+  doesn't exist yet, the model says what would have to be true (a break-even target) instead of guessing.
 - **Simple, tested methods over flashy ones.** About 20 years of yearly data is too little for AI-style models,
   which would find patterns that aren't really there.
 
@@ -94,11 +106,13 @@ tax. So the question is: **can our recommendations keep more of that activity, a
 1. **Gather and check the data.** Public data downloads automatically and is checked for errors before use.
 2. **Forecast "if nothing changes."** The model learns from 20+ years of Ontario's tax history. It's tested on
    years it hadn't seen, and only kept if it beats a simple "same as last year" guess. It gives a low, likely and high outcome.
-3. **Add each recommendation, step by step.** For example, for R2's hotel packages: visitors who already come → the
-   share who stay overnight → the share who add a night → extra hotel tax and spending. Every step is an estimate with a
-   range and a written source.
-4. **Run 20,000 "what-if" futures** to see the range of outcomes, and how much tax revenue comes back for each
-   dollar the City spends.
+3. **Set a break-even test for each recommendation.** For example, the visitor program pays for itself if hotel
+   tax rises $100K for every $100K the City spends. These are targets, not forecasts.
+4. **Show what-if scenarios.** For each recommendation, the result if its one deciding unknown takes a smaller,
+   middle or larger value, e.g. "if hotel tax rises 2%, the City gains $333K". These are scenarios, not predictions.
+5. **Estimate returns later.** The model also contains a step-by-step simulation of each recommendation (for
+   example: visitors → share staying overnight → share adding a night → extra hotel tax). It stays switched off
+   until every step has a sourced number, so it reports nothing today.
 
 **Learn more:** [Methods](docs/02_methods.md) has the full statistical and data-engineering detail, including the formula
 for each recommendation.
@@ -121,6 +135,15 @@ cost-sharing is what keeps Year 1 City spending within the $500K cap.
 | **R2** Connected Destination Economy | $290K–$475K | $290K–$475K more hotel tax a year (1.7%–2.8% more than FY2025) | $100K of hotel tax |
 | **R3** Clean, Safe & Green Entertainment Districts | $350K–$550K | $17.5M–$27.5M of net new Downtown taxable sales a year | $5M of new sales |
 
+**What-if scenarios (not predictions).** One unknown per row, at round steps below, within and above the break-even
+range; everything else is official data or the proposal's costs:
+
+| Recommendation | What if… | Smaller | Middle | Larger | Program cost per year |
+|---|---|---|---|---|---|
+| **R2** Connected Destination Economy | hotel tax rises by… | 1%: +$167K, doesn't pay for itself | 2%: +$333K, pays only at the low cost | 3%: +$500K, pays for itself | $290K–$475K |
+| **R3** Clean, Safe & Green Entertainment Districts | net new Downtown sales are… | $10M: +$200K, doesn't pay for itself | $20M: +$400K, pays only at the low cost | $30M: +$600K, pays for itself | $350K–$550K |
+| **R1** Career Pathways & Employer Consortium | more residents work in Ontario… | 100: +0.13 pts | 250: +0.33 pts | 500: +0.66 pts | $75K–$150K (not a tax program) |
+
 **Also worth knowing:**
 - **Combined, the three recommendations cost $715K–$1.175M a year** against the $500K Year 1 City cap, so
   partners carry the difference and each recommendation is assessed on its own budget and measures.
@@ -136,9 +159,11 @@ cost-sharing is what keeps Year 1 City spending within the $500K cap.
 1. **A break-even test for each recommendation** (the proposal's Figure 1.2), built only from official data and
    the proposal's own costs.
 2. **The status-quo hotel-tax forecast** (the proposal's Figure 1.1) that R2's results will be measured against.
-3. **Baselines for the proposal's measures** where data already exists, such as the 8.8% of Ontario jobs held by
+3. **What-if scenarios** for the one unknown that decides each recommendation, so a reader can see what it
+   would take, without the model claiming to know.
+4. **Baselines for the proposal's measures** where data already exists, such as the 8.8% of Ontario jobs held by
    residents in 2019.
-4. **A Phase 1 data list** that would let the model estimate returns once the pilots start reporting.
+5. **A Phase 1 data list** that would let the model estimate returns once the pilots start reporting.
 
 **Learn more:** [Conclusions](docs/03_conclusions.md) ([PDF](outputs/docs/conclusions.pdf)) has every chart and
 number, how each recommendation's success would be measured, and what drives the result.
@@ -151,17 +176,17 @@ number, how each recommendation's success would be measured, and what drives the
 
 ## Quick start
 
-Everything that runs lives in `ontario_forecast_model/`; run commands from there.
+Everything that runs lives in `ontario_model/`; run commands from there.
 
 **Prerequisites:** `brew install uv node pnpm`. Optional free API keys go in
-`ontario_forecast_model/.dlt/secrets.toml` (`census_api_key`, `bls_api_key`); see
-[Methods](docs/02_methods.md#a2-ingestion-srcfiscal_impact_modelingest).
+`ontario_model/.dlt/secrets.toml` (`census_api_key`, `bls_api_key`); see
+[Methods](docs/02_methods.md#a2-ingestion-srcfiscal_forecast_modelingest).
 
 ```bash
-cd ontario_forecast_model && uv sync --all-extras && pnpm install && uv run pre-commit install
+cd ontario_model && uv sync --all-extras && pnpm install && uv run pre-commit install
 ```
 
-| Goal | Command (from `ontario_forecast_model/`) |
+| Goal | Command (from `ontario_model/`) |
 |---|---|
 | Lint + tests | `pnpm nx run-many -t lint test` |
 | Rebuild every chart from data already loaded | `pnpm nx run ontario-forecast:report` |
@@ -170,7 +195,7 @@ cd ontario_forecast_model && uv sync --all-extras && pnpm install && uv run pre-
 | Add a new analysis step | `pnpm nx g @sunstone/pipeline-plugin:stage <name> --dependsOn=select` |
 | See the pipeline graph | `pnpm nx graph` |
 
-**PyCharm:** open `ontario_forecast_model/` as the project, use its `.venv/bin/python` as the interpreter and
+**PyCharm:** open `ontario_model/` as the project, use its `.venv/bin/python` as the interpreter and
 mark `src` as Sources Root.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -192,8 +217,8 @@ sunstone-ontario-forecast/
 ├── data/                         what goes in
 │   ├── *.csv                     all input data: reference figures (loaded by dlt) + impact-model inputs
 │   └── warehouse/                DuckDB built by the pipeline (not tracked)
-└── ontario_forecast_model/       the model: code, pipeline steps and tooling
-    ├── src/fiscal_impact_model/
+└── ontario_model/       the model: code, pipeline steps and tooling
+    ├── src/fiscal_forecast_model/
     │   ├── config.py · db.py     settings (single source of truth) + DuckDB → numpy
     │   ├── ingest/               dlt sources, LODES aggregation
     │   ├── transform/            SQL staging → marts, data-quality checks
@@ -213,7 +238,8 @@ Tools and why each was chosen: [Decisions §5](docs/01_decisions.md#5-engineerin
 ## Roadmap
 
 - [x] Public-data pipeline with data-quality checks
-- [x] Status-quo forecasts and the recommendation impact model, including ROI
+- [x] Status-quo forecasts and break-even targets
+- [ ] Projected returns: the impact simulation is built, and reports once its inputs are sourced
 - [x] Nx orchestration + stage generator
 - [ ] Source the highest-impact inputs (Downtown uplift and share, hotel package uptake, the City's share of each cost)
 - [ ] Close the open items in the [source register](docs/04_sources.md#open-items) (airport traffic, original citations)
@@ -228,7 +254,7 @@ Danny Valencia · Haley Chavez · Emily Schoof · Nathaniel Gallardo
 
 ## License
 
-- **Code** (`ontario_forecast_model/`): [MIT](LICENSE), © 2026 Emily Schoof.
+- **Code** (`ontario_model/`): [MIT](LICENSE), © 2026 Emily Schoof.
 - **Written analysis and results** (`docs/`, `outputs/`, and the team-entered inputs in `data/`):
   [CC BY 4.0](LICENSE-docs.md), © 2026 Team Ontario (Danny Valencia, Haley Chavez, Emily Schoof, Nathaniel
   Gallardo). Reuse is welcome with credit.

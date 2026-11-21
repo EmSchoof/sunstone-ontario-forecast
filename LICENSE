@@ -1,6 +1,6 @@
 This repository uses two licenses:
 
-  * The model's code (everything in ontario_forecast_model/) is licensed under
+  * The model's code (everything in ontario_model/) is licensed under
     the MIT License below.
   * The written analysis and results (docs/, outputs/ and the team-entered
     inputs in data/) are licensed under CC BY 4.0; see LICENSE-docs.md.

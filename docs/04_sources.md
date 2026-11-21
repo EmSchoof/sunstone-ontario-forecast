@@ -6,7 +6,7 @@ Every number and every piece of content in this repository comes from one of the
 This page is the single register: where each one comes from, where it lives in the repo, and whether
 the file itself is tracked in git or rebuilt by the pipeline.
 
-`ontario_forecast_model/src/fiscal_impact_model/tests/test_sources_doc.py` fails if a download, a reference file, an assumptions file or a BLS series
+`ontario_model/src/fiscal_forecast_model/tests/test_sources_doc.py` fails if a download, a reference file, an assumptions file or a BLS series
 is added to the code without being listed here.
 
 **How to read "Tracked in git":**
@@ -16,8 +16,8 @@ is added to the code without being listed here.
 
 ## 1. Downloaded public data
 
-Fetched by `ontario_forecast_model/src/fiscal_impact_model/ingest/sources.py` into the `raw` schema of the local DuckDB warehouse.
-Endpoints and IDs live only in `ontario_forecast_model/src/fiscal_impact_model/config.py`.
+Fetched by `ontario_model/src/fiscal_forecast_model/ingest/sources.py` into the `raw` schema of the local DuckDB warehouse.
+Endpoints and IDs live only in `ontario_model/src/fiscal_forecast_model/config.py`.
 
 | Raw table | Publisher and dataset | Endpoint / ID | What we use | Tracked in git |
 |---|---|---|---|---|
@@ -152,20 +152,24 @@ actually says (checked 2026-11-20). Reference numbers follow the proposal's refe
 
 | Item | Where | How it's produced | Tracked in git |
 |---|---|---|---|
-| Charts | `outputs/charts/` | `ontario_forecast_model/analysis/03_scenarios.py` and `04_impact.py` | Yes |
+| Charts | `outputs/charts/` | `ontario_model/analysis/03_scenarios.py` and `04_impact.py` | Yes |
 | Tables behind every chart, plus the analysis-ready marts | `outputs/tables/` | Same scripts and `transform/run.py` | Yes |
 | What was loaded and when | `outputs/tables/source_snapshot.csv` | `transform/run.py` | Yes |
-| Fitted forecast models | `outputs/models/` | `ontario_forecast_model/analysis/02_variable_selection.py` | Yes |
+| Fitted forecast models | `outputs/models/` | `ontario_model/analysis/02_variable_selection.py` | Yes |
 | Shareable PDFs of the docs | `outputs/docs/` | `reporting/pdf.py` from `docs/*.md` | Yes |
-| Exploratory figures | `outputs/eda/` | `ontario_forecast_model/analysis/01_eda.py` | No (rebuilt) |
+| Exploratory figures | `outputs/eda/` | `ontario_model/analysis/01_eda.py` | No (rebuilt) |
 | Raw downloads and the warehouse | `data/warehouse/` | `ingest/run.py` | No (rebuilt) |
-| API keys | `ontario_forecast_model/.dlt/secrets.toml` | Entered by each user | No (never commit) |
+| API keys | `ontario_model/.dlt/secrets.toml` | Entered by each user | No (never commit) |
 
 Written content in `docs/` and the README is the team's own. The README layout follows
 [Best-README-Template](https://github.com/othneildrew/Best-README-Template). Software dependencies and
-their exact versions are in `ontario_forecast_model/` (`pyproject.toml`, `uv.lock`, `package.json`, `pnpm-lock.yaml`).
+their exact versions are in `ontario_model/` (`pyproject.toml`, `uv.lock`, `package.json`, `pnpm-lock.yaml`).
 
 ## 6. What is reported, and what isn't
+
+The **what-if scenario levels** (`config.WHAT_IF_LEVELS`: hotel tax +1/2/3%, Downtown sales $10M/$20M/$30M, 100/250/500
+residents) are chosen, not sourced: round steps below, within and above each break-even range. Every other number in
+those scenarios comes from the sources above.
 
 The model reports a result only when every input behind it has a source (`official`, `published` or `proposal`).
 

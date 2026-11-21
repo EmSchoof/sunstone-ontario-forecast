@@ -1,0 +1,9 @@
+"""Tests for analysis stage <%= fileBase %> (generated). Move logic into src/ and test it here."""
+
+from fiscal_forecast_model import config
+
+STAGE = config.PROJECT_DIR / "analysis" / "<%= fileBase %>.py"
+
+
+def test_stage_script_exists():
+    assert STAGE.exists()

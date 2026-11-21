@@ -10,14 +10,22 @@
 > phase; it is not in the current proposal.
 
 Part A is the **data engineering** that produces clean, fiscal-year-aligned tables. Part B is the
-**data science**: the status-quo baseline, then the impact method for each recommendation.
+**data science**: the status-quo forecast (B2–B3), the break-even targets (B4), and the impact simulation (B4–B6),
+which is built but not reported until its inputs are sourced.
+
+| Part | What it gives | Is it a forecast? | Reported? |
+|---|---|---|---|
+| **1. Status-quo forecast** | Ontario's hotel tax and sales tax for FY2026–30 *if nothing changes*, with a likely range | **Yes.** Fitted to 20+ years of State Controller data and tested on years the model hadn't seen | Yes |
+| **2. Break-even targets** | What each recommendation would have to add in City tax revenue to cover its own cost | **No.** Arithmetic from official tax rates, actual revenue and the proposal's stated costs | Yes |
+| **3. What-if scenarios** | For each recommendation, the result if ONE unknown takes a smaller, middle or larger value, e.g. "if hotel tax rises 2%, the City gains $333K" | **No.** Scenarios, not predictions: the levels are chosen, and everything else is official data or the proposal's costs | Yes |
+| **4. Impact simulation** | A projected return for each recommendation | It would be | **Not yet.** Built, but switched off until every input behind it has a source; today none qualify |
 
 ---
 
 ## Part A: Data engineering
 
-Code paths below are relative to the `ontario_forecast_model/` folder (for example
-`src/fiscal_impact_model/ingest/` is `ontario_forecast_model/src/fiscal_impact_model/ingest/`). Input data
+Code paths below are relative to the `ontario_model/` folder (for example
+`src/fiscal_forecast_model/ingest/` is `ontario_model/src/fiscal_forecast_model/ingest/`). Input data
 (`data/`) and results (`outputs/`) sit at the top of the repository.
 
 ### A1. Pipeline
@@ -38,7 +46,7 @@ flowchart LR
 Orchestration: Nx runs `ingest → transform → eda/select → scenarios/impact → report`.
 `e2e` = lint + tests, then a fresh pull, then `report`.
 
-### A2. Ingestion (`src/fiscal_impact_model/ingest/`)
+### A2. Ingestion (`src/fiscal_forecast_model/ingest/`)
 
 | Resource | Source / method | Notes |
 |---|---|---|
@@ -51,7 +59,7 @@ Orchestration: Nx runs `ingest → transform → eda/select → scenarios/impact
 | `acs_place` | Census API (key) | B08008, B08303, B15003, B19013 for Ontario + the county |
 | `manual_<file>` | The reference files in `data/` (see [A6](#a6-input-data-data)) | Hand-entered official figures, each with a source column. The impact-model inputs, also in `data/`, are read directly by the model and never ingested |
 
-All API keys come from environment variables or `ontario_forecast_model/.dlt/secrets.toml`, which is never committed.
+All API keys come from environment variables or `ontario_model/.dlt/secrets.toml`, which is never committed.
 
 ### A3. Transformation (`transform/sql/`)
 
@@ -83,7 +91,7 @@ The marts listed above are exported as CSV to `outputs/tables/` once the checks 
 
 ### A5. Testing and reproducibility
 
-- **pytest suite** (`src/fiscal_impact_model/tests/`), covering:
+- **pytest suite** (`src/fiscal_forecast_model/tests/`), covering:
   - statsmodels/scipy wrappers
   - SQL run on hand-made tables
   - LODES aggregation
@@ -203,7 +211,11 @@ $$R^{(s)}_{T+h} = R_T \cdot \exp\Big(\sum_{k \le h} g^{(s)}_{T+k}\Big)$$
   historical average afterwards.
 - **Live/work share:** simulated on the logit scale, so shares stay between 0 and 1.
 
-### B4. Recommendation impact model (`src/fiscal_impact_model/modeling/impact.py`)
+### B4. Break-even targets and the impact simulation (`src/fiscal_forecast_model/modeling/impact.py`)
+
+> The break-even targets and what-if scenarios below are reported. Everything from "R1 Career Pathways" on
+> describes the impact simulation, which is built but switched off until every input behind a recommendation has a
+> source.
 
 **General method:**
 - **Inputs:** every input has a triangular (low, likely, high) range from `impact_assumptions.csv` and a status
@@ -233,6 +245,19 @@ proposal's stated cost ranges (low and high, never a midpoint):
 - **R3:** net new in-person taxable sales needed = program cost ÷ 2% (1% Bradley-Burns + 1% Measure Q).
 - Both scale linearly with the City's share: per $100K of City money, R2 needs $100K of hotel tax and R3 needs $5M
   of net new sales.
+
+**What-if scenarios** (`impact.what_if_scenarios`, levels in `config.WHAT_IF_LEVELS`) vary one unknown per
+recommendation and compute the result from the same sourced inputs as the break-even targets (the function refuses
+to run if any is unsourced):
+- **R2:** if hotel tax rises by 1%, 2% or 3% of the latest fiscal year, City revenue = that share × hotel tax;
+  room revenue = revenue ÷ 11.75%.
+- **R3:** if net new in-person Downtown sales are $10M, $20M or $30M, City revenue = sales × 2%.
+- **R1:** if 100, 250 or 500 more residents work in Ontario, the live/work share rises by
+  N ÷ employed residents (75,283 in 2019).
+- Each R2/R3 row is marked "pays for itself" when revenue covers the high end of the program's cost range, "pays only
+  at the low cost" when it covers the low end only, and "doesn't pay for itself" otherwise.
+- The levels are chosen to sit below, within and above each break-even range; they are scenarios, not estimates,
+  which is why they're called smaller/middle/larger rather than the forecast's low/likely/high.
 
 #### R1 Career Pathways
 
@@ -297,7 +322,7 @@ $\alpha_3$ = share of the uplift not shifted from elsewhere in Ontario. The base
 - **Sensitivity** (one input at a time): every input at its likely value, then each swung to its low and high.
   Inputs are ranked by their effect on the long-term cumulative net. This ranking sets the sourcing priority.
 
-### B6. Cost and return on investment
+### B6. Cost and return on investment (impact simulation; not reported yet)
 
 For each recommendation (R4 grouped with the R1→R4 synergy, which has no cost of its own), per simulation:
 

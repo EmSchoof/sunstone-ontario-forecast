@@ -27,7 +27,7 @@ node_modules/
 # --- Secrets (API keys) -------------------------------------------------
 .env
 .env.*
-# **/ so keys are ignored wherever dlt runs (it reads .dlt/ in ontario_forecast_model/)
+# **/ so keys are ignored wherever dlt runs (it reads .dlt/ in ontario_model/)
 **/.dlt/secrets.toml
 **/.dlt/*.secrets.toml
 

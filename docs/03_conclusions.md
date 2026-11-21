@@ -7,11 +7,15 @@
 > evening transit pilot) · **R3** Clean, Safe & Green Entertainment Districts (a DOIA-led Downtown ambassador
 > pilot, with green improvements phased in). Full descriptions: [Background](00_background.md#the-recommendations-being-tested).
 
+> **In one sentence:** the model forecasts Ontario's hotel and sales tax if nothing changes, sets a break-even test
+> for each recommendation, and shows what-if scenarios for the one unknown that decides each; it does not forecast
+> what the recommendations will earn.
+
 > **What this page reports.** Only results built from sourced inputs: the status-quo forecasts (fitted to State
 > Controller data and tested on years the model hadn't seen) and the break-even targets (official tax rates,
 > actual tax revenue and the proposal's stated costs). It does **not** report a projected return for any
 > recommendation, because each one still depends on inputs that are team estimates rather than data; §4 lists
-> them. Regenerate every figure with `pnpm nx run ontario-forecast:report` (from `ontario_forecast_model/`).
+> them. Regenerate every figure with `pnpm nx run ontario-forecast:report` (from `ontario_model/`).
 
 ## 1. If nothing changes (status-quo baseline)
 
@@ -61,6 +65,34 @@ How these are built:
 - **R2 counts hotel tax only.** Visitors' other spending also earns sales tax, but estimating it needs a
   spend-per-visitor figure that isn't sourced yet. The R2 target is therefore conservative.
 - **Annual, steady-state and undiscounted.** These are yearly targets for a program running at full scale.
+
+### What-if scenarios (not predictions)
+
+![What-if scenarios](../outputs/charts/impact_what_if.png)
+
+| Recommendation | What if… | Smaller | Middle | Larger | Program cost per year |
+|---|---|---|---|---|---|
+| **R2** Connected Destination Economy | hotel tax rises by… | 1%: +$167K, doesn't pay for itself | 2%: +$333K, pays only at the low cost | 3%: +$500K, pays for itself | $290K–$475K |
+| **R3** Clean, Safe & Green Entertainment Districts | net new Downtown sales are… | $10M: +$200K, doesn't pay for itself | $20M: +$400K, pays only at the low cost | $30M: +$600K, pays for itself | $350K–$550K |
+| **R1** Career Pathways & Employer Consortium | more residents work in Ontario… | 100: +0.13 pts | 250: +0.33 pts | 500: +0.66 pts | $75K–$150K (not a tax program) |
+
+**How to read it:**
+- **Scenarios, not predictions.** Each row varies one unknown: how much hotel tax rises, how much new Downtown
+  sales the pilot brings, how many more residents work locally. Its smaller, middle and larger values are
+  round steps chosen to sit below, within and above the break-even range. Nothing says which one will happen.
+- **Everything else is sourced.** Hotel tax is FY2025's $16.7M (State Controller); the City keeps 2% of in-person
+  sales (1% Bradley-Burns + 1% Measure Q); program costs are the proposal's; the live/work baseline is 14.8% of
+  75,283 employed residents in 2019 (City 2023 Local Hazard Mitigation Plan, citing Census OnTheMap).
+- **Why "smaller, middle, larger" and not "low, medium, high":** in the status-quo forecast, low/likely/high are
+  statistical, the range covering 80% of simulated outcomes. Here the levels are chosen, not estimated, so they
+  get different names.
+- **Why not a full simulation:** a projected return would chain several unknowns together (overnight share,
+  package uptake, Downtown's share of sales, how much is truly additional). With none of them sourced, the result
+  would be driven by guesses. One stated unknown per row keeps every assumption visible.
+- **When this becomes a forecast:** the pilots' Phase 1 measures (redemptions, nights added, Downtown sales,
+  placements) are the missing inputs. Once they're in, the model's impact simulation reports a projected return.
+
+Table: `outputs/tables/impact_what_if_scenarios.csv`. Scenario levels: `config.WHAT_IF_LEVELS`.
 
 ## 3. Combined cost against the $500K Year 1 cap
 

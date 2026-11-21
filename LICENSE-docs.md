@@ -25,4 +25,4 @@ Census Bureau, the California EDD, the City of Ontario's adopted budget, Ontario
 remain subject to their sources' own terms. This license covers the team's compilation, analysis and presentation,
 not the underlying third-party data. Each source is listed in `docs/04_sources.md`.
 
-The model's code in `ontario_forecast_model/` is licensed separately under the MIT License (see `LICENSE`).
+The model's code in `ontario_model/` is licensed separately under the MIT License (see `LICENSE`).

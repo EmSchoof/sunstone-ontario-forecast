@@ -1,0 +1,10 @@
+recommendation,scenario,what_if,level,city_revenue,room_revenue,live_work_change_pts,pays_for_itself
+R2 Connected Destination Economy,Smaller,Hotel tax rises 1% above the latest fiscal year,0.01,166719.71,1418891.1489361702,,No
+R2 Connected Destination Economy,Middle,Hotel tax rises 2% above the latest fiscal year,0.02,333439.42,2837782.2978723403,,Only at the low end of the cost range
+R2 Connected Destination Economy,Larger,Hotel tax rises 3% above the latest fiscal year,0.03,500159.13,4256673.44680851,,"Yes, across the cost range"
+"R3 Clean, Safe & Green Entertainment Districts",Smaller,Net new Downtown in-person sales of $10M a year,10000000.0,200000.0,,,No
+"R3 Clean, Safe & Green Entertainment Districts",Middle,Net new Downtown in-person sales of $20M a year,20000000.0,400000.0,,,Only at the low end of the cost range
+"R3 Clean, Safe & Green Entertainment Districts",Larger,Net new Downtown in-person sales of $30M a year,30000000.0,600000.0,,,"Yes, across the cost range"
+R1 Career Pathways & Employer Consortium,Smaller,100 more residents working in Ontario,100,,,0.13283211349175705,Not a tax-revenue program
+R1 Career Pathways & Employer Consortium,Middle,250 more residents working in Ontario,250,,,0.332080283729394,Not a tax-revenue program
+R1 Career Pathways & Employer Consortium,Larger,500 more residents working in Ontario,500,,,0.664160567458788,Not a tax-revenue program
