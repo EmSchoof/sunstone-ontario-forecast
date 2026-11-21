@@ -2,11 +2,12 @@
 
 [← Decisions](01_decisions.md) · [README](../README.md) · Next: [Conclusions →](03_conclusions.md)
 
-> **Key:** **R1** Career Pathways (students → paid internships → local jobs) ·
-> **R2** Connected Destination / Stay +1 (turn existing visitors into extra hotel nights) ·
-> **R3** Clean, Safe & Green Downtown (ambassadors + upgrades) ·
-> **R4** International & employer attraction (ONT flights, trade zone) ·
-> **R1→R4** Career Pathways workforce helping attract employers. Full descriptions: [Background](00_background.md#the-recommendations-being-tested).
+> **Key:** **R1** Ontario Career Pathways & Employer Consortium (education → paid internships → local careers) ·
+> **R2** A Connected Destination Economy (joint City–ONT visitor outreach and hotel packages, plus a two-bus
+> evening transit pilot) · **R3** Clean, Safe & Green Entertainment Districts (a DOIA-led Downtown ambassador
+> pilot, with green improvements phased in). Full descriptions: [Background](00_background.md#the-recommendations-being-tested).
+> Methods also covers R4 (international and employer attraction), which the model keeps as a possible later
+> phase; it is not in the current proposal.
 
 Part A is the **data engineering** that produces clean, fiscal-year-aligned tables. Part B is the
 **data science**: the status-quo baseline, then the impact method for each recommendation.
@@ -250,7 +251,7 @@ have happened anyway, $\rho_1$ = share of hires who live in Ontario.
   taxable spending by the other household members.
 - **Success metric:** added residents working locally, compared with the LODES status-quo share.
 
-#### R2 Connected Destination (Stay +1)
+#### R2 A Connected Destination Economy (hotel packages)
 
 For each anchor *k* (ONT, Mills, Toyota Arena, Sports Empire):
 
@@ -258,7 +259,7 @@ $$\text{nights}_{k,t} = V_k (1+\gamma)^t \cdot o_k \cdot d \,/\, p \cdot u \cdot
 
 $V_k$ = inbound visitor trips (for ONT, half the passenger count: airports count each traveler on arrival
 *and* departure), $\gamma$ = growth in visits, $o_k$ = overnight share, *d* = share of unique trips,
-*p* = people per room, *u* = Stay +1 uptake, $\alpha_2$ = share of extra nights that wouldn't have happened anyway.
+*p* = people per room, *u* = share of overnight parties taking a hotel package (the Stay +1 package), $\alpha_2$ = share of extra nights that wouldn't have happened anyway.
 
 - **Hotel tax:** nights × average room rate × TOT rate.
 - **Room rate:** an implied rate, derived rather than guessed (not an observed rate). Hotel tax ÷ 11.75% gives citywide room revenue; dividing by the City's
@@ -268,9 +269,10 @@ $V_k$ = inbound visitor trips (for ONT, half the passenger count: airports count
 - **Leverage by investment:** revenue per anchor (`impact_stay1_by_anchor.csv`), once the inputs are sourced.
 - **Sanity check:** the overnight parties this chain implies are compared with the room-nights implied by
   actual hotel tax (`04_impact.py` prints both). The anchors can't fill more rooms than the city sold.
-- **Success metric:** hotel tax with vs without Stay +1, and average stay.
+- **Success metric:** hotel tax with vs without the packages, and average visitor stay. The evening transit pilot's
+  cost is counted; its effect on spending isn't modeled.
 
-#### R3 Clean, Safe & Green
+#### R3 Clean, Safe & Green Entertainment Districts
 
 $$\Delta\text{ST}_t = \text{baseline sales tax}_t \cdot \text{downtown share} \cdot \text{uplift} \cdot \alpha_3 \cdot r_t$$
 
@@ -279,7 +281,7 @@ $\alpha_3$ = share of the uplift not shifted from elsewhere in Ontario. The base
 
 - **Success metric:** district taxable sales, foot traffic and perceived safety. The last two are dashboard KPIs, not modeled in dollars.
 
-#### R4 International & employers, and the R1→R4 synergy
+#### R4 International & employers, and the R1→R4 synergy (not in the current proposal)
 
 - **Jobs:** $\text{jobs}_t = S(F \cdot J \cdot \alpha_4 \cdot r_t)$, with *F* = firms per year and *J* = jobs per firm.
   Resident workers = jobs × resident share.

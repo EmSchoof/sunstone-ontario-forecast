@@ -46,21 +46,24 @@ Yet that activity isn't staying local:
 
 ## Guiding question
 
-> How can Ontario use its existing employers, educational institutions, entertainment assets, transportation
-> infrastructure and international connections to increase near-term economic activity while creating
-> pathways into higher-wage careers for the next generation?
+> How can Ontario align its employers, schools, entertainment and logistics assets, and international ties into
+> a coordinated strategy that boosts near-term economic activity and connects the next generation to higher-wage
+> careers?
 
 ## The recommendations being tested
 
 | | Recommendation | Core idea |
 |---|---|---|
-| **R1** | Ontario Career Pathways & Employer Consortium | Education → paid internship/apprenticeship → local job → career → staying in Ontario |
-| **R2** | Connected Destination Economy (Stay +1) | Turn existing airport, sports, arena and shopping visits into extra hotel nights and multi-stop trips |
-| **R3** | Clean, Safe & Green Districts | A Downtown ambassador pilot plus clean/safe/green upgrades, so the district feels safe and active |
-| **R4** | International collaboration (later phases) | Use ONT's Taiwan/Mexico service and FTZ 50 to attract and keep employers and university partners |
+| **R1** | Ontario Career Pathways & Employer Consortium | A City-convened consortium of employers, colleges, school districts and workforce organizations, built around education → paid internships → local employment → career advancement → resident retention, across five tracks: engineering, logistics, green economy, visitor economy and public services |
+| **R2** | A Connected Destination Economy | Joint City–ONT outreach (coordinated event calendars, restaurant and hotel packages, visitor itineraries, a QR-code guide for arriving travelers) plus a two-bus evening transit pilot linking Downtown, Capital City and Toyota Arena, building on the West Valley Connector, to lengthen the average visitor stay |
+| **R3** | Clean, Safe & Green Entertainment Districts | A Downtown ambassador pilot managed or sponsored by DOIA with an experienced operator, expanding to Capital City on results; green improvements phased in and linked to Career Pathways |
+
+An earlier draft also included international and employer attraction (R4). It isn't in the current proposal; the
+model keeps it only as a possible later phase.
 
 The financial rule: **incremental Year 1 General Fund exposure stays at or under $500,000.** Partners
-(employers, DOIA, venues, hotels, tourism) pay for components that directly benefit them.
+(employers, DOIA, property owners, venues, hotels, event organizers, tourism programs) share the costs of
+components that benefit them, and each phase expands only when its results justify it.
 
 ## What this project solves
 
@@ -68,8 +71,9 @@ The proposal makes a logical case. This repository makes it **testable**:
 
 1. **What happens if nothing changes?** Status-quo forecasts of hotel tax, sales tax and the live/work
    share, with likely ranges (the counterfactual).
-2. **What does each recommendation add on top?** Short-term (FY27–29) and long-term (FY30–36) effects on
-   City revenue, City cost, residents working locally and new residents, built on the City's existing investments.
-3. **What must be true for it to work?** Which unknown numbers matter most, so Phase 1 measures the right things.
+2. **What must each recommendation achieve to pay for itself?** Break-even targets built only from official tax
+   rates, actual revenue and the proposal's stated costs.
+3. **What would it take to estimate a return?** Which inputs are still team estimates, and who holds the data, so
+   Phase 1 measures the right things.
 
 Next: [Decisions →](01_decisions.md)

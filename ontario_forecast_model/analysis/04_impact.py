@@ -196,8 +196,8 @@ pages.append(
                     "rec": "R2",
                     "name": NAMES["R2"],
                     "chain": (
-                        f"{rng_(*c2)} a year: marketing and packages {rng_(*mk)} "
-                        f"+ evening circulator {rng_(*ci)}"
+                        f"{rng_(*c2)} a year: outreach and packages {rng_(*mk)} "
+                        f"+ evening transit pilot {rng_(*ci)}"
                     ),
                     "kpi": (
                         f"{rng_(tax['value_low'], tax['value_high'])} more hotel tax a year "

@@ -116,7 +116,7 @@ def test_benefit_cost_and_breakeven(inputs):
     rows = {r["group"]: r for r in impact.benefit_cost(res, 2030, 2036)}
     assert set(rows) == set(impact.ROI_GROUPS)
     assert not any(r["present_value"] for r in rows.values())
-    r2 = rows["R2 Connected Destination"]
+    r2 = rows[impact.REC_NAMES["R2"]]
     gross = impact.window_sum(res.gross("R2"), YEARS, 2030, 2036)[0]
     cost = impact.window_sum(res.cost["R2"], YEARS, 2030, 2036)[0]
     assert r2["bcr_p50"] == pytest.approx(gross / cost)
@@ -174,7 +174,7 @@ def test_present_value_lowers_late_dollars_and_keeps_launch_year(inputs):
     flat = {r["group"]: r for r in impact.benefit_cost(res, 2027, 2036)}
     disc = {r["group"]: r for r in impact.benefit_cost(res, 2027, 2036, discount_from=2027)}
     # Stock-building programs earn late, so discounting lowers their return per dollar
-    assert disc["R1 Career Pathways"]["bcr_p50"] < flat["R1 Career Pathways"]["bcr_p50"]
+    assert disc[impact.REC_NAMES["R1"]]["bcr_p50"] < flat[impact.REC_NAMES["R1"]]["bcr_p50"]
     assert all(r["present_value"] for r in disc.values())
 
 
@@ -184,7 +184,7 @@ def test_whole_program_return_includes_startup_years(inputs):
     res = run(fixed, phases, anchors)
     late = {r["group"]: r for r in impact.benefit_cost(res, 2030, 2036)}
     whole = {r["group"]: r for r in impact.benefit_cost(res, 2027, 2036)}
-    g = "R2 Connected Destination"
+    g = impact.REC_NAMES["R2"]
     assert whole[g]["bcr_p50"] < late[g]["bcr_p50"]
 
 

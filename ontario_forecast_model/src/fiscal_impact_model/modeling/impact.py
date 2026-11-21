@@ -48,9 +48,10 @@ import numpy as np
 RECS = ("R1", "R2", "R3", "R4", "SYN")
 CHANNELS = ("tot", "sales_tax", "property_tax")
 REC_NAMES = {
-    "R1": "R1 Career Pathways",
-    "R2": "R2 Connected Destination",
-    "R3": "R3 Clean, Safe & Green",
+    # Names as the proposal uses them (shortened where a chart needs it).
+    "R1": "R1 Career Pathways & Employer Consortium",
+    "R2": "R2 Connected Destination Economy",
+    "R3": "R3 Clean, Safe & Green Entertainment Districts",
     "R4": "R4 International & employers",
     "SYN": "R1→R4 workforce-led attraction",
 }

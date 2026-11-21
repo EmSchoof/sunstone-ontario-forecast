@@ -2,11 +2,10 @@
 
 [← Background](00_background.md) · [README](../README.md) · Next: [Methods →](02_methods.md)
 
-> **Key:** **R1** Career Pathways (students → paid internships → local jobs) ·
-> **R2** Connected Destination / Stay +1 (turn existing visitors into extra hotel nights) ·
-> **R3** Clean, Safe & Green Downtown (ambassadors + upgrades) ·
-> **R4** International & employer attraction (ONT flights, trade zone) ·
-> **R1→R4** Career Pathways workforce helping attract employers. Full descriptions: [Background](00_background.md#the-recommendations-being-tested).
+> **Key:** **R1** Ontario Career Pathways & Employer Consortium (education → paid internships → local careers) ·
+> **R2** A Connected Destination Economy (joint City–ONT visitor outreach and hotel packages, plus a two-bus
+> evening transit pilot) · **R3** Clean, Safe & Green Entertainment Districts (a DOIA-led Downtown ambassador
+> pilot, with green improvements phased in). Full descriptions: [Background](00_background.md#the-recommendations-being-tested).
 
 This document records *why* the model is built the way it is: the approach, why each data source was
 chosen, and how the team's pre-forecast research shaped what the model tests.
@@ -19,7 +18,7 @@ The proposal's recommendations came from diagnostic research documented in the p
 | Team finding (proposal) | Evidence the team used | What it became in the model |
 |---|---|---|
 | Residents and jobs are disconnected | Census OnTheMap / LEHD commute flows | The **live/work share** is a headline metric; LODES is loaded to rebuild and forecast it |
-| Higher-wage careers exist locally | Regional median wages by occupation | **R1/R4 wage inputs** come from BLS OEWS for the same occupations, which replace the quoted figures |
+| Higher-wage careers exist locally | Regional median wages by occupation | **R1 wage inputs** come from BLS OEWS for the same occupations, which replace the quoted figures |
 | Visitor assets are fragmented | Asset review: ONT, Mills, Arena, Sports Empire, Convention Center, Downtown | **R2 is modeled per venue** ("anchor"), so the payoff attaches to existing investments |
 | Safety and homelessness weigh on business | City Business Outreach Survey | **R3** is a district sales effect plus explicit displacement; safety itself is a KPI, not a dollar value |
 | The City has a direct fiscal stake (TOT, sales tax) | FY2026–27 General Fund | **Fiscal channels are TOT, sales and property tax**, measured net of City cost |

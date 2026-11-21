@@ -29,7 +29,7 @@
 <details>
   <summary>Table of Contents</summary>
   <ol>
-    <li><a href="#the-four-recommendations">The four recommendations</a></li>
+    <li><a href="#the-recommendations">The recommendations</a></li>
     <li><a href="#1-the-problem">The problem</a></li>
     <li><a href="#2-how-we-approached-it">How we approached it</a></li>
     <li><a href="#3-how-the-model-works">How the model works</a></li>
@@ -46,10 +46,9 @@
 
 | Code | Recommendation | In one sentence |
 |---|---|---|
-| **R1** | Career Pathways & Employer Consortium | Connect students to paid internships with Ontario employers so more residents live *and* work here |
-| **R2** | Connected Destination Economy | Visitor marketing, Stay +1 packages and an evening circulator, so visitors who already come for the airport, games and shopping stay longer |
-| **R3** | Clean, Safe & Green Districts | Make Downtown feel safe and lively in the evening so people stay and spend |
-| *R4* | *International & employer attraction* | *Not in the current proposal; kept in the model as a possible later phase* |
+| **R1** | Ontario Career Pathways & Employer Consortium | A City-convened consortium of employers, colleges, school districts and workforce groups: education → paid internships → local careers → residents who stay |
+| **R2** | A Connected Destination Economy | Joint City–ONT outreach (event calendars, restaurant and hotel packages, a QR-code visitor guide) plus a two-bus evening transit pilot linking Downtown, Capital City and Toyota Arena |
+| **R3** | Clean, Safe & Green Entertainment Districts | A DOIA-led Downtown ambassador pilot, expanding to Capital City on results, with green improvements phased in |
 
 [![What each recommendation must achieve to pay for itself](outputs/charts/impact_break_even.png)](docs/03_conclusions.md#2-what-each-recommendation-must-achieve-to-pay-for-itself)
 
@@ -93,8 +92,8 @@ tax. So the question is: **can our recommendations keep more of that activity, a
 1. **Gather and check the data.** Public data downloads automatically and is checked for errors before use.
 2. **Forecast "if nothing changes."** The model learns from 20+ years of Ontario's tax history. It's tested on
    years it hadn't seen, and only kept if it beats a simple "same as last year" guess. It gives a low, likely and high outcome.
-3. **Add each recommendation, step by step.** For example, for Stay +1: visitors who already come → the share
-   who stay overnight → the share who add a night → extra hotel tax and spending. Every step is an estimate with a
+3. **Add each recommendation, step by step.** For example, for R2's hotel packages: visitors who already come → the
+   share who stay overnight → the share who add a night → extra hotel tax and spending. Every step is an estimate with a
    range and a written source.
 4. **Run 20,000 "what-if" futures** to see the range of outcomes, and how much tax revenue comes back for each
    dollar the City spends.
@@ -117,8 +116,8 @@ partners pay a stated share.
 | | Program cost per year (proposal) | Pays for itself in City tax when it adds… | Per $100K of City money |
 |---|---|---|---|
 | **R1** Career Pathways | $75K–$150K | Not a tax-revenue program: judge it on placements, wages and retention | — |
-| **R2** Connected Destination | $290K–$475K | $290K–$475K more hotel tax a year (1.7%–2.8% more than FY2025) | $100K of hotel tax |
-| **R3** Clean, Safe & Green | $350K–$550K | $17.5M–$27.5M of net new Downtown taxable sales a year | $5M of new sales |
+| **R2** Connected Destination Economy | $290K–$475K | $290K–$475K more hotel tax a year (1.7%–2.8% more than FY2025) | $100K of hotel tax |
+| **R3** Clean, Safe & Green Entertainment Districts | $350K–$550K | $17.5M–$27.5M of net new Downtown taxable sales a year | $5M of new sales |
 
 **Also worth knowing:**
 - **Year 1 program cost is $715K–$1.175M** at the draft's own figures, so partners would need to cover at least
@@ -134,7 +133,8 @@ partners pay a stated share.
 **What we recommend:**
 1. **State the City's share of each program** and get partner commitments, so Year 1 fits the cap.
 2. **Get Downtown's taxable sales** from the City's sales-tax consultant, to show whether R3's target is realistic.
-3. **Start the circulator after the City's study reports,** and treat Stay +1 as a measured pilot.
+3. **Start R2's evening transit pilot after the City's circulator study reports,** and treat the hotel packages as
+   a measured pilot.
 4. **Frame Career Pathways as a workforce investment,** judged on placements and wages.
 
 **Learn more:** [Conclusions](docs/03_conclusions.md) ([PDF](outputs/docs/conclusions.pdf)) has every chart and
@@ -212,7 +212,7 @@ Tools and why each was chosen: [Decisions §5](docs/01_decisions.md#5-engineerin
 - [x] Public-data pipeline with data-quality checks
 - [x] Status-quo forecasts and the recommendation impact model, including ROI
 - [x] Nx orchestration + stage generator
-- [ ] Source the highest-impact inputs (Downtown uplift and share, Stay +1 uptake, R2 and R4 cost)
+- [ ] Source the highest-impact inputs (Downtown uplift and share, hotel package uptake, the City's share of each cost)
 - [ ] Close the open items in the [source register](docs/04_sources.md#open-items) (airport traffic, original citations)
 - [x] Add the City's adopted FY2026–27 budget to `data/`
 - [ ] Load LODES and ACS for the live/work charts

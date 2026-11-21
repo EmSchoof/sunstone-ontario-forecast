@@ -2,10 +2,10 @@
 
 [← Methods](02_methods.md) · [README](../README.md)
 
-> **Key:** **R1** Career Pathways & Employer Consortium · **R2** Connected Destination Economy (visitor
-> marketing, Stay +1 packages, evening circulator) · **R3** Clean, Safe & Green Districts (Downtown ambassador
-> pilot). Full descriptions: [Background](00_background.md#the-recommendations-being-tested). R4 (international
-> and employer attraction) is not in the current proposal.
+> **Key:** **R1** Ontario Career Pathways & Employer Consortium (education → paid internships → local careers) ·
+> **R2** A Connected Destination Economy (joint City–ONT visitor outreach and hotel packages, plus a two-bus
+> evening transit pilot) · **R3** Clean, Safe & Green Entertainment Districts (a DOIA-led Downtown ambassador
+> pilot, with green improvements phased in). Full descriptions: [Background](00_background.md#the-recommendations-being-tested).
 
 > **What this page reports.** Only results built from sourced inputs: the status-quo forecasts (fitted to State
 > Controller data and tested on years the model hadn't seen) and the break-even targets (official tax rates,
@@ -49,8 +49,8 @@ City and partners, so the targets use the full cost, and the last column scales 
 | | Program cost per year (proposal, City + partners) | Pays for itself in City tax when it adds… | Per $100K of City money | Share of today's citywide base |
 |---|---|---|---|---|
 | **R1** Career Pathways | $75K–$150K (staffing and coordination) | Not a tax-revenue program: judge it on placements, wages and retention | — | — |
-| **R2** Connected Destination | $290K–$475K (marketing and packages $100K–$250K + evening circulator $190K–$225K) | **$290K–$475K more hotel tax a year**, which means $2.5M–$4.0M more hotel room revenue | $100K of hotel tax | 1.7%–2.8% of FY2025 hotel tax ($16.7M) |
-| **R3** Clean, Safe & Green | $350K–$550K (ambassador pilot) | **$17.5M–$27.5M of net new Downtown taxable sales a year**, after any sales shifted from elsewhere in Ontario | $5M of new sales | Needs Downtown's sales base, which the City's sales-tax consultant holds |
+| **R2** Connected Destination Economy | $290K–$475K (outreach and packages $100K–$250K + evening transit pilot $190K–$225K) | **$290K–$475K more hotel tax a year**, which means $2.5M–$4.0M more hotel room revenue | $100K of hotel tax | 1.7%–2.8% of FY2025 hotel tax ($16.7M) |
+| **R3** Clean, Safe & Green Entertainment Districts | $350K–$550K (ambassador pilot) | **$17.5M–$27.5M of net new Downtown taxable sales a year**, after any sales shifted from elsewhere in Ontario | $5M of new sales | Needs Downtown's sales base, which the City's sales-tax consultant holds |
 
 How these are built:
 - **Hotel tax** is 11.75% of room revenue (Municipal Code §3-6.03), so every $1 of hotel tax needs $8.51 of room
@@ -78,20 +78,27 @@ The draft launches all three programs in months 3–12, so their Year 1 costs ad
 - **The two cost figures in the draft don't match.** The ambassador pilot ($350K–$550K) and the circulator
   ($190K–$225K) together come to $540K–$775K, more than the budget table's "program implementation" line
   ($275K–$500K). The table and the program descriptions need reconciling.
-- **The circulator has a natural start date.** The City has already budgeted a $120K Internal Circulator Planning
-  Study, due December 2026 (budget book pp. 408, 487). Starting the circulator after it reports would take
-  $190K–$225K out of Year 1 and let the study set the cost and funding.
+- **The evening transit pilot has a natural start date.** The City has already budgeted a $120K Internal Circulator
+  Planning Study, due December 2026 (budget book pp. 408, 487). Starting R2's two-bus pilot after it reports would
+  take $190K–$225K out of Year 1 and let the study set the route, cost and funding.
+- **A suggested order** that fits the cap better than launching everything in months 3–12:
+  1. **Start first, using existing staff and budgets:** R1's employer and school convening and first paid
+     internship cohort, and R2's outreach (coordinated event calendars, restaurant and hotel packages, the ONT
+     QR-code visitor guide).
+  2. **R3's Downtown ambassador pilot** once the baseline safety survey is complete and DOIA and property owners
+     have committed their share; green improvements follow only if the pilot shows results.
+  3. **R2's two-bus evening pilot** after the City's circulator study is completed in December 2026.
 
 ## 4. What the model can't estimate yet, and what would let it
 
 A projected return needs every link in the chain to be sourced, for example visitors → share staying overnight →
-share taking the Stay +1 offer → extra nights. Those links are currently team estimates, so no return is reported.
+share taking a hotel package → extra nights. Those links are currently team estimates, so no return is reported.
 `outputs/tables/impact_evidence_gaps.csv` lists every one, with where to source it. The ones that matter most:
 
 | | Unsourced inputs | Who holds the data |
 |---|---|---|
 | **R3** | Downtown's share of citywide taxable sales; the sales uplift from the program; how much of it is shifted from elsewhere in Ontario | The City's sales-tax consultant; a measured pilot with a comparison district |
-| **R2** | Share of visitors staying overnight at each venue; share taking the Stay +1 offer; nights that wouldn't have happened anyway; hotel occupancy; visitor spending per day | Venue and ONT visitor surveys; hotels and the visitors bureau; STR or CoStar; Visit California's county travel report |
+| **R2** | Share of visitors staying overnight at each venue; share taking a hotel package; nights that wouldn't have happened anyway; hotel occupancy; visitor spending per day | Venue and ONT visitor surveys; hotels and the visitors bureau; STR or CoStar; Visit California's county travel report |
 | **R1** | Share of hires who live in Ontario; hires that wouldn't have happened anyway; how long placed workers stay; resident spending patterns | Program tracking (participant address and employment at 1, 3 and 5 years); BLS Consumer Expenditure Survey |
 
 What is already sourced: tax rates and revenue (State Controller, City budget), hotel room supply (budget book),
@@ -107,9 +114,9 @@ break-even target above.
 
 | | Success = | Measured by | Fiscal test |
 |---|---|---|---|
-| **R1** | Residents placed in higher-wage local jobs who stay | Paid placements; internship-to-job conversion; starting wage; employment at 6 months; participants still living in Ontario | None: a workforce and equity investment. Moving the live/work share one point takes about 800 more residents working locally (1% of the 79,826 employed residents in the proposal's figures) |
-| **R2** | Visitors staying longer and visiting more than one district | Hotel tax against the status-quo range; Stay +1 redemptions; circulator boardings per service hour; cross-district visits | Hotel tax up $100K for every $100K of City money |
-| **R3** | People feel safer and stay later, and Downtown sales rise rather than shift | The five measures below, plus district taxable sales | Net new Downtown sales of $5M for every $100K of City money |
+| **R1** | Residents placed in higher-wage local jobs who stay | Paid placements; local hire rates; internship-to-job conversion; starting wages; six-month retention; participation across Ontario | None: a workforce and equity investment. Moving the live/work share one point takes about 800 more residents working locally (1% of the 79,826 employed residents in the proposal's figures) |
+| **R2** | Longer average visitor stays and visits to more than one district | QR-code engagement and package redemptions; boardings per service hour and cost per boarding; visits to multiple destinations; hotel tax against the status-quo range | Hotel tax up $100K for every $100K of City money |
+| **R3** | People feel safer and stay later, and Downtown sales rise rather than shift | Ambassador coverage hours and service requests resolved, the five measures below, and district taxable sales | Net new Downtown sales of $5M for every $100K of City money |
 
 ### Measuring safety, not just sales
 
@@ -155,16 +162,16 @@ measure effort rather than results. Two design points make the measures credible
 
 ## 7. How to strengthen the plan
 
-### R2 Connected Destination
-- **Unbundle the cost.** Its $290K–$475K covers marketing and packages plus the circulator. Only the hotel tax from
-  added stays counts toward its target, so pilot the packages first and add the circulator once the City's
-  circulator study reports.
+### Recommendation 2: A Connected Destination Economy
+- **Unbundle the cost.** Its $290K–$475K covers outreach and packages plus the evening transit pilot. Only the hotel tax from
+  added stays counts toward its target, so start with the outreach and packages and add the transit pilot once
+  the City's circulator study reports.
 - **Share the cost with those who benefit.** Hotels keep the room revenue from every added night; the City keeps
   11.75% of it. For every $100K hotels and venues contribute, the hotel-tax target falls by $100K.
 - **Make Phase 1 a measurement.** Record redemptions, nights added and whether the guest would have stayed anyway.
   That turns R2's unsourced inputs into data.
 
-### R3 Clean, Safe & Green
+### Recommendation 3: Clean, Safe & Green Entertainment Districts
 - **Get Downtown's taxable sales** from the City's sales-tax consultant. It shows whether $17.5M–$27.5M of net new
   sales a year is a small or a large share of Downtown's base.
 - **State the City's share.** DOIA's Community Benefit District is funded by Downtown property and business owners,
@@ -172,7 +179,7 @@ measure effort rather than results. Two design points make the measures credible
   City on its own parcels (budget book p. 100). Building on that is the most direct route to a cost share.
 - **Present it as the recommendation with a measurable test**, not as the one that pays for itself.
 
-### R1 Career Pathways
+### Recommendation 1: Ontario Career Pathways & Employer Consortium
 - **Frame it as strategic, not fiscal.** Its value is workforce mobility, talent retention, employer relationships
   and higher wages. Say so explicitly, so the absence of a tax return isn't read as failure.
 - **Match the promise to the scale.** At the draft's scale it can credibly promise placements and wage gains; a
