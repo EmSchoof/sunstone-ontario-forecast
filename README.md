@@ -9,9 +9,9 @@
 
 <br />
 <div align="center">
-  <h2 align="center">Connecting Ontario: Fiscal Forecast &amp; Break-even Model</h2>
+  <h2 align="center">Connecting Ontario: Fiscal Forecast &amp; Break-Even Model</h2>
   <p align="center">
-    Break-even targets, what-if scenarios and a status-quo tax forecast for the City of Ontario.
+    Break-Even targets, what-if scenarios and a status-quo tax forecast for the City of Ontario.
     <br />
     <em>Sunstone Economic Development Challenge @ USC Price</em>
     <br /><br />
