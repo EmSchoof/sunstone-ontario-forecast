@@ -28,7 +28,8 @@ select t.*,
        (t.sales_tax_bradley_burns + t.sales_tax_in_lieu) / t.population     as sales_tax_per_capita
 from staging.city_tax_fy t
 left join cpi c using (fy)
-left join base b on true;   -- not a cross join: an empty base must not drop every row
+left join base b on true    -- not a cross join: an empty base must not drop every row
+order by t.city, t.fy;      -- fixed order, so the exported CSV doesn't reshuffle on every run
 
 -- Ontario modeling panel: one row per fiscal year ------------------------------
 create or replace table marts.ontario_fy_panel as
