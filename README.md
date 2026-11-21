@@ -213,7 +213,7 @@ Tools and why each was chosen: [Decisions §5](docs/01_decisions.md#5-engineerin
 - [x] Status-quo forecasts and the recommendation impact model, including ROI
 - [x] Nx orchestration + stage generator
 - [ ] Source the highest-impact inputs (Downtown uplift and share, Stay +1 uptake, R2 and R4 cost)
-- [ ] Close the open items in the [source register](docs/04_sources.md#open-items) (proposal document, airport traffic)
+- [ ] Close the open items in the [source register](docs/04_sources.md#open-items) (airport traffic, original citations)
 - [x] Add the City's adopted FY2026–27 budget to `data/`
 - [ ] Load LODES and ACS for the live/work charts
 - [x] Reconcile the proposal's $216.3M sales-tax figure with State Controller actuals (~$139M): Measure Q + Prop 172

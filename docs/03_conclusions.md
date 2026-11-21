@@ -167,9 +167,9 @@ measure effort rather than results. Two design points make the measures credible
 ### R3 Clean, Safe & Green
 - **Get Downtown's taxable sales** from the City's sales-tax consultant. It shows whether $17.5M–$27.5M of net new
   sales a year is a small or a large share of Downtown's base.
-- **State the City's share.** DOIA already funds a maintenance ambassador program from its property assessment,
-  and the City already pays DOIA assessments on its own parcels (budget book p. 100). Building on that is the most
-  direct route to a cost share.
+- **State the City's share.** DOIA's Community Benefit District is funded by Downtown property and business owners,
+  lists security and case-worker services among its planned improvements, and already collects assessments from the
+  City on its own parcels (budget book p. 100). Building on that is the most direct route to a cost share.
 - **Present it as the recommendation with a measurable test**, not as the one that pays for itself.
 
 ### R1 Career Pathways
@@ -192,8 +192,8 @@ measure effort rather than results. Two design points make the measures credible
 | 7 | LODES check of the 15.5% live/work figure | This pipeline (`ingest-lodes`) | R1's baseline |
 | 8 | Preliminary employer and college interest in Career Pathways | Prospective consortium members | Whether R1's scale is realistic |
 
-**Repository gaps to close as well** (tracked in [Sources](04_sources.md#open-items)): add the proposal document or a
-pointer to it, fill the airport-passenger file, and record the original citations for the proposal's figures.
+**Repository gaps to close as well** (tracked in [Sources](04_sources.md#open-items)): fill the airport-passenger
+file, and record the original citations for the proposal's figures.
 
 ## 9. Summary
 

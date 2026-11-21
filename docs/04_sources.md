@@ -99,7 +99,7 @@ City and partners, so the model uses the stated **full program cost** and doesn'
 | `cost_R1` | $75K–$150K | Draft budget table: staffing and project management |
 | `cost_R2_marketing` | $100K–$250K | Draft budget table: technology, data, marketing and outreach. For context, Economic Development's General Fund advertising budget is $900K in FY27 (budget book PDF p. 183) |
 | `cost_R2_circulator` | $190K–$225K | Draft: 1,248 vehicle-hours at about $154 per revenue hour. **Verified 2026-11-20:** Omnitrans *Service Plan FY2026* (May 7, 2025), Exhibit 10, PDF p. 13 projects FY2026 fixed-route operating costs of $95,293K over 620K revenue hours = $153.70 per revenue hour (calculated; the plan doesn't print a per-hour figure). The City's $120K Internal Circulator Planning Study, due December 2026 (PDF pp. 408, 487), should confirm cost and funding |
-| `cost_R3` | $350K–$550K | Draft: small supervised Downtown pilot. DOIA already funds a maintenance ambassador program from its property assessment ([City page](https://ontarioca.gov/node/22583)); the City pays DOIA assessments on its own parcels (PDF p. 100) |
+| `cost_R3` | $350K–$550K | Draft: small supervised Downtown pilot. DOIA administers the Downtown Ontario Community Benefit Improvement District, which it says is "funded entirely by the property and business owners of Downtown Ontario", with security and case-worker services among its planned improvements ([About DOIA](https://downtownontario.org/about-doia/), read 2026-11-20); the City pays DOIA assessments on its own parcels (budget book PDF p. 100) |
 
 Reported results use only the low and high ends of these ranges. A midpoint is stored because the simulation needs
 one, but no simulated result is reported while any input behind it is unsourced (see section 6).
@@ -114,8 +114,8 @@ service-acceptance measure.
 The team's proposal, *Connecting Ontario: Building the Inland Empire's Next Generation Economy*, is the
 content source for the recommendations, phases, budget and the figures in [Background](00_background.md).
 
-> **Gap: the proposal document is not in this repository.** Add it (for example `docs/reference/proposal.pdf`)
-> or record where the authoritative copy lives, so the section references below can be checked.
+> **The proposal document is kept out of this repository on purpose.** The team holds the submission; the
+> repository records only the proposal figures the model uses, in the table below.
 
 Proposal figures used in the code live in `config.PROPOSAL_BENCHMARKS` and `config.PROPOSAL_MEDIAN_WAGES`.
 They are fallbacks: `outputs/tables/headline_metrics.csv` shows, per metric, whether the official value
@@ -168,8 +168,7 @@ The model reports a result only when every input behind it has a source (`offici
 
 ## Open items
 
-1. Add the proposal document, or a pointer to it (section 4).
-2. Fill `ont_airport_passengers.csv` (section 2).
-3. Record where the team keeps the budget book PDF, since it's too large to commit (section 2).
-4. Replace the `TEAM ASSUMPTION` rows, starting with the ones at the top of the sensitivity chart.
-5. Record the original citations for the proposal figures marked "not recorded here" (section 4).
+1. Fill `ont_airport_passengers.csv` (section 2).
+2. Record where the team keeps the budget book PDF, since it's too large to commit (section 2).
+3. Replace the `TEAM ASSUMPTION` rows; `outputs/tables/impact_evidence_gaps.csv` lists them by recommendation.
+4. Record the original citations for the proposal figures marked "not recorded here" (section 4).
